@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from sqlalchemy import select, insert, cast, Boolean, Result, update, and_
+from sqlalchemy import select, insert, cast, Boolean, Result, update, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.database import get_async_session
@@ -54,7 +54,10 @@ async def get_specific_submenu(
 
     result: Result = await session.execute(stmt)
 
-    submenu = result.scalars().all()[0]
+    try:
+        submenu = result.scalars().all()[0]
+    except IndexError:
+        return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 
     return submenu
 
@@ -78,3 +81,19 @@ async def update_submenu(
     await session.commit()
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
+
+
+@router.delete("/{target_menu_id}/submenus/{target_submenu_id}")
+async def delete_submenu(
+        target_menu_id,
+        target_submenu_id,
+        session: AsyncSession = Depends(get_async_session)
+):
+    stmt = delete(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id))
+
+    await session.execute(stmt)
+
+    await session.commit()
+
+    return JSONResponse(content={"status": "success!"}, status_code=200)
+
