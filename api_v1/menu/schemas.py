@@ -1,3 +1,10 @@
+"""
+Модуль для описания pydantic классов.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 20 января 2024
+"""
+
 from pydantic import BaseModel
 
 
