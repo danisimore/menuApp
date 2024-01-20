@@ -8,10 +8,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.config import DB_HOST, DB_USER, DB_NAME, DB_PORT, DB_PASSWORD
-from src.menu.models import Menu
+from api_v1.config import DB_HOST, DB_USER, DB_NAME, DB_PORT, DB_PASSWORD
+from api_v1.menu.models import Menu
 
-sys.path.append(os.path.join(sys.path[0], "src"))
+sys.path.append(os.path.join(sys.path[0], "api_v1"))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
