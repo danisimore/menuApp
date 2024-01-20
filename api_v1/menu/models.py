@@ -1,3 +1,10 @@
+"""
+Модуль для описания класса модели БД.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 20 января 2024
+"""
+
 import os
 import sys
 
@@ -12,6 +19,8 @@ sys.path.append(os.path.join(sys.path[0], "api_v1"))
 class Menu(Base):
     __tablename__ = "menu"
 
-    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, nullable=False)
+    id = Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, nullable=False
+    )
     title = Column(String, nullable=False)
     description = Column(String)

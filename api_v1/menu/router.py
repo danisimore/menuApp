@@ -1,6 +1,13 @@
+"""
+Модуль для реализации CRUD операций с записями из таблицы menu.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 20 января 2024
+"""
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from sqlalchemy import insert, select, Result, update
+from sqlalchemy import insert, select, update, delete, Result, cast, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.database import get_async_session
@@ -8,10 +15,7 @@ from .schemas import MenuCreate, MenuUpdate
 from .models import Menu
 from .utils import get_created_object_dict
 
-router = APIRouter(
-    prefix="/api/v1",
-    tags=["Menu"]
-)
+router = APIRouter(prefix="/api/v1", tags=["Menu"])
 
 
 @router.get("/menus")
@@ -25,7 +29,9 @@ async def get_all_menus(session: AsyncSession = Depends(get_async_session)):
 
 
 @router.post("/menus")
-async def create_menu(new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)) -> JSONResponse:
+async def create_menu(
+    new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
+) -> JSONResponse:
     """
     Функция для обработки POST запроса.
 
@@ -54,7 +60,9 @@ async def create_menu(new_menu_data: MenuCreate, session: AsyncSession = Depends
 
 
 @router.get("/menus/{target_menu_id}")
-async def get_specific_menu(target_menu_id, session: AsyncSession = Depends(get_async_session)):
+async def get_specific_menu(
+    target_menu_id, session: AsyncSession = Depends(get_async_session)
+):
     """
     Функция для вывода меню по заданному id
 
@@ -65,15 +73,20 @@ async def get_specific_menu(target_menu_id, session: AsyncSession = Depends(get_
     Returns: Объект найденной по id записи.
 
     """
+    menu = await session.get(Menu, target_menu_id)
 
-    return await session.get(Menu, target_menu_id)
+    return (
+        await session.get(Menu, target_menu_id)
+        if menu
+        else JSONResponse(content={"detail": "menu not found"}, status_code=404)
+    )
 
 
 @router.patch("/menus/{target_menu_id}")
 async def update_specific_menu(
-        target_menu_id,
-        update_menu_data: MenuUpdate,
-        session: AsyncSession = Depends(get_async_session)
+    target_menu_id,
+    update_menu_data: MenuUpdate,
+    session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки запроса с методом PATCH.
@@ -88,7 +101,12 @@ async def update_specific_menu(
     """
 
     # Генерируем SQL код для того, чтобы обновить данные записи и вернуть их.
-    stmt = update(Menu).values(**update_menu_data.model_dump()).where(Menu.id == target_menu_id).returning(Menu)
+    stmt = (
+        update(Menu)
+        .values(**update_menu_data.model_dump())
+        .where(cast(Menu.id == target_menu_id, Boolean))
+        .returning(Menu)
+    )
 
     # Исполняем SQL код.
     result = await session.execute(stmt)
@@ -103,3 +121,16 @@ async def update_specific_menu(
     await session.commit()
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
+
+
+@router.delete("/menus/{target_menu_id}")
+async def delete_specific_menu(
+    target_menu_id, session: AsyncSession = Depends(get_async_session)
+) -> JSONResponse:
+    stmt = delete(Menu).where(cast(Menu.id == target_menu_id, Boolean))
+
+    await session.execute(stmt)
+
+    await session.commit()
+
+    return JSONResponse(content={"status": "success!"}, status_code=200)
