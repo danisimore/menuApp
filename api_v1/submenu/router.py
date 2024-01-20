@@ -43,3 +43,17 @@ async def create_submenu(
 
     return JSONResponse(content=created_submenu_dict, status_code=201)
 
+
+@router.get("/{target_menu_id}/submenus/{target_submenu_id}")
+async def get_specific_submenu(
+        target_menu_id,
+        target_submenu_id,
+        session: AsyncSession = Depends(get_async_session)
+):
+    stmt = select(Submenu).where(cast(Submenu.menu_id == target_menu_id and Submenu.id == target_submenu_id, Boolean))
+
+    result: Result = await session.execute(stmt)
+
+    submenu = result.scalars().all()[0]
+
+    return submenu
