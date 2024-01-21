@@ -9,7 +9,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from api_v1.config import DB_HOST, DB_USER, DB_NAME, DB_PORT, DB_PASSWORD
-from submenu.models import Submenu
+from dish.models import Dish
 
 sys.path.append(os.path.join(sys.path[0], "api_v1"))
 
@@ -33,7 +33,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Submenu.metadata
+target_metadata = Dish.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
