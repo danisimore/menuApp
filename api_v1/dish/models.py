@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import Column, UUID, String, ForeignKey, DECIMAL
+from sqlalchemy.orm import relationship, backref
 
 from submenu.models import Base
 
@@ -17,5 +18,7 @@ class Dish(Base):
     price = Column(DECIMAL(5, 2), nullable=False)
 
     submenu_id = Column(
-        UUID(as_uuid=True), ForeignKey("submenu.id"), nullable=False, primary_key=False
+        UUID(as_uuid=True), ForeignKey("submenu.id", ondelete="CASCADE"), nullable=False, primary_key=False
     )
+
+    submenu = relationship("Submenu", back_populates="dishes")

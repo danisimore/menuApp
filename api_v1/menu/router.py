@@ -9,10 +9,13 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import insert, select, update, delete, Result, cast, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from database.database import get_async_session
+from submenu.models import Submenu
 from .schemas import MenuCreate, MenuUpdate
 from .models import Menu
+from .services import count_dishes
 from .utils import get_created_object_dict
 
 router = APIRouter(prefix="/api/v1", tags=["Menu"])
@@ -30,7 +33,7 @@ async def get_all_menus(session: AsyncSession = Depends(get_async_session)):
 
 @router.post("/menus")
 async def create_menu(
-    new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
+        new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """
     Функция для обработки POST запроса.
@@ -61,7 +64,7 @@ async def create_menu(
 
 @router.get("/menus/{target_menu_id}")
 async def get_specific_menu(
-    target_menu_id, session: AsyncSession = Depends(get_async_session)
+        target_menu_id, session: AsyncSession = Depends(get_async_session)
 ):
     """
     Функция для вывода меню по заданному id
@@ -73,20 +76,32 @@ async def get_specific_menu(
     Returns: Объект найденной по id записи.
 
     """
-    menu = await session.get(Menu, target_menu_id)
-
-    return (
-        await session.get(Menu, target_menu_id)
-        if menu
-        else JSONResponse(content={"detail": "menu not found"}, status_code=404)
+    stmt = select(Menu).where(Menu.id == target_menu_id).options(
+        selectinload(Menu.submenus)
+        .options(
+            selectinload(Submenu.dishes)
+        )
     )
+    result = await session.execute(stmt)
+
+    menu = result.scalar_one_or_none()
+
+    if menu:
+        menu.submenus_count = menu.submenu_count
+
+        dishes = count_dishes(menu=menu)
+
+        menu.dishes_count = dishes
+        return menu
+    else:
+        return JSONResponse(content={"detail": "menu not found"}, status_code=404)
 
 
 @router.patch("/menus/{target_menu_id}")
 async def update_specific_menu(
-    target_menu_id,
-    update_menu_data: MenuUpdate,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id,
+        update_menu_data: MenuUpdate,
+        session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки запроса с методом PATCH.
@@ -125,7 +140,7 @@ async def update_specific_menu(
 
 @router.delete("/menus/{target_menu_id}")
 async def delete_specific_menu(
-    target_menu_id, session: AsyncSession = Depends(get_async_session)
+        target_menu_id, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     stmt = delete(Menu).where(cast(Menu.id == target_menu_id, Boolean))
 

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, insert, cast, Boolean, Result, update, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from database.database import get_async_session
 from menu.utils import get_created_object_dict
@@ -50,12 +51,14 @@ async def get_specific_submenu(
         target_submenu_id,
         session: AsyncSession = Depends(get_async_session)
 ):
-    stmt = select(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id))
+    stmt = select(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id)).options(
+        selectinload(Submenu.dishes))
 
     result: Result = await session.execute(stmt)
 
     try:
         submenu = result.scalars().all()[0]
+        submenu.dishes_count = submenu.dishes_counter
     except IndexError:
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 
@@ -96,4 +99,3 @@ async def delete_submenu(
     await session.commit()
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
-
