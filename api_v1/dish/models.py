@@ -1,7 +1,14 @@
+"""
+Модуль для описания модели таблицы БД, содержащей данные о блюдах.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 22 января 2024
+"""
+
 import uuid
 
 from sqlalchemy import Column, UUID, String, ForeignKey, DECIMAL
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from submenu.models import Base
 
@@ -15,10 +22,13 @@ class Dish(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
-    price = Column(DECIMAL(5, 2), nullable=False)
+    price = Column(DECIMAL(precision=5, scale=2), nullable=False)
 
     submenu_id = Column(
-        UUID(as_uuid=True), ForeignKey("submenu.id", ondelete="CASCADE"), nullable=False, primary_key=False
+        UUID(as_uuid=True),
+        ForeignKey(column="submenus.id", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=False,
     )
 
-    submenu = relationship("Submenu", back_populates="dishes")
+    submenu = relationship(argument="Submenu", back_populates="dishes")

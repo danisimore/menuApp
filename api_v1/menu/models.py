@@ -20,7 +20,7 @@ sys.path.append(os.path.join(sys.path[0], "api_v1"))
 
 
 class Menu(Base):
-    __tablename__ = "menu"
+    __tablename__ = "menus"
 
     id = Column(
         UUID(as_uuid=True), default=uuid.uuid4, primary_key=True, nullable=False
@@ -28,9 +28,16 @@ class Menu(Base):
     title = Column(String, nullable=False)
     description = Column(String)
 
-    submenus = relationship("Submenu", cascade="all,delete", back_populates="menu")
+    submenus = relationship(
+        argument="Submenu", cascade="all,delete", back_populates="menu"
+    )
 
     @hybrid_property
-    def submenu_count(self):
-        return len(self.submenus)
+    def submenu_count(self) -> int:
+        """
+        Функция для подсчета кол-ва привязанных подменю к меню.
 
+        Returns: int
+
+        """
+        return len(self.submenus)

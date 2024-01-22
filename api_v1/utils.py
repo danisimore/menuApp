@@ -1,12 +1,18 @@
 """
 Модуль для описания функций не связанных с бизнес-логикой. Нормализация данных, приведение их к нужному типу и т.д.
+Общий для всех приложений.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 20 января 2024
 """
+from typing import Union
+
+from dish.models import Dish
+from menu.models import Menu
+from submenu.models import Submenu
 
 
-def get_created_object_dict(created_object) -> dict:
+def get_created_object_dict(created_object: Union[Menu, Dish, Submenu]) -> dict:
     """
     Функция формирует словарь из таблицы для созданной записи.
 

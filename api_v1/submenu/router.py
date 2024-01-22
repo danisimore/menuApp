@@ -1,63 +1,105 @@
+"""
+Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся подменю.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 22 января 2024
+"""
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from sqlalchemy import select, insert, cast, Boolean, Result, update, and_, delete
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from database.database import get_async_session
-from menu.utils import get_created_object_dict
+from services import insert_data
+from utils import get_created_object_dict
+
 from submenu.models import Submenu
 
 from .schemas import CreateSubmenu, UpdateSubmenu
+from .submenu_services import (
+    select_all_submenus,
+    select_specific_submenu,
+    update_submenu,
+    delete_submenu,
+)
 
 router = APIRouter(prefix="/api/v1/menus", tags=["submenu"])
 
 
 @router.get("/{target_menu_id}/submenus")
-async def get_menu_submenus(target_menu_id, session: AsyncSession = Depends(get_async_session)):
-    stmt = select(Submenu).where(cast(Submenu.menu_id == target_menu_id, Boolean))
+async def submenu_get_method(
+    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
+):
+    """
+    Функция для обработки get запроса для выборки всех подменю, связанных с указанным меню.
 
-    result: Result = await session.execute(stmt)
+    Args:
+        target_menu_id: идентификатор меню, для которого идет поиск подменю
+        session: сессия подключения к БД.
 
-    submenus = result.scalars().all()
+    Returns: Список найденных объектов подменю.
+
+    """
+
+    submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
     return submenus
 
 
 @router.post("/{target_menu_id}/submenus")
-async def create_submenu(
-        target_menu_id,
-        submenu_data: CreateSubmenu,
-        session: AsyncSession = Depends(get_async_session)
-):
+async def submenu_post_method(
+    target_menu_id: str,
+    submenu_data: CreateSubmenu,
+    session: AsyncSession = Depends(get_async_session),
+) -> JSONResponse:
+    """
+    Функция для обработки POST запроса.
+
+    Args:
+        target_menu_id: идентификатор меню, с которым будет связано созданное подменю
+        submenu_data: данные подменю, которое будет создано
+        session: сессия подключения к БД.
+
+    Returns:JSONResponse
+
+    """
     submenu_data_dict = submenu_data.model_dump()
     submenu_data_dict["menu_id"] = target_menu_id
-    stmt = insert(Submenu).values(submenu_data_dict).returning(Submenu)
 
-    result = await session.execute(stmt)
+    created_submenu = await insert_data(
+        data_dict=submenu_data_dict, database_model=Submenu, session=session
+    )
 
-    created_submenu = result.scalars().all()[0]
-
-    created_submenu_dict = get_created_object_dict(created_object=created_submenu)
-
-    await session.commit()
-
-    return JSONResponse(content=created_submenu_dict, status_code=201)
+    return JSONResponse(content=created_submenu, status_code=201)
 
 
 @router.get("/{target_menu_id}/submenus/{target_submenu_id}")
-async def get_specific_submenu(
-        target_menu_id,
-        target_submenu_id,
-        session: AsyncSession = Depends(get_async_session)
+async def submenu_get_specific_method(
+    target_menu_id: str,
+    target_submenu_id: str,
+    session: AsyncSession = Depends(get_async_session),
 ):
-    stmt = select(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id)).options(
-        selectinload(Submenu.dishes))
+    """
+    Функция для обработки get запроса по-указанному id.
 
-    result: Result = await session.execute(stmt)
+    Args:
+        target_menu_id: идентификатор меню, с которым должно быть связанно искомое подменю
+        target_submenu_id: идентификатор искомого подменю
+        session: сессия подключения к БД.
 
+    Returns: Если подменю найдено, то объект найденного подменю, если нет, то 404
+
+    """
     try:
-        submenu = result.scalars().all()[0]
+        submenu = await select_specific_submenu(
+            target_menu_id=target_menu_id,
+            target_submenu_id=target_submenu_id,
+            session=session,
+        )
+        # Если подменю было найдено, то получаем его из списка.
+        submenu = submenu[0]
+        # Создаем атрибут dishes_count для отображения кол-ва блюд в подменю
         submenu.dishes_count = submenu.dishes_counter
     except IndexError:
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
@@ -66,36 +108,66 @@ async def get_specific_submenu(
 
 
 @router.patch("/{target_menu_id}/submenus/{target_submenu_id}")
-async def update_submenu(
-        target_menu_id,
-        target_submenu_id,
-        update_submenu_data: UpdateSubmenu,
-        session: AsyncSession = Depends(get_async_session)
-):
-    stmt = update(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id)).values(
-        **update_submenu_data.model_dump()).returning(Submenu)
+async def submenu_patch_method(
+    target_menu_id: str,
+    target_submenu_id: str,
+    update_submenu_data: UpdateSubmenu,
+    session: AsyncSession = Depends(get_async_session),
+) -> JSONResponse:
+    """
+    Функция для обработки PATCH запроса по-указанному id.
 
-    result = await session.execute(stmt)
+    Args:
+        target_menu_id: идентификатор меню, с которым должно быть связанно обновляемое подменю
+        target_submenu_id: идентификатор обновляемого подменю
+        update_submenu_data: данные, на которые нужно обновить текущие
+        session: сессия подключения к БД.
 
-    updated_submenu = result.scalars().all()[0]
+    Returns: JSONResponse
 
-    updated_submenu_dict = get_created_object_dict(updated_submenu)
+    """
 
-    await session.commit()
+    updated_submenu = await update_submenu(
+        target_submenu_id=target_submenu_id,
+        target_menu_id=target_menu_id,
+        update_submenu_data=update_submenu_data,
+        session=session,
+    )
+
+    try:
+        updated_submenu = updated_submenu[0]
+        updated_submenu_dict = get_created_object_dict(updated_submenu)
+    except IndexError:
+        return JSONResponse(
+            content={"detail": "no submenu was found for the specified data"},
+            status_code=404,
+        )
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
 
 
 @router.delete("/{target_menu_id}/submenus/{target_submenu_id}")
-async def delete_submenu(
-        target_menu_id,
-        target_submenu_id,
-        session: AsyncSession = Depends(get_async_session)
-):
-    stmt = delete(Submenu).where(and_(Submenu.menu_id == target_menu_id, Submenu.id == target_submenu_id))
+async def submenu_delete_method(
+    target_menu_id: str,
+    target_submenu_id: str,
+    session: AsyncSession = Depends(get_async_session),
+) -> JSONResponse:
+    """
+    Функция для обработки DELETE запроса по-указанному id.
 
-    await session.execute(stmt)
+    Args:
+        target_menu_id: идентификатор меню, с которым должно быть связанно удаляемое подменю
+        target_submenu_id: идентификатор удаляемого подменю
+        session: сессия подключения к БД.
 
-    await session.commit()
+    Returns: JSONResponse
+
+    """
+
+    await delete_submenu(
+        target_submenu_id=target_submenu_id,
+        target_menu_id=target_menu_id,
+        session=session,
+    )
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
