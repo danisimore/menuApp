@@ -14,6 +14,3 @@ RUN pip install -r requirements.txt
 
 COPY . .
 RUN chmod +x docker/app.sh
-#WORKDIR api_v1
-#
-#CMD gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
