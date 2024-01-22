@@ -1,6 +1,9 @@
 import uuid
 
 from sqlalchemy import String, UUID, ForeignKey, Column
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import relationship
+
 from menu.models import Base
 
 
@@ -11,4 +14,13 @@ class Submenu(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
-    menu_id = Column(UUID(as_uuid=True), ForeignKey("menu.id"), nullable=False, primary_key=False)
+    menu_id = Column(UUID(as_uuid=True), ForeignKey("menu.id", ondelete="CASCADE"), nullable=False, primary_key=False)
+
+    menu = relationship("Menu", back_populates="submenus")
+
+    dishes = relationship("Dish", cascade="all,delete", back_populates="submenu")
+
+    @hybrid_property
+    def dishes_counter(self):
+        return len(self.dishes)
+
