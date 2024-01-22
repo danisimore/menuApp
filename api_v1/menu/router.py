@@ -1,39 +1,53 @@
 """
-Модуль для реализации CRUD операций с записями из таблицы menu.
+Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 20 января 2024
+Дата: 22 января 2024
 """
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from sqlalchemy import insert, select, update, delete, Result, cast, Boolean
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from database.database import get_async_session
+from services import insert_data
 from submenu.models import Submenu
+from utils import get_created_object_dict
+from .menu_services import (
+    select_all_menus,
+    select_specific_menu,
+    update_menu,
+    delete_menu,
+)
+
 from .schemas import MenuCreate, MenuUpdate
 from .models import Menu
-from .services import count_dishes
-from .utils import get_created_object_dict
+from .menu_utils import count_dishes
 
 router = APIRouter(prefix="/api/v1", tags=["Menu"])
 
 
 @router.get("/menus")
-async def get_all_menus(session: AsyncSession = Depends(get_async_session)):
-    stmt = select(Menu)
-    result: Result = await session.execute(stmt)
+async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
+    """
+    Функция для обработки get запроса для получения всех меню.
 
-    menus = result.scalars().all()
+    Args:
+        session: сессия подключения к БД.
+
+    Returns: список объектов найденных меню.
+
+    """
+
+    menus = await select_all_menus(session=session)
 
     return menus
 
 
 @router.post("/menus")
-async def create_menu(
-        new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
+async def menu_post_method(
+    new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """
     Функция для обработки POST запроса.
@@ -46,28 +60,20 @@ async def create_menu(
 
     """
 
-    # Генерируем SQL код для того, чтобы внести данные в таблицу menu и вернуть их.
-    stmt = insert(Menu).values(**new_menu_data.model_dump()).returning(Menu)
-    # Исполняем SQL код.
-    result = await session.execute(stmt)
-    # Получаем объект записи, созданной в БД.
-    created_menu = result.scalars().all()[0]
+    new_menu_data_dict = new_menu_data.model_dump()
+    created_menu = await insert_data(
+        data_dict=new_menu_data_dict, database_model=Menu, session=session
+    )
 
-    # Формируем словарь на основе данных о созданном объекте.
-    created_menu_dict = get_created_object_dict(created_object=created_menu)
-
-    # Делаем коммит для завершения транзакции.
-    await session.commit()
-
-    return JSONResponse(content=created_menu_dict, status_code=201)
+    return JSONResponse(content=created_menu, status_code=201)
 
 
 @router.get("/menus/{target_menu_id}")
-async def get_specific_menu(
-        target_menu_id, session: AsyncSession = Depends(get_async_session)
+async def menu_get_specific_method(
+    target_menu_id, session: AsyncSession = Depends(get_async_session)
 ):
     """
-    Функция для вывода меню по заданному id
+    Функция для обработки get запроса по указанному id.
 
     Args:
         target_menu_id: идентификатор записи, данные о которой необходимо получить;
@@ -76,32 +82,31 @@ async def get_specific_menu(
     Returns: Объект найденной по id записи.
 
     """
-    stmt = select(Menu).where(Menu.id == target_menu_id).options(
-        selectinload(Menu.submenus)
-        .options(
-            selectinload(Submenu.dishes)
-        )
-    )
-    result = await session.execute(stmt)
 
-    menu = result.scalar_one_or_none()
+    menu = await select_specific_menu(
+        target_menu_id=target_menu_id, submenu=Submenu, session=session
+    )
 
     if menu:
+        # Если меню нашлось, то задаем атрибут submenus_count для отображения его в теле ответа
         menu.submenus_count = menu.submenu_count
 
+        # Считаем кол-во блюд, привязанных к текущему меню через привязанные к нему подменю.
         dishes = count_dishes(menu=menu)
 
+        # Устанавливаем атрибут, отображающий в теле ответа кол-во блюд в меню.
         menu.dishes_count = dishes
+
         return menu
     else:
         return JSONResponse(content={"detail": "menu not found"}, status_code=404)
 
 
 @router.patch("/menus/{target_menu_id}")
-async def update_specific_menu(
-        target_menu_id,
-        update_menu_data: MenuUpdate,
-        session: AsyncSession = Depends(get_async_session),
+async def menu_patch_method(
+    target_menu_id: str,
+    update_menu_data: MenuUpdate,
+    session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки запроса с методом PATCH.
@@ -115,37 +120,34 @@ async def update_specific_menu(
 
     """
 
-    # Генерируем SQL код для того, чтобы обновить данные записи и вернуть их.
-    stmt = (
-        update(Menu)
-        .values(**update_menu_data.model_dump())
-        .where(cast(Menu.id == target_menu_id, Boolean))
-        .returning(Menu)
-    )
-
-    # Исполняем SQL код.
-    result = await session.execute(stmt)
-
     # Получаем объект созданной записи.
-    updated_menu = result.scalars().all()[0]
+    updated_menu = await update_menu(
+        update_menu_data=update_menu_data,
+        target_menu_id=target_menu_id,
+        session=session,
+    )
 
     # Формируем словарь на основе этого объекта.
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
-
-    # Делаем коммит для завершения транзакции.
-    await session.commit()
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
 
 @router.delete("/menus/{target_menu_id}")
-async def delete_specific_menu(
-        target_menu_id, session: AsyncSession = Depends(get_async_session)
+async def menu_delete_method(
+    target_menu_id, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
-    stmt = delete(Menu).where(cast(Menu.id == target_menu_id, Boolean))
+    """
+    Функция для обработки запроса с методом DELETE.
 
-    await session.execute(stmt)
+    Args:
+        target_menu_id: id записи, которую необходимо удалить
+        session: сессия подключения к БД.
 
-    await session.commit()
+    Returns: JSONResponse
+
+    """
+
+    await delete_menu(target_menu_id=target_menu_id, session=session)
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
