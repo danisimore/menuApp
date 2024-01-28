@@ -4,68 +4,24 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 27 января 2024
 """
+import os
 
 import pytest
 from httpx import AsyncClient, Response
 
-TITLE_VALUE_TO_CREATE = "Test Menu #1"
-DESCRIPTION_VALUE_TO_CREATE = "Description for the Test Menu #1"
-
-TITLE_VALUE_TO_UPDATE = "Updated title for the Test Menu 1"
-DESCRIPTION_VALUE_TO_UPDATE = "Updated description for the Test Menu 1"
-
-
-def assert_menus_response(response: Response, expected_status_code: int, expected_data: list) -> None:
-    """
-    Функция для проверки на совпадение данных, возвращаемых серверов и данных, которые мы ожидаем увидеть в ответе.
-
-    Args:
-        response: ответ сервера,
-        expected_status_code: ожидаемый статус код от сервера,
-        expected_data: ожидаемые данные от сервера
-
-    Returns:
-        None
-    """
-
-    error_messages = {
-        "wrong_response_body": f"Expected that response body would be equal to {expected_data}, "
-                               f"but it is equal to {response.json()}",
-        "wrong_status_code": f"It was expected that the status code would be {expected_status_code}, "
-                             f"but it was received {response.status_code}",
-    }
-
-    assert response.status_code == expected_status_code, error_messages["wrong_status_code"]
-    assert response.json() == expected_data, error_messages["wrong_response_body"]
-
-
-@pytest.fixture(scope="session")
-async def create_menu_using_post_method_fixture(ac: AsyncClient) -> Response:
-    """
-    Фикстура, которая используется при создании меню с помощью метода POST и используется в дальнейшем, для получения
-    данных из различных эндпоинтов с помощью uuid созданной записи.
-
-    Нужна для получения uuid созданной записи, избежания его повторной генерации, а также для возможности работы с
-    одним объектом на протяжении сессии подключения.
-
-    Args:
-        ac: клиент для асинхронных HTTP запросов
-
-    Returns:
-        Response. Ответ сервера с созданной записью.
-    """
-
-    # Создаем меню.
-    response = await ac.post(
-        url="/api/v1/menus",
-        json={
-            "title": TITLE_VALUE_TO_CREATE,
-            "description": DESCRIPTION_VALUE_TO_CREATE,
-        },
-    )
-
-    # Возвращаем ответ с данными.
-    return response
+from tests_services.services import (
+    assert_response,
+    get_created_object_attribute,
+    save_created_menu_id,
+    test_get_menus_when_table_is_empty
+)
+from tests_services.test_data import (
+    MENU_TITLE_VALUE_TO_CREATE,
+    MENU_TITLE_VALUE_TO_UPDATE,
+    MENU_DESCRIPTION_VALUE_TO_CREATE,
+    MENU_DESCRIPTION_VALUE_TO_UPDATE,
+)
+from tests_services.fixtures import create_menu_using_post_method_fixture
 
 
 @pytest.mark.asyncio
@@ -85,23 +41,20 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
         None
     """
 
-    response = await ac.get(url="/api/v1/menus")
-
-    assert_menus_response(response=response, expected_status_code=200, expected_data=[])
+    await test_get_menus_when_table_is_empty(ac=ac)
 
 
 @pytest.mark.asyncio
 async def test_create_menu_using_post_method(
-        ac: AsyncClient, create_menu_using_post_method_fixture
+        ac: AsyncClient, create_menu_using_post_method_fixture: Response
 ) -> None:
     """
     Тестирование создания меню, путем отправки POST запроса.
 
     Тест проходит успешно, если:
-        1. Код ответа 201;
+        1. Код ответа 201.
         2. title созданной записи, которую вернул сервер, совпадает с переданным title'ом в запросе.
         3. description созданной записи, которую вернул сервер, совпадает с переданным description'ом в запросе.
-    В случае неудачи выводится error_msg.
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
@@ -111,19 +64,16 @@ async def test_create_menu_using_post_method(
         None
     """
 
-    # Делаем POST запрос, используя фикстуру.
-    response: Response = create_menu_using_post_method_fixture
-
     # Получаем uuid, который вернул сервер после создания записи в таблице menus.
-    created_menu_id = response.json()["id"]
+    target_menu_id = save_created_menu_id(create_menu_using_post_method_fixture)
 
-    assert_menus_response(
-        response=response,
+    assert_response(
+        response=create_menu_using_post_method_fixture,
         expected_status_code=201,
         expected_data={
-            "id": created_menu_id,
-            "title": TITLE_VALUE_TO_CREATE,
-            "description": DESCRIPTION_VALUE_TO_CREATE,
+            "id": target_menu_id,
+            "title": MENU_TITLE_VALUE_TO_CREATE,
+            "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
         }
     )
 
@@ -132,6 +82,10 @@ async def test_create_menu_using_post_method(
 async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None:
     """
     Тестирование события получения всех записей из таблицы menus, когда в таблице есть записи.
+
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. Ответ содержит не пустой список.
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
@@ -145,35 +99,35 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
 
 
 @pytest.mark.asyncio
-async def test_get_specific_menu_method(
-        ac: AsyncClient, create_menu_using_post_method_fixture
-):
+async def test_get_specific_menu_method(ac: AsyncClient) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
 
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. title найденной записи, которую вернул сервер, совпадает title'ом созданной ранее записи.
+        3. description найденной записи, которую вернул сервер, совпадает description'ом созданной ранее записи.
+        4. В ответе были данные о подменю, количестве подменю, а также количестве блюд, связанных с меню через все
+           подменю.
+
     Args:
         ac: клиент для асинхронных HTTP запросов.
-        create_menu_using_post_method_fixture: фикстура, которая нужна для получения из кеша данных о созданной записи
-        во время отправки POST запроса.
 
     Returns:
-
+        None
     """
-    # Получаем меню, созданное во время тестирования POST запроса.
-    created_menu_using_post_method: Response = create_menu_using_post_method_fixture
-    # Получаем uuid этого меню.
-    created_menu_id = created_menu_using_post_method.json()["id"]
 
+    target_menu_id = os.environ.get("TARGET_MENU_ID")
     # Сохраняем ответ сервера, делая запрос с параметром uuid.
-    response = await ac.get(url=f"/api/v1/menus/{created_menu_id}")
+    response = await ac.get(url=f"/api/v1/menus/{target_menu_id}")
 
-    assert_menus_response(
+    assert_response(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": created_menu_id,
-            "title": TITLE_VALUE_TO_CREATE,
-            "description": DESCRIPTION_VALUE_TO_CREATE,
+            "id": target_menu_id,
+            "title": MENU_TITLE_VALUE_TO_CREATE,
+            "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
             "submenus": [],
             "submenus_count": 0,
             "dishes_count": 0,
@@ -182,80 +136,77 @@ async def test_get_specific_menu_method(
 
 
 @pytest.mark.asyncio
-async def test_update_menu_using_patch_method(
-        ac: AsyncClient, create_menu_using_post_method_fixture
-) -> None:
+async def test_update_menu_using_patch_method(ac: AsyncClient) -> None:
     """
     Тестирование обновления записи с помощью отправки запроса с методом PATCH
 
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. id обновленной записи совпадает с id созданной ранее записи. Т.е. это должна быть одна и та же запись.
+        3. title обновленной записи возвращаемой сервером, совпадает title'ом из константы, на которую старый title
+           должен быть обновлен.
+        4. description обновленной записи возвращаемой сервером, совпадает description'ом из константы, на которую
+           старый description должен быть обновлен.
+
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
-        create_menu_using_post_method_fixture: фикстура, которая нужна для получения из кеша данных о созданной записи
-        во время отправки POST запроса.
 
     Returns:
         None
     """
 
-    # Получаем меню, созданное во время тестирования POST запроса.
-    created_menu_using_post_method: Response = create_menu_using_post_method_fixture
-
-    # Получаем id
-    created_menu_id = created_menu_using_post_method.json()["id"]
+    target_menu_id = os.environ.get("TARGET_MENU_ID")
 
     response = await ac.patch(
-        url=f"/api/v1/menus/{created_menu_id}",
+        url=f"/api/v1/menus/{target_menu_id}",
         json={
-            "title": TITLE_VALUE_TO_UPDATE,
-            "description": DESCRIPTION_VALUE_TO_UPDATE,
+            "title": MENU_TITLE_VALUE_TO_UPDATE,
+            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
         },
     )
 
-    assert_menus_response(
+    assert_response(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": created_menu_id,
-            "title": TITLE_VALUE_TO_UPDATE,
-            "description": DESCRIPTION_VALUE_TO_UPDATE,
+            "id": target_menu_id,
+            "title": MENU_TITLE_VALUE_TO_UPDATE,
+            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
         }
     )
 
 
 @pytest.mark.asyncio
-async def test_get_specific_menu_method_after_update(
-        ac: AsyncClient, create_menu_using_post_method_fixture
-) -> None:
+async def test_get_specific_menu_method_after_update(ac: AsyncClient) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
+
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. title найденной записи, которую вернул сервер, совпадает title'ом обновленной ранее записи.
+        3. description найденной записи, которую вернул сервер, совпадает description'ом обновленной ранее записи.
+        4. В ответе были данные о подменю, количестве подменю, а также количестве блюд, связанных с меню через все
+           подменю.
 
     Args:
         ac: клиент для асинхронных HTTP запросов,
 
-        create_menu_using_post_method_fixture: фикстура, которая нужна для получения из кеша данных о созданной записи
-        во время отправки POST запроса.
-
     Returns:
         None
     """
 
-    # Получаем меню, созданное вначале тестов.
-    created_menu_using_post_method: Response = create_menu_using_post_method_fixture
-
-    # Получаем его id.
-    created_menu_id = created_menu_using_post_method.json()["id"]
+    target_menu_id = os.environ.get("TARGET_MENU_ID")
 
     # Сохраняем ответ сервера, делая запрос с параметром uuid.
-    response = await ac.get(url=f"/api/v1/menus/{created_menu_id}")
+    response = await ac.get(url=f"/api/v1/menus/{target_menu_id}")
 
-    assert_menus_response(
+    assert_response(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": created_menu_id,
-            "title": TITLE_VALUE_TO_UPDATE,
-            "description": DESCRIPTION_VALUE_TO_UPDATE,
+            "id": target_menu_id,
+            "title": MENU_TITLE_VALUE_TO_UPDATE,
+            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
             "submenus": [],
             "submenus_count": 0,
             "dishes_count": 0,
@@ -264,30 +215,27 @@ async def test_get_specific_menu_method_after_update(
 
 
 @pytest.mark.asyncio
-async def test_delete_menu_method(ac: AsyncClient, create_menu_using_post_method_fixture) -> None:
+async def test_delete_menu_method(ac: AsyncClient) -> None:
     """
     Тест удаления записи.
 
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. Тело ответа от сервера == {"status": "success!"}
+
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
-        create_menu_using_post_method_fixture: фикстура, которая нужна для получения из кеша данных о созданной записи
-        во время отправки POST запроса.
 
     Returns:
         None
     """
 
-    # Получаем меню, созданное вначале.
-    updated_menu_using_patch_method: Response = create_menu_using_post_method_fixture
-
-    # Получаем uuid этого меню.
-    updated_menu_uuid = updated_menu_using_patch_method.json()["id"]
+    target_menu_id = os.environ.get("TARGET_MENU_ID")
 
     # Делаем запрос с методом DELETE.
-    response = await ac.delete(url=f"/api/v1/menus/{updated_menu_uuid}")
+    response = await ac.delete(url=f"/api/v1/menus/{target_menu_id}")
 
-    assert_menus_response(
+    assert_response(
         response=response,
         expected_status_code=200,
         expected_data={"status": "success!"}
@@ -299,6 +247,10 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
     """
     Тестирование события получения всех записей из таблицы menus, когда запись была удалена из таблицы.
 
+    Тест проходит успешно, если:
+        1. Код ответа 200.
+        2. Ответ содержит пустой список.
+
     Args:
         ac: клиент для асинхронных HTTP запросов.
 
@@ -306,36 +258,31 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
         None
     """
 
-    response = await ac.get(url="/api/v1/menus")
-
-    assert_menus_response(response=response, expected_status_code=200, expected_data=[])
+    await test_get_menus_when_table_is_empty(ac=ac)
 
 
 @pytest.mark.asyncio
-async def test_get_specific_menu_method_after_delete(
-        ac: AsyncClient, create_menu_using_post_method_fixture
-) -> None:
+async def test_get_specific_menu_method_after_delete(ac: AsyncClient) -> None:
     """
+    Тестирование получения определенного меню по id, которого не существует в БД.
+
+    Тест проходит успешно, если:
+        1. Код ответа 404.
+        2. Тело ответа от сервера == {"detail": "menu not found"}
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
 
-        create_menu_using_post_method_fixture: фикстура, которая нужна для получения из кеша данных о созданной записи
-        во время отправки POST запроса.
-
     Returns:
         None
     """
-    # Получаем данные меню из кеша, которое создавалось в начале тестов.
-    created_menu_using_patch_method: Response = create_menu_using_post_method_fixture
 
-    # Получаем uuid этого меню.
-    created_menu_uuid = created_menu_using_patch_method.json()["id"]
+    target_menu_id = os.environ.get("TARGET_MENU_ID")
 
     # Сохраняем ответ сервера, делая запрос с параметром uuid.
-    response = await ac.get(url=f"/api/v1/menus/{created_menu_uuid}")
+    response = await ac.get(url=f"/api/v1/menus/{target_menu_id}")
 
-    assert_menus_response(
+    assert_response(
         response=response,
         expected_status_code=404,
         expected_data={"detail": "menu not found"}
