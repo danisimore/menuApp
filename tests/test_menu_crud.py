@@ -12,7 +12,7 @@ from httpx import AsyncClient, Response
 from tests_services.services import (
     assert_response,
     get_created_object_attribute,
-    save_created_menu_id,
+    save_created_object_id,
     test_get_menus_when_table_is_empty
 )
 from tests_services.test_data import (
@@ -32,7 +32,6 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
     Тест проходит успешно, если:
         1. Код ответа 200;
         2. В теле ответа - пустой список.
-    В случае неудачи выводится error_msg.
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
@@ -65,7 +64,7 @@ async def test_create_menu_using_post_method(
     """
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus.
-    target_menu_id = save_created_menu_id(create_menu_using_post_method_fixture)
+    target_menu_id = save_created_object_id(create_menu_using_post_method_fixture, env_name="TARGET_MENU_ID")
 
     assert_response(
         response=create_menu_using_post_method_fixture,
