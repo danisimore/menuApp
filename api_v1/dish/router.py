@@ -2,7 +2,7 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся блюд.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 28 января 2024
 """
 
 from fastapi import APIRouter, Depends
@@ -228,4 +228,4 @@ async def dish_delete_method(
         session=session,
     )
 
-    return JSONResponse(content={"status": "Success!"}, status_code=200)
+    return JSONResponse(content={"status": "success!"}, status_code=200)

@@ -48,24 +48,27 @@ def get_created_object_attribute(response: Response, attribute: str) -> Union[st
     return created_object_attribute
 
 
-def save_created_menu_id(create_menu_using_post_method_fixture: Response) -> str:
+def save_created_object_id(create_object_using_post_method_fixture: Response, env_name: str) -> str:
     """
     Функция сохраняет id созданного меню в переменной окружения и возвращает его в виде строки.
 
     Args:
-        create_menu_using_post_method_fixture: фикстура, для отправки POST запроса на создание меню.
-
+        create_object_using_post_method_fixture: фикстура, для отправки POST запроса на создание меню.
+        env_name: Название переменной окружения, которая будет содержать идентификатор объекта
     Returns:
         str -> uuid созданного меню
     """
 
-    target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture,
+    # Получаем uuid, который вернул сервер после создания записи в таблице.
+    target_object_id = get_created_object_attribute(
+        response=create_object_using_post_method_fixture,
         attribute="id"
     )
-    os.environ["TARGET_MENU_ID"] = target_menu_id
 
-    return target_menu_id
+    # Сохраняем его в переменную окружения, чтобы использовать его в следующих тестах
+    os.environ[env_name] = target_object_id
+
+    return target_object_id
 
 
 async def test_get_menus_when_table_is_empty(ac: AsyncClient) -> None:
