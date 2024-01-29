@@ -24,6 +24,9 @@ from .submenu_services import (
     delete_submenu,
 )
 
+from .submenu_utils import convert_prices_to_str
+
+
 router = APIRouter(prefix="/api/v1/menus", tags=["submenu"])
 
 
@@ -103,6 +106,8 @@ async def submenu_get_specific_method(
         submenu.dishes_count = submenu.dishes_counter
     except IndexError:
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
+
+    convert_prices_to_str(submenu=submenu)
 
     return submenu
 

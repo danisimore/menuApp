@@ -337,9 +337,8 @@ async def test_get_submenus_method_after_delete(ac: AsyncClient) -> None:
 
     target_menu_id = os.environ.get("TARGET_MENU_ID")
 
-    response = await ac.get(f"/api/v1/menus/{target_menu_id}/submenus")
-
-    assert_response(response=response, expected_status_code=200, expected_data=[])
+    url = f"/api/v1/menus/{target_menu_id}/submenus"
+    await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
 
 @pytest.mark.asyncio
