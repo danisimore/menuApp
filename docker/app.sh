@@ -5,5 +5,7 @@ export ENV_FILE=/fastapi_app/.env-prod
 
 sleep 10
 
+alembic revision --autogenerate -m "initial"
 alembic upgrade head
+
 gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
