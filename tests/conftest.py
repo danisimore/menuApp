@@ -14,17 +14,23 @@ from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from config import TEST_DB_USER, TEST_DB_NAME, TEST_DB_HOST, TEST_DB_PORT, TEST_DB_PASSWORD
+from config import (
+    TEST_DB_USER,
+    TEST_DB_NAME,
+    TEST_DB_HOST,
+    TEST_DB_PORT,
+    TEST_DB_PASSWORD,
+)
 from database.database import get_async_session
 from dish.models import Dish
 from main import app
 
-DATABASE_URL = (
-    f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
-)
+DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 
 test_engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
-async_session_maker = sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+async_session_maker = sessionmaker(
+    test_engine, expire_on_commit=False, class_=AsyncSession
+)
 Dish.metadata.bind = test_engine
 
 

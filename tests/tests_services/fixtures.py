@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 27 января 2024
 """
+
 import os
 
 import pytest
@@ -11,13 +12,11 @@ from httpx import AsyncClient, Response
 from .test_data import (
     MENU_TITLE_VALUE_TO_CREATE,
     MENU_DESCRIPTION_VALUE_TO_CREATE,
-
     SUBMENU_TITLE_VALUE_TO_CREATE,
     SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-
     DISH_TITLE_VALUE_TO_CREATE,
     DISH_DESCRIPTION_VALUE_TO_CREATE,
-    DISH_PRICE_TO_CREATE
+    DISH_PRICE_TO_CREATE,
 )
 from tests_services.services import get_created_object_attribute
 
@@ -53,8 +52,7 @@ async def create_menu_using_post_method_fixture(ac: AsyncClient) -> Response:
 
 @pytest.fixture(scope="session")
 async def create_submenu_using_post_method_fixture(
-        ac: AsyncClient,
-        create_menu_using_post_method_fixture: Response
+    ac: AsyncClient, create_menu_using_post_method_fixture: Response
 ) -> Response:
     """
     Фикстура, которая используется при создании подменю с помощью метода POST и используется в дальнейшем, для получения
@@ -85,11 +83,10 @@ async def create_submenu_using_post_method_fixture(
 
 @pytest.fixture(scope="session")
 async def create_dish_using_post_method_fixture(
-        ac: AsyncClient,
-        create_menu_using_post_method_fixture: Response,
-        create_submenu_using_post_method_fixture: Response
+    ac: AsyncClient,
+    create_menu_using_post_method_fixture: Response,
+    create_submenu_using_post_method_fixture: Response,
 ) -> Response:
-
     target_menu_id = os.environ.get("TARGET_MENU_ID")
     target_submenu_id = os.environ.get("TARGET_SUBMENU_ID")
 
@@ -99,7 +96,7 @@ async def create_dish_using_post_method_fixture(
         json={
             "title": DISH_TITLE_VALUE_TO_CREATE,
             "description": DISH_DESCRIPTION_VALUE_TO_CREATE,
-            "price": str(DISH_PRICE_TO_CREATE)
+            "price": str(DISH_PRICE_TO_CREATE),
         },
     )
 
