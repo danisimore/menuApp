@@ -5,6 +5,7 @@ export ENV_FILE=/fastapi_app/.env-prod
 
 sleep 10
 
+mkdir -p alembic/versions
 alembic revision --autogenerate -m "initial"
 alembic upgrade head
 
