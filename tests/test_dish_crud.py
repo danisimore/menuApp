@@ -140,6 +140,18 @@ async def test_get_dishes_method_when_table_is_empty(ac: AsyncClient) -> None:
 async def test_create_dish_using_post_method(
     ac: AsyncClient, create_dish_using_post_method_fixture
 ) -> None:
+    """
+    Тестирование создания блюда, путем отправки POST запроса.
+
+    Args:
+        ac: клиент для асинхронных HTTP запросов.
+        create_dish_using_post_method_fixture: фикстура, представляющая собой закешированый ответ сервера на POST
+        запрос на создание блюда.
+
+    Returns:
+        None
+    """
+
     # Получаем id созданного меню, к которому должно быть привязано подменю
     target_submenu_id = os.environ.get("TARGET_SUBMENU_ID")
 
@@ -355,11 +367,9 @@ async def test_get_dishes_method_after_delete(ac: AsyncClient) -> None:
     target_menu_id = os.environ.get("TARGET_MENU_ID")
     target_submenu_id = os.environ.get("TARGET_SUBMENU_ID")
 
-    response = await ac.get(
-        url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes"
-    )
+    url = f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes"
 
-    assert_response(response=response, expected_status_code=200, expected_data=[])
+    await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
 
 @pytest.mark.asyncio

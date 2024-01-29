@@ -2,7 +2,7 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 29 января 2024 - добавлено преобразование цен блюд из Decimal к строке
 """
 
 from fastapi import APIRouter, Depends
@@ -23,7 +23,7 @@ from .menu_services import (
 
 from .schemas import MenuCreate, MenuUpdate
 from .models import Menu
-from .menu_utils import count_dishes
+from .menu_utils import count_dishes, convert_prices_to_str
 
 router = APIRouter(prefix="/api/v1", tags=["Menu"])
 
@@ -96,7 +96,7 @@ async def menu_get_specific_method(
 
         # Устанавливаем атрибут, отображающий в теле ответа кол-во блюд в меню.
         menu.dishes_count = dishes
-
+        convert_prices_to_str(menu)
         return menu
     else:
         return JSONResponse(content={"detail": "menu not found"}, status_code=404)

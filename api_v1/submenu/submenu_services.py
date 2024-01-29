@@ -45,7 +45,7 @@ async def select_specific_submenu(
     session: AsyncSession = Depends(get_async_session),
 ) -> list:
     """
-    Функция для выборки определнного подменю.
+    Функция для выборки определенного подменю.
 
     Args:
         target_menu_id: идентификатор меню, с которым должно быть связанно искомое подменю

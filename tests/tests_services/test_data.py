@@ -19,8 +19,14 @@ SUBMENU_DESCRIPTION_VALUE_TO_UPDATE = "Updated description for the Test SubMenu 
 
 
 DISH_TITLE_VALUE_TO_CREATE = "Test Dish #1"
+SECOND_DISH_TITLE_VALUE_TO_CREATE = "Test Dish #2"
+
 DISH_DESCRIPTION_VALUE_TO_CREATE = "Description for the Test Dish #1"
+SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE = "Description for the Test Dish #2"
+
 DISH_PRICE_TO_CREATE = Decimal("20.50")
+SECOND_DISH_PRICE_TO_CREATE = Decimal("50.23")
+
 DISH_TITLE_VALUE_TO_UPDATE = "Updated title for the Test Dish #1"
 DISH_DESCRIPTION_VALUE_TO_UPDATE = "Updated description for the Test Dish #1"
 DISH_PRICE_TO_UPDATE = Decimal("30.67")
