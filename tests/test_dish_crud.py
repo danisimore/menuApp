@@ -39,17 +39,14 @@ from tests_utils.test_data import (
     DISH_PRICE_TO_UPDATE,
 )
 
-from menu_services_for_tests import (
+from tests_services.menu_services_for_tests import (
     get_menu_data_from_db_without_counters,
     get_all_menus_data
 )
 
-from submenu_services_for_tests import (
-    get_submenus_data_from_db,
-    get_specific_submenu_data_from_db
-)
+from tests_services.submenu_services_for_tests import get_submenus_data_from_db, get_specific_submenu_data_from_db
 
-from dish_services_for_tests import (
+from tests_services.dish_services_for_tests import (
     get_first_dish_data_from_db,
     get_specific_dish_data_from_db
 )
@@ -639,7 +636,7 @@ async def test_get_submenus_after_delete_from_dish_method(
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    submenus_data = await get_submenu_data_from_db()
+    submenus_data = await get_submenus_data_from_db()
     assert submenus_data == response.json()
 
 

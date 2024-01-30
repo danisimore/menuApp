@@ -39,20 +39,16 @@ from tests_utils.test_data import (
     SECOND_DISH_PRICE_TO_CREATE,
 )
 
-from menu_services_for_tests import (
+from tests_services.menu_services_for_tests import (
     get_menu_data_from_db_without_counters,
     get_all_menus_data,
     get_menu_data_from_db_without_counters,
     get_menu_data_from_db_with_counters,
 )
 
-from submenu_services_for_tests import (
-    get_submenus_data_from_db,
-    get_specific_submenu_data_from_db,
-    format_dishes
-)
+from tests_services.submenu_services_for_tests import get_submenus_data_from_db, get_specific_submenu_data_from_db, format_dishes
 
-from dish_services_for_tests import (
+from tests_services.dish_services_for_tests import (
     get_first_dish_data_from_db,
     get_specific_dish_data_from_db,
     get_second_dish_data_from_db

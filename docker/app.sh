@@ -3,7 +3,7 @@
 export PYTHONPATH=/fastapi_app/api_v1
 export ENV_FILE=/fastapi_app/.env-prod
 
-sleep 10
+sleep 5
 
 mkdir -p alembic/versions
 alembic revision --autogenerate -m "initial"

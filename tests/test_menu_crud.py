@@ -27,7 +27,7 @@ from tests_utils.test_data import (
 
 from tests_utils.fixtures import create_menu_using_post_method_fixture
 
-from menu_services_for_tests import (
+from tests_services.menu_services_for_tests import (
     get_menu_data_from_db_without_counters,
     get_menu_data_from_db_with_counters,
     get_all_menus_data
