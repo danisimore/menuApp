@@ -1,9 +1,36 @@
+"""
+Модуль с операциями взаимодействия с БД, которые касаются тестов для подменю.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 31 января 2024
+"""
+
 from conftest import async_session_maker
 from menu.menu_services import select_all_menus, select_specific_menu
 from submenu.submenu_services import select_all_submenus, select_specific_submenu
 
 
-async def get_submenu_data_from_db():
+async def format_dishes(dishes) -> None:
+    """
+    Функция для преобразования блюд к словарю (json).
+
+    Returns:
+        None
+    """
+    dishes_list = []
+    for dish in dishes:
+        dishes_list.append(dish.json())
+
+    return dishes_list
+
+
+async def get_submenus_data_from_db() -> None:
+    """
+    Выборка всех подменю из БД
+
+    Returns:
+        None
+    """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
@@ -22,7 +49,13 @@ async def get_submenu_data_from_db():
             return []
 
 
-async def get_specific_submenu_data_from_db():
+async def get_specific_submenu_data_from_db() -> None:
+    """
+    Выборка определенного подменю из БД
+
+    Returns:
+        None
+    """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были

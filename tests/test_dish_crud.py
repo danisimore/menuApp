@@ -2,7 +2,7 @@
 Модуль для тестирования CRUD операций, связанных с блюдами.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 30 января 2024 | Избавился от общих переменных.
+Дата: 31 января 2024 | Добавлены тесты для сравнения ответа и данных из БД
 """
 
 import os
@@ -45,12 +45,12 @@ from menu_services_for_tests import (
 )
 
 from submenu_services_for_tests import (
-    get_submenu_data_from_db,
+    get_submenus_data_from_db,
     get_specific_submenu_data_from_db
 )
 
 from dish_services_for_tests import (
-    get_dishes_data_from_db,
+    get_first_dish_data_from_db,
     get_specific_dish_data_from_db
 )
 
@@ -110,7 +110,7 @@ async def test_create_submenu_from_dish_using_post_method(
     response = create_submenu_using_post_method_fixture
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    submenus_data = await get_submenu_data_from_db()
+    submenus_data = await get_submenus_data_from_db()
     assert submenus_data[0] == response.json()
 
 
@@ -154,7 +154,7 @@ async def test_get_dishes_method_when_table_is_empty(
     assert_response(response=response, expected_status_code=200, expected_data=[])
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data == []
 
 
@@ -178,7 +178,7 @@ async def test_create_dish_using_post_method(
     response = create_dish_using_post_method_fixture
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data[0] == response.json()
 
 
@@ -225,7 +225,7 @@ async def test_get_dishes_method_when_table_is_not_empty(
     response_json[0]["price"] = "{:.2f}".format(response_json[0]["price"])
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data == response_json
 
 
@@ -362,7 +362,7 @@ async def test_update_dish_using_patch_method(
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data[0] == response.json()
 
 
@@ -475,7 +475,7 @@ async def test_delete_dish_method(
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data == []
 
 
@@ -516,7 +516,7 @@ async def test_get_dishes_method_after_delete(
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    dishes_data = await get_dishes_data_from_db()
+    dishes_data = await get_first_dish_data_from_db()
     assert dishes_data == response.json()
 
 
@@ -607,7 +607,7 @@ async def test_delete_submenu_from_dish_method(
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
-    submenus_data = await get_submenu_data_from_db()
+    submenus_data = await get_submenus_data_from_db()
     assert submenus_data == []
 
 

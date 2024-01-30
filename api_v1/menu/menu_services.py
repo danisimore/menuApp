@@ -5,7 +5,7 @@
 Дата: 22 января 2024
 """
 
-from sqlalchemy import select, update, cast, Boolean, delete, func
+from sqlalchemy import select, update, cast, Boolean, delete, func, distinct
 
 from sqlalchemy import Result
 from sqlalchemy.orm import selectinload
@@ -13,9 +13,6 @@ from sqlalchemy.orm import selectinload
 from menu.models import Menu
 from dish.models import Dish
 from submenu.models import Submenu
-
-# def make_json(menus_with_counts):
-#     for menu, submenu_count, dishes_count in menus_with_counts:
 
 
 async def select_all_menus(session):
@@ -53,8 +50,8 @@ async def select_specific_menu(target_menu_id: str, session):
     stmt = (
         select(
             Menu,
-            func.count(Submenu.id).label('submenu_count'),
-            func.count(Dish.id).label('dishes_count'))
+            func.count(distinct(Submenu.id)).label('submenus_count'),
+            func.count(distinct(Dish.id)).label('dishes_count'))
         .outerjoin(Submenu, Submenu.menu_id == Menu.id)
         .outerjoin(Dish, Dish.submenu_id == Submenu.id)
         .group_by(Menu.id)).where(Menu.id == target_menu_id)

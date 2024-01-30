@@ -1,8 +1,21 @@
+"""
+Модуль с операциями взаимодействия с БД, которые касаются тестов для меню.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 31 января 2024
+"""
+
 from conftest import async_session_maker
 from menu.menu_services import select_all_menus, select_specific_menu
 
 
-async def get_all_menus_data():
+async def get_all_menus_data() -> None:
+    """
+    Выборка всех меню из БД
+
+    Returns:
+        None
+    """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         menus_data = await select_all_menus(session=session)
@@ -16,7 +29,13 @@ async def get_all_menus_data():
             return []
 
 
-async def get_menu_data_from_db_without_counters():
+async def get_menu_data_from_db_without_counters() -> None:
+    """
+    Выборка определенного меню без счетчиков.
+
+    Returns:
+        None
+    """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         # Получаем все меню.
@@ -27,7 +46,13 @@ async def get_menu_data_from_db_without_counters():
         return menu_data_json
 
 
-async def get_menu_data_from_db_with_counters():
+async def get_menu_data_from_db_with_counters() -> None:
+    """
+    Выборка определенного меню с счетчиками.
+
+    Returns:
+        None
+    """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
