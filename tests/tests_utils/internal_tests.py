@@ -14,7 +14,7 @@ from .utils import get_created_object_attribute
 
 
 def assert_response(
-    response: Response, expected_status_code: int, expected_data: list
+        response: Response, expected_status_code: int, expected_data: list
 ) -> None:
     """
     Функция для проверки на совпадение данных, возвращаемых серверов и данных, которые мы ожидаем увидеть в ответе.
@@ -30,9 +30,9 @@ def assert_response(
 
     error_messages = {
         "wrong_response_body": f"Expected that response body would be equal to {expected_data}, "
-        f"but it is equal to {response.json()}",
+                               f"but it is equal to {response.json()}",
         "wrong_status_code": f"It was expected that the status code would be {expected_status_code}, "
-        f"but it was received {response.status_code}",
+                             f"but it was received {response.status_code}",
     }
 
     assert response.status_code == expected_status_code, error_messages[
@@ -42,7 +42,7 @@ def assert_response(
 
 
 async def get_object_when_table_is_empty_internal_test(
-    ac: AsyncClient, url: str
+        ac: AsyncClient, url: str
 ) -> None:
     """
     Тестирование получения объектов из пустой таблицы.
@@ -60,8 +60,8 @@ async def get_object_when_table_is_empty_internal_test(
 
 
 async def create_object_internal_test(
-    create_object_using_post_method_fixture: Response,
-    expected_data: dict,
+        create_object_using_post_method_fixture: Response,
+        expected_data: dict,
 ) -> None:
     """
     Функция для создания записи в таблице БД.
@@ -112,9 +112,8 @@ async def delete_object_internal_test(ac: AsyncClient, url: str) -> None:
     )
 
 
-
 async def get_objects_when_table_is_not_empty_internal_test(
-    ac: AsyncClient, url: str
+        ac: AsyncClient, url: str
 ) -> None:
     """
     Тестирование получения объектов из таблицы, в которой есть записи.
@@ -135,7 +134,7 @@ async def get_objects_when_table_is_not_empty_internal_test(
 
 
 async def get_specific_object_when_table_is_empty_internal_test(
-    ac: AsyncClient, url: str, expected_data: dict
+        ac: AsyncClient, url: str, expected_data: dict
 ) -> None:
     """
     Тестирование получения определенного объекта из пустой таблицы.
