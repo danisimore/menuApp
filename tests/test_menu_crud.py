@@ -2,7 +2,7 @@
 Модуль для тестирования CRUD операций, связанных с меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 29 января 2024
+Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
 import os
@@ -19,6 +19,8 @@ from tests_services.internal_tests import (
     get_objects_when_table_is_not_empty_internal_test,
     get_specific_object_when_table_is_empty_internal_test,
 )
+
+from tests_services.services import get_created_object_attribute
 
 from tests_services.test_data import (
     MENU_TITLE_VALUE_TO_CREATE,
@@ -54,7 +56,7 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_create_menu_using_post_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: Response
 ) -> None:
     """
     Тестирование создания меню, путем отправки POST запроса.
@@ -75,7 +77,6 @@ async def test_create_menu_using_post_method(
     # Используем тест, который создает объект и проверяет возвращаемые данные на соответствие ожидаемым.
     await create_object_internal_test(
         create_object_using_post_method_fixture=create_menu_using_post_method_fixture,
-        env_name="TARGET_MENU_ID",
         expected_data={
             "title": MENU_TITLE_VALUE_TO_CREATE,
             "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
@@ -106,7 +107,7 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
 
 
 @pytest.mark.asyncio
-async def test_get_specific_menu_method(ac: AsyncClient) -> None:
+async def test_get_specific_menu_method(ac: AsyncClient, create_menu_using_post_method_fixture: Response) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
 
@@ -119,12 +120,12 @@ async def test_get_specific_menu_method(ac: AsyncClient) -> None:
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
+        create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос
     Returns:
         None
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
 
     url = f"/api/v1/menus/{target_menu_id}"
 
@@ -145,7 +146,7 @@ async def test_get_specific_menu_method(ac: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_menu_using_patch_method(ac: AsyncClient) -> None:
+async def test_update_menu_using_patch_method(ac: AsyncClient, create_menu_using_post_method_fixture: Response) -> None:
     """
     Тестирование обновления записи с помощью отправки запроса с методом PATCH
 
@@ -159,12 +160,12 @@ async def test_update_menu_using_patch_method(ac: AsyncClient) -> None:
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
+        create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос
     Returns:
         None
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
 
     url = f"/api/v1/menus/{target_menu_id}"
 
@@ -188,7 +189,10 @@ async def test_update_menu_using_patch_method(ac: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_specific_menu_method_after_update(ac: AsyncClient) -> None:
+async def test_get_specific_menu_method_after_update(
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: Response
+) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
 
@@ -201,12 +205,12 @@ async def test_get_specific_menu_method_after_update(ac: AsyncClient) -> None:
 
     Args:
         ac: клиент для асинхронных HTTP запросов,
-
+        create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос
     Returns:
         None
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
 
     url = f"/api/v1/menus/{target_menu_id}"
 
@@ -228,7 +232,7 @@ async def test_get_specific_menu_method_after_update(ac: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
-async def test_delete_menu_method(ac: AsyncClient) -> None:
+async def test_delete_menu_method(ac: AsyncClient, create_menu_using_post_method_fixture: Response) -> None:
     """
     Тест удаления записи.
 
@@ -238,12 +242,15 @@ async def test_delete_menu_method(ac: AsyncClient) -> None:
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
+        create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос.
     Returns:
         None
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(
+        response=create_menu_using_post_method_fixture,
+        attribute="id"
+    )
 
     url = f"/api/v1/menus/{target_menu_id}"
 
@@ -275,6 +282,7 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_get_specific_menu_method_after_delete(
     ac: AsyncClient,
+    create_menu_using_post_method_fixture: Response
 ) -> None:
     """
     Тестирование получения определенного меню по id, которого не существует в БД.
@@ -285,12 +293,15 @@ async def test_get_specific_menu_method_after_delete(
 
     Args:
         ac: клиент для асинхронных HTTP запросов.
-
+        create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос
     Returns:
         None
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(
+        response=create_menu_using_post_method_fixture,
+        attribute="id"
+    )
 
     url = f"/api/v1/menus/{target_menu_id}"
 

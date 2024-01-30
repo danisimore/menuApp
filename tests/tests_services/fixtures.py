@@ -2,7 +2,7 @@
 Модуль с описанием фикстур, которые позволят пользоваться закешированными данными о созданных записях.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 27 января 2024
+Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
 import os
@@ -72,7 +72,7 @@ async def create_submenu_using_post_method_fixture(
         Response. Ответ сервера с созданной записью.
     """
 
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
 
     # Создаем подменю.
     create_submenu_response = await ac.post(
@@ -111,8 +111,12 @@ async def create_dish_using_post_method_fixture(
         create_menu_using_post_method_fixture: Response,
         create_submenu_using_post_method_fixture: Response,
 ) -> Response:
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
-    target_submenu_id = os.environ.get("TARGET_SUBMENU_ID")
+
+    # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
+
+    # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
+    target_submenu_id = get_created_object_attribute(response=create_submenu_using_post_method_fixture, attribute="id")
 
     # Создаем первое блюдо.
     create_dish_response = await create_dish(
@@ -134,8 +138,12 @@ async def create_second_dish_using_post_method_fixture(
         create_menu_using_post_method_fixture: Response,
         create_submenu_using_post_method_fixture: Response,
 ) -> Response:
-    target_menu_id = os.environ.get("TARGET_MENU_ID")
-    target_submenu_id = os.environ.get("TARGET_SUBMENU_ID")
+
+    # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
+    target_menu_id = get_created_object_attribute(response=create_menu_using_post_method_fixture, attribute="id")
+
+    # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
+    target_submenu_id = get_created_object_attribute(response=create_submenu_using_post_method_fixture, attribute="id")
 
     # Создаем второе блюдо.
     create_dish_response = await create_dish(
