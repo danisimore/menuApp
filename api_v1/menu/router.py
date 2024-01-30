@@ -83,20 +83,15 @@ async def menu_get_specific_method(
 
     """
 
-    menu = await select_specific_menu(
-        target_menu_id=target_menu_id, submenu=Submenu, session=session
+    menu_data = await select_specific_menu(
+        target_menu_id=target_menu_id, session=session
     )
 
-    if menu:
-        # Если меню нашлось, то задаем атрибут submenus_count для отображения его в теле ответа
-        menu.submenus_count = menu.submenu_count
+    if menu_data:
+        menu = menu_data[0][0]
+        menu.submenus_count = menu_data[0][1]
+        menu.dishes_count = menu_data[0][2]
 
-        # Считаем кол-во блюд, привязанных к текущему меню через привязанные к нему подменю.
-        dishes = count_dishes(menu=menu)
-
-        # Устанавливаем атрибут, отображающий в теле ответа кол-во блюд в меню.
-        menu.dishes_count = dishes
-        convert_prices_to_str(menu)
         return menu
     else:
         return JSONResponse(content={"detail": "menu not found"}, status_code=404)
