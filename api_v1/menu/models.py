@@ -35,7 +35,7 @@ class Menu(Base):
 
         if hasattr(self, 'submenus_count') and hasattr(self, 'dishes_count'):
             return {
-                "id": self.id,
+                "id": str(self.id),
                 "title": self.title,
                 "description": self.description,
                 "submenus_count": self.submenus_count,
@@ -43,7 +43,7 @@ class Menu(Base):
             }
         else:
             return {
-                "id": self.id,
+                "id": str(self.id),
                 "title": self.title,
                 "description": self.description,
             }

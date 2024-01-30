@@ -112,6 +112,7 @@ async def delete_object_internal_test(ac: AsyncClient, url: str) -> None:
     )
 
 
+
 async def get_objects_when_table_is_not_empty_internal_test(
     ac: AsyncClient, url: str
 ) -> None:
@@ -152,3 +153,5 @@ async def get_specific_object_when_table_is_empty_internal_test(
     assert_response(
         response=response, expected_status_code=404, expected_data=expected_data
     )
+
+    return response

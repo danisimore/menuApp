@@ -5,20 +5,12 @@
 Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
-import os
-
 import pytest
 from httpx import AsyncClient, Response
-
-from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload
-
-from menu.menu_services import select_all_menus, select_specific_menu
 
 from tests_utils.internal_tests import (
     assert_response,
     get_object_when_table_is_empty_internal_test,
-    create_object_internal_test,
     delete_object_internal_test,
     get_objects_when_table_is_not_empty_internal_test,
     get_specific_object_when_table_is_empty_internal_test,
@@ -37,16 +29,9 @@ from tests_utils.fixtures import create_menu_using_post_method_fixture
 
 from menu_services_for_tests import (
     get_menu_data_from_db_without_counters,
-    get_all_menus_data_from_empty_table,
-    get_all_menus_data_from_table_with_data,
-    get_menu_data_from_db_with_counters
+    get_menu_data_from_db_with_counters,
+    get_all_menus_data
 )
-
-from conftest import async_session_maker
-
-from menu.models import Menu
-from submenu.models import Submenu
-from dish.models import Dish
 
 
 @pytest.mark.asyncio
@@ -71,7 +56,7 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    menus = await get_all_menus_data_from_empty_table()
+    menus = await get_all_menus_data()
 
     assert menus == response.json()
 
@@ -125,7 +110,7 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
     response = await get_objects_when_table_is_not_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    menu_data = await get_all_menus_data_from_table_with_data()
+    menu_data = await get_all_menus_data()
     assert menu_data == response.json()
 
 
@@ -304,7 +289,7 @@ async def test_delete_menu_method(
     await delete_object_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные были удалены
-    menus_data = await get_all_menus_data_from_empty_table()
+    menus_data = await get_all_menus_data()
     assert menus_data == []
 
 
@@ -329,7 +314,7 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    menus_data = await get_all_menus_data_from_empty_table()
+    menus_data = await get_all_menus_data()
 
     assert menus_data == response.json()
 
@@ -364,5 +349,5 @@ async def test_get_specific_menu_method_after_delete(
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    menu_data = await get_all_menus_data_from_empty_table()
+    menu_data = await get_all_menus_data()
     assert menu_data == []

@@ -17,6 +17,16 @@ from tests_utils.internal_tests import (
     get_specific_object_when_table_is_empty_internal_test,
 )
 
+from menu_services_for_tests import (
+    get_menu_data_from_db_without_counters,
+    get_all_menus_data
+)
+
+from submenu_services_for_tests import (
+    get_submenu_data_from_db,
+    get_specific_submenu_data_from_db
+)
+
 from tests_utils.fixtures import (
     create_menu_using_post_method_fixture,
     create_submenu_using_post_method_fixture,
@@ -25,8 +35,6 @@ from tests_utils.fixtures import (
 from tests_utils.utils import get_created_object_attribute
 
 from tests_utils.test_data import (
-    MENU_TITLE_VALUE_TO_CREATE,
-    MENU_DESCRIPTION_VALUE_TO_CREATE,
     SUBMENU_TITLE_VALUE_TO_CREATE,
     SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
     SUBMENU_TITLE_VALUE_TO_UPDATE,
@@ -55,13 +63,11 @@ async def test_create_menu_from_submenu_using_post_method(
         None
     """
 
-    await create_object_internal_test(
-        create_object_using_post_method_fixture=create_menu_using_post_method_fixture,
-        expected_data={
-            "title": MENU_TITLE_VALUE_TO_CREATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
-        },
-    )
+    response = create_menu_using_post_method_fixture
+
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    menu_data = await get_menu_data_from_db_without_counters()
+    assert menu_data == response.json()
 
 
 @pytest.mark.asyncio
@@ -96,6 +102,10 @@ async def test_get_submenus_for_created_menu_method_when_table_is_empty(
         expected_data={"detail": "Not Found"},
     )
 
+    # Проверяем, что для созданного меню действительно не существует подменю
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data == []
+
 
 @pytest.mark.asyncio
 async def test_create_submenu_using_post_method(
@@ -122,19 +132,11 @@ async def test_create_submenu_using_post_method(
         None
     """
 
-    # Получаем id созданного меню, к которому должно быть привязано подменю
-    target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
-    )
+    response = create_submenu_using_post_method_fixture
 
-    await create_object_internal_test(
-        create_object_using_post_method_fixture=create_submenu_using_post_method_fixture,
-        expected_data={
-            "title": SUBMENU_TITLE_VALUE_TO_CREATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-            "menu_id": target_menu_id,
-        },
-    )
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data[0] == response.json()
 
 
 @pytest.mark.asyncio
@@ -162,9 +164,13 @@ async def test_get_submenus_method_when_table_is_not_empty(
         response=create_menu_using_post_method_fixture, attribute="id"
     )
 
-    await get_objects_when_table_is_not_empty_internal_test(
+    response = await get_objects_when_table_is_not_empty_internal_test(
         ac=ac, url=f"/api/v1/menus/{target_menu_id}/submenus"
     )
+
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data == response.json()
 
 
 @pytest.mark.asyncio
@@ -214,10 +220,13 @@ async def test_get_specific_submenu_method(
             "title": SUBMENU_TITLE_VALUE_TO_CREATE,
             "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
             "menu_id": target_menu_id,
-            "dishes": [],
-            "dishes_count": 0,
+            "dishes": []
         },
     )
+
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    submenus_data = await get_specific_submenu_data_from_db()
+    assert submenus_data[0].json() == response.json()
 
 
 @pytest.mark.asyncio
@@ -272,8 +281,13 @@ async def test_update_submenu_using_patch_method(
             "title": SUBMENU_TITLE_VALUE_TO_UPDATE,
             "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
             "menu_id": target_menu_id,
+            "dishes": []
         },
     )
+
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data[0] == response.json()
 
 
 @pytest.mark.asyncio
@@ -323,9 +337,12 @@ async def test_get_specific_submenu_method_after_update(
             "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
             "menu_id": target_menu_id,
             "dishes": [],
-            "dishes_count": 0,
         },
     )
+
+    # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data[0] == response.json()
 
 
 @pytest.mark.asyncio
@@ -364,6 +381,10 @@ async def test_delete_submenu_method(
         ac=ac, url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}"
     )
 
+    # Проверяем, что для созданного меню действительно не существует подменю
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data == []
+
 
 @pytest.mark.asyncio
 async def test_get_submenus_method_after_delete(
@@ -390,7 +411,11 @@ async def test_get_submenus_method_after_delete(
     )
 
     url = f"/api/v1/menus/{target_menu_id}/submenus"
-    await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
+    response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
+
+    # Проверяем, что для созданного меню действительно не существует подменю
+    submenus_data = await get_submenu_data_from_db()
+    assert submenus_data == response.json()
 
 
 @pytest.mark.asyncio
@@ -425,11 +450,15 @@ async def test_get_specific_submenu_method_after_delete(
         response=create_submenu_using_post_method_fixture, attribute="id"
     )
 
-    await get_specific_object_when_table_is_empty_internal_test(
+    response = await get_specific_object_when_table_is_empty_internal_test(
         ac=ac,
         url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}",
         expected_data={"detail": "submenu not found"},
     )
+
+    # Проверяем, что для созданного меню действительно не существует подменю
+    submenus_data = await get_specific_submenu_data_from_db()
+    assert submenus_data == response.json()
 
 
 @pytest.mark.asyncio
@@ -458,6 +487,10 @@ async def test_delete_menu_from_submenu_method(
 
     await delete_object_internal_test(ac=ac, url=f"/api/v1/menus/{target_menu_id}")
 
+    # Проверяем, чтобы данные были удалены
+    menus_data = await get_all_menus_data()
+    assert menus_data == []
+
 
 @pytest.mark.asyncio
 async def test_get_menus_after_delete_from_submenu_method(ac: AsyncClient) -> None:
@@ -477,4 +510,8 @@ async def test_get_menus_after_delete_from_submenu_method(ac: AsyncClient) -> No
 
     url = "/api/v1/menus"
 
-    await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
+    response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
+
+    # Проверяем, чтобы данные были удалены
+    menus_data = await get_all_menus_data()
+    assert menus_data == response.json()
