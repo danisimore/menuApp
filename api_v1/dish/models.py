@@ -32,3 +32,12 @@ class Dish(Base):
     )
 
     submenu = relationship(argument="Submenu", back_populates="dishes")
+
+    def json(self):
+        return {
+            "id": str(self.id),
+            "title": self.title,
+            "description": self.description,
+            "price": str(self.price),
+            "submenu_id": str(self.submenu_id),
+        }

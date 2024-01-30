@@ -33,15 +33,15 @@ class Submenu(Base):
     menu = relationship(argument="Menu", back_populates="submenus")
 
     dishes = relationship(
-        argument="Dish", cascade="all,delete", back_populates="submenu"
+        argument="Dish", cascade="all,delete", back_populates="submenu", lazy="selectin"
     )
 
-    @hybrid_property
-    def dishes_counter(self) -> int:
-        """
-        Функция для подсчета блюд, привязанных к подменю
+    def json(self):
+        return {
+            "id": str(self.id),
+            "title": self.title,
+            "description": self.description,
+            "dishes": self.dishes,
+            "menu_id": str(self.menu_id),
+        }
 
-        Returns: int
-
-        """
-        return len(self.dishes)

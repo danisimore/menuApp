@@ -3,13 +3,14 @@
 Тесты не отрабатывают из этого модуля, а эвэйтятся в основных тестовых модулях, поэтому назвал их внутренними.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 29 января 2024
+Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
 from httpx import AsyncClient, Response
-from tests_services.services import save_created_object_id
 
 from .test_data import MENU_TITLE_VALUE_TO_CREATE, MENU_DESCRIPTION_VALUE_TO_CREATE
+
+from .utils import get_created_object_attribute
 
 
 def assert_response(
@@ -55,10 +56,11 @@ async def get_object_when_table_is_empty_internal_test(
     response = await ac.get(url=url)
     assert_response(response=response, expected_status_code=200, expected_data=[])
 
+    return response
+
 
 async def create_object_internal_test(
         create_object_using_post_method_fixture: Response,
-        env_name: str,
         expected_data: dict,
 ) -> None:
     """
@@ -67,8 +69,6 @@ async def create_object_internal_test(
     Args:
         create_object_using_post_method_fixture: закешированый ответ сервера на POST запрос.
 
-        env_name: название переменной окружения, в которой будет храниться id созданной записи.
-
         expected_data: ожидаемый результат в ответе от сервера
 
     Returns:
@@ -76,8 +76,8 @@ async def create_object_internal_test(
     """
 
     # Получаем uuid, который вернул сервер после создания записи в таблице и сохраняем его в переменной окружения.
-    target_object_id = save_created_object_id(
-        create_object_using_post_method_fixture, env_name=env_name
+    target_object_id = get_created_object_attribute(
+        response=create_object_using_post_method_fixture, attribute="id"
     )
 
     # К ожидаемым данным добавляем этот uuid
@@ -130,6 +130,8 @@ async def get_objects_when_table_is_not_empty_internal_test(
 
     assert response.status_code == 200 and len(response.json()) > 0
 
+    return response
+
 
 async def get_specific_object_when_table_is_empty_internal_test(
         ac: AsyncClient, url: str, expected_data: dict
@@ -150,3 +152,5 @@ async def get_specific_object_when_table_is_empty_internal_test(
     assert_response(
         response=response, expected_status_code=404, expected_data=expected_data
     )
+
+    return response

@@ -13,6 +13,12 @@ from dish.router import router as dish_router
 
 app = FastAPI(title="Restaurant Menu")
 
+
+@app.get("/health")
+async def read_health():
+    return {"status": "OK"}
+
+
 app.include_router(menu_router)
 app.include_router(submenu_router)
 app.include_router(dish_router)

@@ -5,12 +5,14 @@
 Дата: 22 января 2024
 """
 
-from sqlalchemy import select, update, cast, Boolean, delete
+from sqlalchemy import select, update, cast, Boolean, delete, func, distinct
 
 from sqlalchemy import Result
 from sqlalchemy.orm import selectinload
 
 from menu.models import Menu
+from dish.models import Dish
+from submenu.models import Submenu
 
 
 async def select_all_menus(session):
@@ -32,7 +34,7 @@ async def select_all_menus(session):
     return menus
 
 
-async def select_specific_menu(target_menu_id: str, submenu, session):
+async def select_specific_menu(target_menu_id: str, session):
     """
     Функция для выборки меню, по указанному id.
 
@@ -46,15 +48,19 @@ async def select_specific_menu(target_menu_id: str, submenu, session):
     """
 
     stmt = (
-        select(Menu)
-        .where(Menu.id == target_menu_id)
-        .options(selectinload(Menu.submenus).options(selectinload(submenu.dishes)))
-    )
+        select(
+            Menu,
+            func.count(distinct(Submenu.id)).label('submenus_count'),
+            func.count(distinct(Dish.id)).label('dishes_count'))
+        .outerjoin(Submenu, Submenu.menu_id == Menu.id)
+        .outerjoin(Dish, Dish.submenu_id == Submenu.id)
+        .group_by(Menu.id)).where(Menu.id == target_menu_id)
+
     result = await session.execute(stmt)
 
-    menu = result.scalar_one_or_none()
+    menus_with_counts = result.all()
 
-    return menu
+    return menus_with_counts
 
 
 async def update_menu(update_menu_data, target_menu_id: str, session):

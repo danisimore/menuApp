@@ -11,7 +11,6 @@ import sys
 import uuid
 
 from sqlalchemy import String, Column, UUID
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from database.database import Base
@@ -32,12 +31,19 @@ class Menu(Base):
         argument="Submenu", cascade="all,delete", back_populates="menu"
     )
 
-    @hybrid_property
-    def submenu_count(self) -> int:
-        """
-        Функция для подсчета кол-ва привязанных подменю к меню.
+    def json(self):
 
-        Returns: int
-
-        """
-        return len(self.submenus)
+        if hasattr(self, 'submenus_count') and hasattr(self, 'dishes_count'):
+            return {
+                "id": str(self.id),
+                "title": self.title,
+                "description": self.description,
+                "submenus_count": self.submenus_count,
+                "dishes_count": self.dishes_count,
+            }
+        else:
+            return {
+                "id": str(self.id),
+                "title": self.title,
+                "description": self.description,
+            }

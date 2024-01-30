@@ -22,6 +22,7 @@ from .submenu_services import (
     select_specific_submenu,
     update_submenu,
     delete_submenu,
+    get_dishes_for_submenu
 )
 
 from .submenu_utils import convert_prices_to_str
@@ -67,12 +68,17 @@ async def submenu_post_method(
     Returns:JSONResponse
 
     """
+
     submenu_data_dict = submenu_data.model_dump()
     submenu_data_dict["menu_id"] = target_menu_id
 
     created_submenu = await insert_data(
         data_dict=submenu_data_dict, database_model=Submenu, session=session
     )
+
+    submenu_dishes = await get_dishes_for_submenu(created_submenu["id"], session=session)
+
+    created_submenu["dishes"] = submenu_dishes
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -102,8 +108,6 @@ async def submenu_get_specific_method(
         )
         # Если подменю было найдено, то получаем его из списка.
         submenu = submenu[0]
-        # Создаем атрибут dishes_count для отображения кол-ва блюд в подменю
-        submenu.dishes_count = submenu.dishes_counter
     except IndexError:
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 
@@ -142,6 +146,11 @@ async def submenu_patch_method(
     try:
         updated_submenu = updated_submenu[0]
         updated_submenu_dict = get_created_object_dict(updated_submenu)
+
+        submenu_dishes = await get_dishes_for_submenu(target_submenu_id, session=session)
+
+        updated_submenu_dict["dishes"] = submenu_dishes
+
     except IndexError:
         return JSONResponse(
             content={"detail": "no submenu was found for the specified data"},
