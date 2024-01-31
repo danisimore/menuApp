@@ -217,7 +217,8 @@ async def test_get_specific_submenu_method(
             "title": SUBMENU_TITLE_VALUE_TO_CREATE,
             "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
             "menu_id": target_menu_id,
-            "dishes": []
+            "dishes": [],
+            "dishes_count": 0
         },
     )
 
@@ -334,12 +335,13 @@ async def test_get_specific_submenu_method_after_update(
             "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
             "menu_id": target_menu_id,
             "dishes": [],
+            "dishes_count": 0
         },
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
-    submenus_data = await get_submenus_data_from_db()
-    assert submenus_data[0] == response.json()
+    submenus_data = await get_specific_submenu_data_from_db()
+    assert submenus_data[0].json() == response.json()
 
 
 @pytest.mark.asyncio

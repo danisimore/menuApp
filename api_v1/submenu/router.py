@@ -108,6 +108,8 @@ async def submenu_get_specific_method(
         )
         # Если подменю было найдено, то получаем его из списка.
         submenu = submenu[0]
+        submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
+        submenu.dishes_count = len(submenu_dishes)
     except IndexError:
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 

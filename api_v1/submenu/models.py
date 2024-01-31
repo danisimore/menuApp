@@ -37,11 +37,21 @@ class Submenu(Base):
     )
 
     def json(self):
-        return {
-            "id": str(self.id),
-            "title": self.title,
-            "description": self.description,
-            "dishes": self.dishes,
-            "menu_id": str(self.menu_id),
-        }
+        if hasattr(self, 'dishes_count'):
+            return {
+                "id": str(self.id),
+                "title": self.title,
+                "description": self.description,
+                "dishes": self.dishes,
+                "dishes_count": self.dishes_count,
+                "menu_id": str(self.menu_id),
+            }
+        else:
+            return {
+                "id": str(self.id),
+                "title": self.title,
+                "description": self.description,
+                "dishes": self.dishes,
+                "menu_id": str(self.menu_id),
+            }
 

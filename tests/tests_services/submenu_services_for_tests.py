@@ -7,7 +7,7 @@
 
 from conftest import async_session_maker
 from menu.menu_services import select_all_menus, select_specific_menu
-from submenu.submenu_services import select_all_submenus, select_specific_submenu
+from submenu.submenu_services import select_all_submenus, select_specific_submenu, get_dishes_for_submenu
 
 
 async def format_dishes(dishes) -> None:
@@ -76,6 +76,10 @@ async def get_specific_submenu_data_from_db() -> None:
                 target_menu_id=menu_id_in_db,
                 target_submenu_id=submenu_id_in_db
             )
+
+            dishes_for_submenu = await get_dishes_for_submenu(session=session, target_submenu_id=submenu[0].json()["id"])
+
+            submenu[0].dishes_count = len(dishes_for_submenu)
 
             return submenu
         except IndexError:
