@@ -40,7 +40,6 @@ async def select_specific_menu(target_menu_id: str, session):
 
     Args:
         target_menu_id: идентификатор меню, полученный из запроса
-        submenu: класс модели данных Submenu. Нужен для включения в запрос привязанных подменю и дальнейшего их подсчета
         session: сессия подключения к БД.
 
     Returns: объект найденного меню.

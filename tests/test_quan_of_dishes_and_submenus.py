@@ -292,6 +292,7 @@ async def test_get_specific_submenu_from_check_quan_of_dishes_and_submenus_metho
                     "submenu_id": target_submenu_id,
                 },
             ],
+            "dishes_count": 2
         },
     )
 
