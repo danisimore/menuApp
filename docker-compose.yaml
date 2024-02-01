@@ -34,7 +34,7 @@ services:
     build:
       context: .
     env_file:
-      - .env-prod
+      - .env-example
     container_name: fastapi_app
     command: ["/fastapi_app/docker/app.sh"]
     ports:
