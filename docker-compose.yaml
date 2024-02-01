@@ -13,22 +13,6 @@ services:
     env_file:
       - .env-example
 
-  app_test:
-    build:
-      context: .
-    env_file:
-      - .env-example
-    container_name: fastapi_app_tests
-    command: [ "/fastapi_app/docker/app_test.sh" ]
-    ports:
-      - "8001:8001"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-    depends_on:
-      - db_test
 
   app:
     build:
@@ -46,3 +30,27 @@ services:
       retries: 3
     depends_on:
       - db
+
+  app_test:
+    build:
+      context: .
+    env_file:
+      - .env-example
+    container_name: fastapi_app_tests
+    command: [ "/fastapi_app/docker/app_test.sh" ]
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - db_test
+
+  redis:
+    image: redis:6
+    container_name: redis
+    restart: unless-stopped
+    expose:
+      - 6379
