@@ -9,7 +9,7 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv("/home/danisimore/Desktop/dev/restaurant_menu/.env-prod")
+load_dotenv("/home/danisimore/Desktop/dev/restaurant_menu/.env-example")
 
 DB_USER = os.environ.get("DB_USER")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
