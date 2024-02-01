@@ -5,8 +5,6 @@
 Дата: 29 января 2024 - добавлено преобразование цен блюд из Decimal к строке
 """
 
-import json
-
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -14,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.database import get_async_session
 from services import insert_data
-from submenu.models import Submenu
 from utils import get_created_object_dict
 from .menu_services import (
     select_all_menus,
@@ -147,6 +144,7 @@ async def menu_patch_method(
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
 
     await redis.invalidate_cache("menus")
+    await redis.invalidate_cache(target_menu_id)
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
@@ -169,5 +167,6 @@ async def menu_delete_method(
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
     await redis.invalidate_cache("menus")
+    await redis.invalidate_cache(target_menu_id)
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
