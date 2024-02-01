@@ -9,4 +9,4 @@ mkdir -p alembic/versions
 alembic revision --autogenerate -m "initial"
 alembic upgrade head
 
-gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000
+gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8001
