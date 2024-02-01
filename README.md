@@ -41,34 +41,11 @@ https://github.com/danisimore/menuApp/assets/101730132/6b13cd75-b003-4f4b-8b7e-d
    ```
    cd menuApp
    ```
-5. Создайте файл .env-prod используя редактор nano:
-   ```
-   nano .env-prod
-   ```
-6. Скопируйте и вставьте следующие переменные окружения:
-   ```
-   DB_HOST=db
-   DB_PORT=5432
-   DB_NAME=postgres
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   
-   TEST_DB_HOST=db_test
-   TEST_DB_PORT=5432
-   TEST_DB_NAME=postgres
-   TEST_DB_USER=postgres
-   TEST_DB_PASSWORD=postgres
-   
-   POSTGRES_DB=postgres
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=postgres
-   ```
-7. Нажмите **Crtl + O**, затем **ENTER**. Файл будет сохранен, чтобы выйти из редактора нажмите сочетание клавиш **Ctrl + X**.
-8. Напишите команду
+5. Напишите команду
     ```
     sudo make up
     ```
-9. Подождите 10 секунд. Задержка выставлена, для того чтобы БД успела полностью инициализироваться перед тем, как alembic начнет делать миграции.
+6. Подождите 10 секунд. Задержка выставлена, для того чтобы БД успела полностью инициализироваться перед тем, как alembic начнет делать миграции.
 
 ✅	Приложение запущено и готово к работе.
 
