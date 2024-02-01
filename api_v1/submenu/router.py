@@ -26,9 +26,11 @@ from .submenu_services import (
 )
 
 from .submenu_utils import convert_prices_to_str
+from redis_tools.tools import RedisTools
 
 
 router = APIRouter(prefix="/api/v1/menus", tags=["submenu"])
+redis = RedisTools()
 
 
 @router.get("/{target_menu_id}/submenus")
@@ -46,7 +48,14 @@ async def submenu_get_method(
 
     """
 
+    cache = await redis.get_pair("submenus")
+
+    if cache is not None:
+        return cache
+
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
+
+    await redis.set_pair("submenus", submenus)
 
     return submenus
 
@@ -83,6 +92,8 @@ async def submenu_post_method(
 
     created_submenu["dishes"] = submenu_dishes
 
+    await redis.invalidate_cache("submenus")
+
     return JSONResponse(content=created_submenu, status_code=201)
 
 
@@ -104,6 +115,13 @@ async def submenu_get_specific_method(
 
     """
     try:
+        cache = await redis.get_pair(target_submenu_id)
+
+        if cache is not None:
+            if cache.get("404"):
+                return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
+            return cache
+
         submenu = await select_specific_submenu(
             target_menu_id=target_menu_id,
             target_submenu_id=target_submenu_id,
@@ -113,7 +131,11 @@ async def submenu_get_specific_method(
         submenu = submenu[0]
         submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
         submenu.dishes_count = len(submenu_dishes)
+
+        await redis.set_pair(target_submenu_id, submenu.json())
+
     except IndexError:
+        await redis.set_pair(target_submenu_id, {"404": "not_found"})
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 
     convert_prices_to_str(submenu=submenu)
@@ -156,6 +178,9 @@ async def submenu_patch_method(
 
         updated_submenu_dict["dishes"] = submenu_dishes
 
+        await redis.invalidate_cache("submenus")
+        await redis.invalidate_cache(target_submenu_id)
+
     except IndexError:
         return JSONResponse(
             content={"detail": "no submenu was found for the specified data"},
@@ -188,5 +213,8 @@ async def submenu_delete_method(
         target_menu_id=target_menu_id,
         session=session,
     )
+
+    await redis.invalidate_cache("submenus")
+    await redis.invalidate_cache(target_submenu_id)
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
