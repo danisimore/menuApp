@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.database import get_async_session
 from services import insert_data
-from utils import get_created_object_dict
+from utils import get_created_object_dict, create_dict_from_received_data
 
 from submenu.models import Submenu
 
@@ -69,8 +69,11 @@ async def submenu_post_method(
 
     """
 
-    submenu_data_dict = submenu_data.model_dump()
-    submenu_data_dict["menu_id"] = target_menu_id
+    submenu_data_dict = create_dict_from_received_data(
+        received_data=submenu_data,
+        parent_id=target_menu_id,
+        foreign_key_field_name="menu_id"
+    )
 
     created_submenu = await insert_data(
         data_dict=submenu_data_dict, database_model=Submenu, session=session

@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services import insert_data
-from utils import get_created_object_dict
+from utils import get_created_object_dict, create_dict_from_received_data
 
 from database.database import get_async_session
 
@@ -91,9 +91,11 @@ async def dish_post_method(
         return return_404_menu_not_linked_to_submenu()
 
     # Формируем словарь из полученных данных.
-    dish_data_dict = dish_data.model_dump()
-    # Указываем, что блюдо привязывается у указанному в запросе подменю.
-    dish_data_dict["submenu_id"] = target_submenu_id
+    dish_data_dict = create_dict_from_received_data(
+        received_data=dish_data,
+        parent_id=target_submenu_id,
+        foreign_key_field_name="submenu_id"
+    )
 
     created_dish_dict = await insert_data(
         data_dict=dish_data_dict, database_model=Dish, session=session
