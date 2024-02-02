@@ -8,7 +8,6 @@
 import uuid
 
 from sqlalchemy import String, UUID, ForeignKey, Column
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from menu.models import Base
@@ -37,7 +36,7 @@ class Submenu(Base):
     )
 
     def json(self):
-        if hasattr(self, 'dishes_count'):
+        if hasattr(self, "dishes_count"):
             return {
                 "id": str(self.id),
                 "title": self.title,
@@ -54,4 +53,3 @@ class Submenu(Base):
                 # "dishes": self.dishes,
                 "menu_id": str(self.menu_id),
             }
-

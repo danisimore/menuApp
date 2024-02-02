@@ -9,21 +9,20 @@
 from typing import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-
 from config import (
-    TEST_DB_USER,
-    TEST_DB_NAME,
     TEST_DB_HOST,
-    TEST_DB_PORT,
+    TEST_DB_NAME,
     TEST_DB_PASSWORD,
+    TEST_DB_PORT,
+    TEST_DB_USER,
 )
 from database.database import get_async_session
 from dish.models import Dish
+from httpx import AsyncClient
 from main import app
+from sqlalchemy import NullPool
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 

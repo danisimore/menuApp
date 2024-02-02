@@ -9,32 +9,32 @@ from conftest import async_session_maker
 from menu.menu_services import select_all_menus, select_specific_menu
 
 
-async def get_all_menus_data() -> None:
+async def get_all_menus_data() -> list[dict] | list | None:
     """
     Выборка всех меню из БД
 
     Returns:
-        None
+        Если меню найдены, то список с меню, если нет, то пустой список
     """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
         menus_data = await select_all_menus(session=session)
 
-        try:
-            # Т.к. в рамках теста запись одна, получаем ее из списка
-            menus_data_json = menus_data[0].json()
-
-            return [menus_data_json]
-        except IndexError:
+        if not len(menus_data):
             return []
 
+        # Т.к. в рамках теста запись одна, получаем ее из списка
+        menus_data_json = menus_data[0].json()
 
-async def get_menu_data_from_db_without_counters() -> None:
+        return [menus_data_json]
+
+
+async def get_menu_data_from_db_without_counters() -> dict:
     """
     Выборка определенного меню без счетчиков.
 
     Returns:
-        None
+        Объект в формате словаря
     """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
@@ -46,12 +46,12 @@ async def get_menu_data_from_db_without_counters() -> None:
         return menu_data_json
 
 
-async def get_menu_data_from_db_with_counters() -> None:
+async def get_menu_data_from_db_with_counters() -> dict | None:
     """
-    Выборка определенного меню с счетчиками.
+    Выборка определенного меню со счетчиками.
 
     Returns:
-        None
+        Если меню найдено, то словарь с данными о меню, иначе None
     """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
@@ -62,7 +62,9 @@ async def get_menu_data_from_db_with_counters() -> None:
         menu_id_in_db = menus_data_json["id"]
 
         # Здесь будет кортеж со списком вида [(<MENU OBJECT>, submenus_count, dishes_count)]
-        menus_with_counts = await select_specific_menu(session=session, target_menu_id=menu_id_in_db)
+        menus_with_counts = await select_specific_menu(
+            session=session, target_menu_id=menu_id_in_db
+        )
 
         if menus_with_counts:
             menu = menus_with_counts[0][0]
@@ -70,3 +72,5 @@ async def get_menu_data_from_db_with_counters() -> None:
             menu.dishes_count = menus_with_counts[0][2]
 
             return menu.json()
+
+    return None

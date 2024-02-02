@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
+
 from fastapi import Depends
 from sqlalchemy import select, and_, update, delete
 
@@ -19,7 +20,7 @@ from dish.models import Dish
 
 
 async def get_dishes_for_submenu(
-        target_submenu_id: str, session: AsyncSession = Depends(get_async_session)
+    target_submenu_id: str, session: AsyncSession = Depends(get_async_session)
 ) -> list:
     stmt = select(Dish).where(Dish.submenu_id == target_submenu_id)
 
@@ -31,7 +32,7 @@ async def get_dishes_for_submenu(
 
 
 async def select_all_submenus(
-        target_menu_id: str, session: AsyncSession = Depends(get_async_session)
+    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
 ) -> list:
     """
     Функция для выборки всех подменю привязанных к указанному меню.
@@ -54,10 +55,10 @@ async def select_all_submenus(
 
 
 async def select_specific_submenu(
-        target_menu_id: str,
-        target_submenu_id: str,
-        session: AsyncSession = Depends(get_async_session),
-) -> list:
+    target_menu_id: str,
+    target_submenu_id: str,
+    session: AsyncSession = Depends(get_async_session),
+) -> Submenu:
     """
     Функция для выборки определенного подменю.
 
@@ -80,14 +81,14 @@ async def select_specific_submenu(
 
     submenu = result.scalars().all()
 
-    return submenu
+    return submenu[0]
 
 
 async def update_submenu(
-        target_menu_id: str,
-        target_submenu_id: str,
-        update_submenu_data: UpdateSubmenu,
-        session: AsyncSession = Depends(get_async_session),
+    target_menu_id: str,
+    target_submenu_id: str,
+    update_submenu_data: UpdateSubmenu,
+    session: AsyncSession = Depends(get_async_session),
 ) -> list:
     """
     Функция для обновления записи в таблице submenus.

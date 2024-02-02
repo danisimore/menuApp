@@ -1,26 +1,24 @@
 import json
 import aioredis
-from typing import Union
 
 
 class RedisTools:
-
     def __init__(self):
         self.redis = None
 
-    async def connect_redis(self) -> None:
+    async def connect_redis(self) -> aioredis.Redis:
         """
         Метод для создания подключения к Redis.
 
         Returns:
-            None
+            Объект клиента Redis.
         """
 
         if not self.redis:
-            self.redis = await aioredis.from_url("redis://localhost:6379/0")
+            self.redis = await aioredis.from_url("redis://redis:6379/0")
         return self.redis
 
-    async def set_pair(self, key: str, value: Union[list, dict]) -> None:
+    async def set_pair(self, key: str, value: list | dict) -> None:
         """
         Метод для сохранения объекта/объектов в кэше.
 
@@ -48,7 +46,7 @@ class RedisTools:
         # Записываем в Redis по переданному ключу JSON объект с данными.
         await redis.set(key, json_value)
 
-    async def get_pair(self, key) -> Union[list, None]:
+    async def get_pair(self, key) -> list | None:
         """
         Метод для получения значения по переданному ключу.
 

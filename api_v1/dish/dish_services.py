@@ -4,7 +4,6 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
-from typing import Type
 
 from fastapi import Depends
 from sqlalchemy import (
@@ -27,7 +26,7 @@ from submenu.models import Submenu
 
 
 async def is_submenu_in_target_menu(
-    submenu: Type[Submenu],
+    submenu: Submenu,
     target_menu_id: str,
     target_submenu_id: str,
     session: AsyncSession = Depends(get_async_session),

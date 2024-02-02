@@ -7,31 +7,25 @@
 
 import pytest
 from httpx import AsyncClient, Response
-
+from tests_services.menu_services_for_tests import (
+    get_all_menus_data,
+    get_menu_data_from_db_with_counters,
+    get_menu_data_from_db_without_counters,
+)
 from tests_utils.internal_tests import (
     assert_response,
-    get_object_when_table_is_empty_internal_test,
     delete_object_internal_test,
+    get_object_when_table_is_empty_internal_test,
     get_objects_when_table_is_not_empty_internal_test,
     get_specific_object_when_table_is_empty_internal_test,
 )
-
-from tests_utils.utils import get_created_object_attribute
-
 from tests_utils.test_data import (
-    MENU_TITLE_VALUE_TO_CREATE,
-    MENU_TITLE_VALUE_TO_UPDATE,
     MENU_DESCRIPTION_VALUE_TO_CREATE,
     MENU_DESCRIPTION_VALUE_TO_UPDATE,
+    MENU_TITLE_VALUE_TO_CREATE,
+    MENU_TITLE_VALUE_TO_UPDATE,
 )
-
-from tests_utils.fixtures import create_menu_using_post_method_fixture
-
-from tests_services.menu_services_for_tests import (
-    get_menu_data_from_db_without_counters,
-    get_menu_data_from_db_with_counters,
-    get_all_menus_data
-)
+from tests_utils.utils import get_created_object_attribute
 
 
 @pytest.mark.asyncio

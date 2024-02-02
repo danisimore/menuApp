@@ -22,7 +22,7 @@ from .submenu_services import (
     select_specific_submenu,
     update_submenu,
     delete_submenu,
-    get_dishes_for_submenu
+    get_dishes_for_submenu,
 )
 
 from .submenu_utils import convert_prices_to_str
@@ -81,14 +81,16 @@ async def submenu_post_method(
     submenu_data_dict = create_dict_from_received_data(
         received_data=submenu_data,
         parent_id=target_menu_id,
-        foreign_key_field_name="menu_id"
+        foreign_key_field_name="menu_id",
     )
 
     created_submenu = await insert_data(
         data_dict=submenu_data_dict, database_model=Submenu, session=session
     )
 
-    submenu_dishes = await get_dishes_for_submenu(created_submenu["id"], session=session)
+    submenu_dishes = await get_dishes_for_submenu(
+        created_submenu["id"], session=session
+    )
 
     created_submenu["dishes"] = submenu_dishes
 
@@ -119,7 +121,9 @@ async def submenu_get_specific_method(
 
         if cache is not None:
             if cache.get("404"):
-                return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
+                return JSONResponse(
+                    content={"detail": "submenu not found"}, status_code=404
+                )
             return cache
 
         submenu = await select_specific_submenu(
@@ -127,8 +131,7 @@ async def submenu_get_specific_method(
             target_submenu_id=target_submenu_id,
             session=session,
         )
-        # Если подменю было найдено, то получаем его из списка.
-        submenu = submenu[0]
+
         submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
         submenu.dishes_count = len(submenu_dishes)
 
@@ -174,7 +177,9 @@ async def submenu_patch_method(
         updated_submenu = updated_submenu[0]
         updated_submenu_dict = get_created_object_dict(updated_submenu)
 
-        submenu_dishes = await get_dishes_for_submenu(target_submenu_id, session=session)
+        submenu_dishes = await get_dishes_for_submenu(
+            target_submenu_id, session=session
+        )
 
         updated_submenu_dict["dishes"] = submenu_dishes
 

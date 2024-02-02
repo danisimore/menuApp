@@ -30,8 +30,10 @@ async def insert_data(data_dict: dict, database_model, session) -> dict:
     result = await session.execute(stmt)
     # Получаем созданный объект.
     created_object = result.scalars().all()[0]
-    # Формируем словарь из данных созданного объекта, чтобы вернуть его пользователю в виде JSON
-    created_object_dict = get_created_object_dict(created_object=created_object)
+    # Формируем словарь из данных созданного объекта, чтобы вернуть его
+    # пользователю в виде JSON
+    created_object_dict = get_created_object_dict(
+        created_object=created_object)
 
     await session.commit()
 

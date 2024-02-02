@@ -5,23 +5,23 @@
 Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
-import os
 
 import pytest
 from httpx import AsyncClient, Response
+from tests_utils.utils import get_created_object_attribute
+
 from .test_data import (
-    MENU_TITLE_VALUE_TO_CREATE,
-    MENU_DESCRIPTION_VALUE_TO_CREATE,
-    SUBMENU_TITLE_VALUE_TO_CREATE,
-    SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-    DISH_TITLE_VALUE_TO_CREATE,
     DISH_DESCRIPTION_VALUE_TO_CREATE,
     DISH_PRICE_TO_CREATE,
-    SECOND_DISH_TITLE_VALUE_TO_CREATE,
-    SECOND_DISH_PRICE_TO_CREATE,
+    DISH_TITLE_VALUE_TO_CREATE,
+    MENU_DESCRIPTION_VALUE_TO_CREATE,
+    MENU_TITLE_VALUE_TO_CREATE,
     SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
+    SECOND_DISH_PRICE_TO_CREATE,
+    SECOND_DISH_TITLE_VALUE_TO_CREATE,
+    SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
+    SUBMENU_TITLE_VALUE_TO_CREATE,
 )
-from tests_utils.utils import get_created_object_attribute
 
 
 @pytest.fixture(scope="session")
@@ -127,7 +127,7 @@ async def create_dish_using_post_method_fixture(
         target_submenu_id,
         DISH_TITLE_VALUE_TO_CREATE,
         DISH_DESCRIPTION_VALUE_TO_CREATE,
-        DISH_PRICE_TO_CREATE,
+        float(DISH_PRICE_TO_CREATE),
     )
 
     # Возвращаем ответ с данными.
@@ -157,7 +157,7 @@ async def create_second_dish_using_post_method_fixture(
         target_submenu_id,
         SECOND_DISH_TITLE_VALUE_TO_CREATE,
         SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
-        SECOND_DISH_PRICE_TO_CREATE,
+        float(SECOND_DISH_PRICE_TO_CREATE),
     )
 
     # Возвращаем ответ с данными.

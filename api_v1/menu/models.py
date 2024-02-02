@@ -32,8 +32,7 @@ class Menu(Base):
     )
 
     def json(self):
-
-        if hasattr(self, 'submenus_count') and hasattr(self, 'dishes_count'):
+        if hasattr(self, "submenus_count") and hasattr(self, "dishes_count"):
             return {
                 "id": str(self.id),
                 "title": self.title,

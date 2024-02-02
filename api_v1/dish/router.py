@@ -103,7 +103,7 @@ async def dish_post_method(
     dish_data_dict = create_dict_from_received_data(
         received_data=dish_data,
         parent_id=target_submenu_id,
-        foreign_key_field_name="submenu_id"
+        foreign_key_field_name="submenu_id",
     )
 
     created_dish_dict = await insert_data(

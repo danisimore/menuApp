@@ -5,14 +5,12 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 20 января 2024
 """
-from typing import Union
-
 from dish.models import Dish
 from menu.models import Menu
 from submenu.models import Submenu
 
 
-def get_created_object_dict(created_object: Union[Menu, Dish, Submenu]) -> dict:
+def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:
     """
     Функция формирует словарь из таблицы для созданной записи.
 
@@ -28,7 +26,8 @@ def get_created_object_dict(created_object: Union[Menu, Dish, Submenu]) -> dict:
 
     # Итерируемся по названиям столбцов таблицы;
     # Если колонка только что созданного объекта не None, то создаем пару название_столбца:занчение_столбца
-    # Иначе явно устанавливаем значение None, чтобы в БД хранилось значение null
+    # Иначе явно устанавливаем значение None, чтобы в БД хранилось значение
+    # null
     created_object_dict = {
         column.key: str(getattr(created_object, column.key))
         if getattr(created_object, column.key) is not None
@@ -39,7 +38,9 @@ def get_created_object_dict(created_object: Union[Menu, Dish, Submenu]) -> dict:
     return created_object_dict
 
 
-def create_dict_from_received_data(received_data, parent_id, foreign_key_field_name) -> dict:
+def create_dict_from_received_data(
+    received_data, parent_id, foreign_key_field_name
+) -> dict:
     """
     Функция формирует словарь на основе полученных от клиента данных о блюде, которое нужно создать
 

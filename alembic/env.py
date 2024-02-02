@@ -22,7 +22,10 @@ config.set_section_option(section=section, name="DB_HOST", value=DB_HOST)
 config.set_section_option(section=section, name="DB_USER", value=DB_USER)
 config.set_section_option(section=section, name="DB_NAME", value=DB_NAME)
 config.set_section_option(section=section, name="DB_PORT", value=DB_PORT)
-config.set_section_option(section=section, name="DB_PASSWORD", value=DB_PASSWORD)
+config.set_section_option(
+    section=section,
+    name="DB_PASSWORD",
+    value=DB_PASSWORD)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

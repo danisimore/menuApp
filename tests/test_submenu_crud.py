@@ -7,36 +7,28 @@
 
 import pytest
 from httpx import AsyncClient, Response
-
+from tests_services.menu_services_for_tests import (
+    get_all_menus_data,
+    get_menu_data_from_db_without_counters,
+)
+from tests_services.submenu_services_for_tests import (
+    get_specific_submenu_data_from_db,
+    get_submenus_data_from_db,
+)
 from tests_utils.internal_tests import (
     assert_response,
-    get_object_when_table_is_empty_internal_test,
-    create_object_internal_test,
     delete_object_internal_test,
+    get_object_when_table_is_empty_internal_test,
     get_objects_when_table_is_not_empty_internal_test,
     get_specific_object_when_table_is_empty_internal_test,
 )
-
-from tests_services.menu_services_for_tests import (
-    get_menu_data_from_db_without_counters,
-    get_all_menus_data
-)
-
-from tests_services.submenu_services_for_tests import get_submenus_data_from_db, get_specific_submenu_data_from_db
-
-from tests_utils.fixtures import (
-    create_menu_using_post_method_fixture,
-    create_submenu_using_post_method_fixture,
-)
-
-from tests_utils.utils import get_created_object_attribute
-
 from tests_utils.test_data import (
-    SUBMENU_TITLE_VALUE_TO_CREATE,
     SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-    SUBMENU_TITLE_VALUE_TO_UPDATE,
     SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
+    SUBMENU_TITLE_VALUE_TO_CREATE,
+    SUBMENU_TITLE_VALUE_TO_UPDATE,
 )
+from tests_utils.utils import get_created_object_attribute
 
 
 @pytest.mark.asyncio
@@ -218,7 +210,7 @@ async def test_get_specific_submenu_method(
             "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
             "menu_id": target_menu_id,
             "dishes": [],
-            "dishes_count": 0
+            "dishes_count": 0,
         },
     )
 
@@ -279,7 +271,7 @@ async def test_update_submenu_using_patch_method(
             "title": SUBMENU_TITLE_VALUE_TO_UPDATE,
             "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
             "menu_id": target_menu_id,
-            "dishes": []
+            "dishes": [],
         },
     )
 
@@ -335,7 +327,7 @@ async def test_get_specific_submenu_method_after_update(
             "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
             "menu_id": target_menu_id,
             "dishes": [],
-            "dishes_count": 0
+            "dishes_count": 0,
         },
     )
 

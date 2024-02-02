@@ -7,15 +7,10 @@
 
 import os
 
-from decimal import Decimal
-from typing import Union
-
-from httpx import Response, AsyncClient
+from httpx import Response
 
 
-def get_created_object_attribute(
-    response: Response, attribute: str
-) -> Union[str, int, Decimal]:
+def get_created_object_attribute(response: Response, attribute: str) -> str:
     """
     Функция возвращает указанный атрибут объекта из тела ответа.
 
