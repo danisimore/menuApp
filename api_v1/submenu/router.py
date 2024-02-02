@@ -48,14 +48,14 @@ async def submenu_get_method(
 
     """
 
-    cache = await redis.get_pair("submenus")
+    cache = await redis.get_pair(key="submenus")
 
     if cache is not None:
         return cache
 
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
-    await redis.set_pair("submenus", submenus)
+    await redis.set_pair(key="submenus", value=submenus)
 
     return submenus
 
@@ -92,7 +92,7 @@ async def submenu_post_method(
 
     created_submenu["dishes"] = submenu_dishes
 
-    await redis.invalidate_cache("submenus")
+    await redis.invalidate_cache(key="submenus")
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -115,7 +115,7 @@ async def submenu_get_specific_method(
 
     """
     try:
-        cache = await redis.get_pair(target_submenu_id)
+        cache = await redis.get_pair(key=target_submenu_id)
 
         if cache is not None:
             if cache.get("404"):
@@ -132,10 +132,10 @@ async def submenu_get_specific_method(
         submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
         submenu.dishes_count = len(submenu_dishes)
 
-        await redis.set_pair(target_submenu_id, submenu.json())
+        await redis.set_pair(key=target_submenu_id, value=submenu.json())
 
     except IndexError:
-        await redis.set_pair(target_submenu_id, {"404": "not_found"})
+        await redis.set_pair(key=target_submenu_id, value={"404": True})
         return JSONResponse(content={"detail": "submenu not found"}, status_code=404)
 
     convert_prices_to_str(submenu=submenu)
@@ -178,8 +178,8 @@ async def submenu_patch_method(
 
         updated_submenu_dict["dishes"] = submenu_dishes
 
-        await redis.invalidate_cache("submenus")
-        await redis.invalidate_cache(target_submenu_id)
+        await redis.invalidate_cache(key="submenus")
+        await redis.invalidate_cache(key=target_submenu_id)
 
     except IndexError:
         return JSONResponse(
@@ -214,7 +214,8 @@ async def submenu_delete_method(
         session=session,
     )
 
-    await redis.invalidate_cache("submenus")
-    await redis.invalidate_cache(target_submenu_id)
+    await redis.invalidate_cache(key="submenus")
+    await redis.invalidate_cache(key=target_menu_id)
+    await redis.invalidate_cache(key=target_submenu_id)
 
     return JSONResponse(content={"status": "success!"}, status_code=200)

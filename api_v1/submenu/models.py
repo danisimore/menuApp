@@ -42,7 +42,7 @@ class Submenu(Base):
                 "id": str(self.id),
                 "title": self.title,
                 "description": self.description,
-                "dishes": self.dishes,
+                # "dishes": self.dishes,
                 "dishes_count": self.dishes_count,
                 "menu_id": str(self.menu_id),
             }
@@ -51,7 +51,7 @@ class Submenu(Base):
                 "id": str(self.id),
                 "title": self.title,
                 "description": self.description,
-                "dishes": self.dishes,
+                # "dishes": self.dishes,
                 "menu_id": str(self.menu_id),
             }
 

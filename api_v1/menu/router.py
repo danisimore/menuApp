@@ -42,14 +42,14 @@ async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
 
     """
 
-    cache = await redis.get_pair("menus")
+    cache = await redis.get_pair(key="menus")
 
     if cache is not None:
         return cache
 
     menus = await select_all_menus(session=session)
 
-    await redis.set_pair("menus", menus)
+    await redis.set_pair(key="menus", value=menus)
 
     return menus
 
@@ -74,7 +74,7 @@ async def menu_post_method(
         data_dict=new_menu_data_dict, database_model=Menu, session=session
     )
 
-    await redis.invalidate_cache("menus")
+    await redis.invalidate_cache(key="menus")
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -94,9 +94,10 @@ async def menu_get_specific_method(
 
     """
 
-    cache = await redis.get_pair(target_menu_id)
+    cache = await redis.get_pair(key=target_menu_id)
 
     if cache is not None:
+        print("Hello from cache!")
         if cache.get("404"):
             return JSONResponse(content={"detail": "menu not found"}, status_code=404)
         return cache
@@ -110,11 +111,11 @@ async def menu_get_specific_method(
         menu.submenus_count = menu_data[0][1]
         menu.dishes_count = menu_data[0][2]
 
-        await redis.set_pair(target_menu_id, menu.json())
+        await redis.set_pair(key=target_menu_id, value=menu.json())
 
         return menu
     else:
-        await redis.set_pair(target_menu_id, {"404": "not_found"})
+        await redis.set_pair(key=target_menu_id, value={"404": "not_found"})
         return JSONResponse(content={"detail": "menu not found"}, status_code=404)
 
 
@@ -146,8 +147,8 @@ async def menu_patch_method(
     # Формируем словарь на основе этого объекта.
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
 
-    await redis.invalidate_cache("menus")
-    await redis.invalidate_cache(target_menu_id)
+    await redis.invalidate_cache(key="menus")
+    await redis.invalidate_cache(key=target_menu_id)
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
@@ -169,7 +170,7 @@ async def menu_delete_method(
 
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await redis.invalidate_cache("menus")
-    await redis.invalidate_cache(target_menu_id)
+    await redis.invalidate_cache(key="menus")
+    await redis.invalidate_cache(key=target_menu_id)
 
     return JSONResponse(content={"status": "success!"}, status_code=200)
