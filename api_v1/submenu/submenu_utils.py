@@ -5,7 +5,7 @@
 Дата: 29 января 2024 - добавлена функция для преобразования цен блюд из Decimal к строке
 """
 
-from models import Submenu
+from submenu.models import Submenu
 
 
 def convert_prices_to_str(submenu: Submenu) -> None:
