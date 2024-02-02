@@ -4,14 +4,14 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 31 января 2024 | Добавлены тесты для сравнения ответа и данных из БД
 """
-
 import pytest
-from httpx import AsyncClient, Response
+from httpx import AsyncClient
 from tests_services.menu_services_for_tests import (
     get_all_menus_data,
     get_menu_data_from_db_with_counters,
     get_menu_data_from_db_without_counters,
 )
+from tests_utils.fixtures import create_menu_using_post_method_fixture
 from tests_utils.internal_tests import (
     assert_response,
     delete_object_internal_test,
@@ -44,7 +44,7 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
         None
     """
 
-    url = "/api/v1/menus"
+    url = '/api/v1/menus'
 
     # Используем тест, который проверяет ответ сервера на запрос к пустой таблице.
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
@@ -57,7 +57,7 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_create_menu_using_post_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование создания меню, путем отправки POST запроса.
@@ -98,7 +98,7 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
         None
     """
 
-    url = "/api/v1/menus"
+    url = '/api/v1/menus'
 
     # Используем тест, который проверяет ответ сервера на запрос к не пустой таблице.
     response = await get_objects_when_table_is_not_empty_internal_test(ac=ac, url=url)
@@ -110,7 +110,7 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
 
 @pytest.mark.asyncio
 async def test_get_specific_menu_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
@@ -130,10 +130,10 @@ async def test_get_specific_menu_method(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}"
+    url = f'/api/v1/menus/{target_menu_id}'
 
     response = await ac.get(url=url)
 
@@ -142,11 +142,11 @@ async def test_get_specific_menu_method(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_menu_id,
-            "title": MENU_TITLE_VALUE_TO_CREATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
-            "submenus_count": 0,
-            "dishes_count": 0,
+            'id': target_menu_id,
+            'title': MENU_TITLE_VALUE_TO_CREATE,
+            'description': MENU_DESCRIPTION_VALUE_TO_CREATE,
+            'submenus_count': 0,
+            'dishes_count': 0,
         },
     )
 
@@ -157,7 +157,7 @@ async def test_get_specific_menu_method(
 
 @pytest.mark.asyncio
 async def test_update_menu_using_patch_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование обновления записи с помощью отправки запроса с методом PATCH
@@ -178,16 +178,16 @@ async def test_update_menu_using_patch_method(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}"
+    url = f'/api/v1/menus/{target_menu_id}'
 
     response = await ac.patch(
         url=url,
         json={
-            "title": MENU_TITLE_VALUE_TO_UPDATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'title': MENU_TITLE_VALUE_TO_UPDATE,
+            'description': MENU_DESCRIPTION_VALUE_TO_UPDATE,
         },
     )
 
@@ -196,9 +196,9 @@ async def test_update_menu_using_patch_method(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_menu_id,
-            "title": MENU_TITLE_VALUE_TO_UPDATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'id': target_menu_id,
+            'title': MENU_TITLE_VALUE_TO_UPDATE,
+            'description': MENU_DESCRIPTION_VALUE_TO_UPDATE,
         },
     )
 
@@ -209,7 +209,7 @@ async def test_update_menu_using_patch_method(
 
 @pytest.mark.asyncio
 async def test_get_specific_menu_method_after_update(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование получения определенной записи из таблицы menus по переданному параметру пути в запросе.
@@ -229,10 +229,10 @@ async def test_get_specific_menu_method_after_update(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}"
+    url = f'/api/v1/menus/{target_menu_id}'
 
     # Сохраняем ответ сервера, делая запрос с параметром uuid.
     response = await ac.get(url=url)
@@ -242,11 +242,11 @@ async def test_get_specific_menu_method_after_update(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_menu_id,
-            "title": MENU_TITLE_VALUE_TO_UPDATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_UPDATE,
-            "submenus_count": 0,
-            "dishes_count": 0,
+            'id': target_menu_id,
+            'title': MENU_TITLE_VALUE_TO_UPDATE,
+            'description': MENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'submenus_count': 0,
+            'dishes_count': 0,
         },
     )
 
@@ -257,7 +257,7 @@ async def test_get_specific_menu_method_after_update(
 
 @pytest.mark.asyncio
 async def test_delete_menu_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тест удаления записи.
@@ -274,10 +274,10 @@ async def test_delete_menu_method(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}"
+    url = f'/api/v1/menus/{target_menu_id}'
 
     # Используем тест, который тестирует удаление записи.
     await delete_object_internal_test(ac=ac, url=url)
@@ -303,7 +303,7 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
         None
     """
 
-    url = "/api/v1/menus"
+    url = '/api/v1/menus'
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
@@ -315,7 +315,7 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
 
 @pytest.mark.asyncio
 async def test_get_specific_menu_method_after_delete(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование получения определенного меню по id, которого не существует в БД.
@@ -332,14 +332,14 @@ async def test_get_specific_menu_method_after_delete(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}"
+    url = f'/api/v1/menus/{target_menu_id}'
 
     # Используем тест, который получает не существующую запись.
     await get_specific_object_when_table_is_empty_internal_test(
-        ac=ac, url=url, expected_data={"detail": "menu not found"}
+        ac=ac, url=url, expected_data={'detail': 'menu not found'}
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.

@@ -9,6 +9,9 @@ from dish.models import Dish
 from menu.models import Menu
 from submenu.models import Submenu
 
+from submenu.schemas import CreateSubmenu
+from dish.schemas import CreateDish
+
 
 def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:
     """
@@ -39,7 +42,7 @@ def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:
 
 
 def create_dict_from_received_data(
-    received_data, parent_id, foreign_key_field_name
+    received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
 ) -> dict:
     """
     Функция формирует словарь на основе полученных от клиента данных о блюде, которое нужно создать

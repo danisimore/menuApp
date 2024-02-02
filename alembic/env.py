@@ -1,30 +1,27 @@
 import os.path
 import sys
-
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from dish.models import Dish
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
+from api_v1.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
-from api_v1.config import DB_HOST, DB_USER, DB_NAME, DB_PORT, DB_PASSWORD
-from dish.models import Dish
-
-sys.path.append(os.path.join(sys.path[0], "api_v1"))
+sys.path.append(os.path.join(sys.path[0], 'api_v1'))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section=section, name="DB_HOST", value=DB_HOST)
-config.set_section_option(section=section, name="DB_USER", value=DB_USER)
-config.set_section_option(section=section, name="DB_NAME", value=DB_NAME)
-config.set_section_option(section=section, name="DB_PORT", value=DB_PORT)
+config.set_section_option(section=section, name='DB_HOST', value=DB_HOST)
+config.set_section_option(section=section, name='DB_USER', value=DB_USER)
+config.set_section_option(section=section, name='DB_NAME', value=DB_NAME)
+config.set_section_option(section=section, name='DB_PORT', value=DB_PORT)
 config.set_section_option(
     section=section,
-    name="DB_PASSWORD",
+    name='DB_PASSWORD',
     value=DB_PASSWORD)
 
 # Interpret the config file for Python logging.
@@ -41,7 +38,7 @@ target_metadata = Dish.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
+# my_important_option = config.get_main_option('my_important_option')
 # ... etc.
 
 
@@ -57,12 +54,12 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option('sqlalchemy.url')
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        dialect_opts={'paramstyle': 'named'},
     )
 
     with context.begin_transaction():
@@ -78,7 +75,7 @@ def run_migrations_online() -> None:
     """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+        prefix='sqlalchemy.',
         poolclass=pool.NullPool,
     )
 

@@ -34,7 +34,14 @@ class Submenu(Base):
         argument='Dish', cascade='all,delete', back_populates='submenu', lazy='selectin'
     )
 
-    def json(self):
+    def json(self) -> dict:
+        """
+        Функция преобразует объект Submenu в словарь.
+
+        Returns:
+            Словарь с данными об объекте
+        """
+
         if hasattr(self, 'dishes_count'):
             return {
                 'id': str(self.id),

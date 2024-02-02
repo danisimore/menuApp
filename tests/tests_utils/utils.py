@@ -43,7 +43,7 @@ def save_created_object_id(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице.
     target_object_id = get_created_object_attribute(
-        response=create_object_using_post_method_fixture, attribute="id"
+        response=create_object_using_post_method_fixture, attribute='id'
     )
 
     # Сохраняем его в переменную окружения, чтобы использовать его в следующих тестах

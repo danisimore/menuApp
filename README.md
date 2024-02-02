@@ -44,13 +44,13 @@ https://github.com/danisimore/menuApp/assets/101730132/6b13cd75-b003-4f4b-8b7e-d
    DB_NAME=postgres
    DB_USER=postgres
    DB_PASSWORD=postgres
-   
+
    TEST_DB_HOST=db_test
    TEST_DB_PORT=5432
    TEST_DB_NAME=postgres
    TEST_DB_USER=postgres
    TEST_DB_PASSWORD=postgres
-   
+
    POSTGRES_DB=postgres
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=postgres

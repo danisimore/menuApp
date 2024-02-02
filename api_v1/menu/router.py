@@ -80,7 +80,7 @@ async def menu_post_method(
 
 @router.get('/menus/{target_menu_id}')
 async def menu_get_specific_method(
-    target_menu_id, session: AsyncSession = Depends(get_async_session)
+    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
 ):
     """
     Функция для обработки get запроса по указанному id.
@@ -158,7 +158,7 @@ async def menu_patch_method(
 
 @router.delete('/menus/{target_menu_id}')
 async def menu_delete_method(
-    target_menu_id, session: AsyncSession = Depends(get_async_session)
+    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """
     Функция для обработки запроса с методом DELETE.

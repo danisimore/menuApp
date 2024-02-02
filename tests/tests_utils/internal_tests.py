@@ -27,16 +27,16 @@ def assert_response(
     """
 
     error_messages = {
-        "wrong_response_body": f"Expected that response body would be equal to {expected_data}, "
-        f"but it is equal to {response.json()}",
-        "wrong_status_code": f"It was expected that the status code would be {expected_status_code}, "
-        f"but it was received {response.status_code}",
+        'wrong_response_body': f'Expected that response body would be equal to {expected_data}, '
+        f'but it is equal to {response.json()}',
+        'wrong_status_code': f'It was expected that the status code would be {expected_status_code}, '
+        f'but it was received {response.status_code}',
     }
 
     assert response.status_code == expected_status_code, error_messages[
-        "wrong_status_code"
+        'wrong_status_code'
     ]
-    assert response.json() == expected_data, error_messages["wrong_response_body"]
+    assert response.json() == expected_data, error_messages['wrong_response_body']
 
 
 async def get_object_when_table_is_empty_internal_test(
@@ -75,11 +75,11 @@ async def create_object_internal_test(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице и сохраняем его в переменной окружения.
     target_object_id = get_created_object_attribute(
-        response=create_object_using_post_method_fixture, attribute="id"
+        response=create_object_using_post_method_fixture, attribute='id'
     )
 
     # К ожидаемым данным добавляем этот uuid
-    expected_data["id"] = target_object_id
+    expected_data['id'] = target_object_id
 
     # Проверяем, что данные в ответе на POST запрос соответствуют ожидаемым
     assert_response(
@@ -106,7 +106,7 @@ async def delete_object_internal_test(ac: AsyncClient, url: str) -> None:
     assert_response(
         response=response,
         expected_status_code=200,
-        expected_data={"status": "success!"},
+        expected_data={'status': 'success!'},
     )
 
 

@@ -59,7 +59,7 @@ async def get_menu_data_from_db_with_counters() -> dict | None:
         # независимы
         menus_data = await select_all_menus(session=session)
         menus_data_json = menus_data[0].json()
-        menu_id_in_db = menus_data_json["id"]
+        menu_id_in_db = menus_data_json['id']
 
         # Здесь будет кортеж со списком вида [(<MENU OBJECT>, submenus_count, dishes_count)]
         menus_with_counts = await select_specific_menu(

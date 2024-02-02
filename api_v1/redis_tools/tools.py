@@ -47,7 +47,7 @@ class RedisTools:
         # Записываем в Redis по переданному ключу JSON объект с данными.
         await redis.set(key, json_value)
 
-    async def get_pair(self, key) -> list | None:
+    async def get_pair(self, key: str) -> list | None:
         """
         Метод для получения значения по переданному ключу.
 
@@ -71,7 +71,7 @@ class RedisTools:
         # Если ничего не нашлось, то возвращаем None
         return None
 
-    async def invalidate_cache(self, key) -> None:
+    async def invalidate_cache(self, key: str) -> None:
         """
         Метод для инвалидации кэша в случае изменения/добавления/удаления записи.
 
@@ -85,7 +85,7 @@ class RedisTools:
         await redis.delete(key)
 
     @staticmethod
-    async def format_object_to_json(objects_list) -> list:
+    async def format_object_to_json(objects_list: list) -> list:
         """
         Метод для приведение объектов в списке к типу dict.
 

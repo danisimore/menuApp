@@ -30,6 +30,9 @@ services:
       retries: 3
     depends_on:
       - db
+      - redis
+    links:
+      - redis:redis  # Связь с контейнером Redis
 
   app_test:
     build:
@@ -47,6 +50,9 @@ services:
       retries: 3
     depends_on:
       - db_test
+      - redis
+    links:
+      - redis:redis
 
   redis:
     image: redis:6

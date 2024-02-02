@@ -6,7 +6,7 @@
 """
 
 import pytest
-from httpx import AsyncClient, Response
+from httpx import AsyncClient
 from tests_services.menu_services_for_tests import (
     get_all_menus_data,
     get_menu_data_from_db_without_counters,
@@ -14,6 +14,10 @@ from tests_services.menu_services_for_tests import (
 from tests_services.submenu_services_for_tests import (
     get_specific_submenu_data_from_db,
     get_submenus_data_from_db,
+)
+from tests_utils.fixtures import (
+    create_menu_using_post_method_fixture,
+    create_submenu_using_post_method_fixture,
 )
 from tests_utils.internal_tests import (
     assert_response,
@@ -33,7 +37,7 @@ from tests_utils.utils import get_created_object_attribute
 
 @pytest.mark.asyncio
 async def test_create_menu_from_submenu_using_post_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование создания меню в рамках теста CRUD для подменю.
@@ -61,7 +65,7 @@ async def test_create_menu_from_submenu_using_post_method(
 
 @pytest.mark.asyncio
 async def test_get_submenus_for_created_menu_method_when_table_is_empty(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Функция тестирует получение всех подменю для созданного меню когда таблица submenus не содержит ни одной записи для
@@ -80,15 +84,15 @@ async def test_get_submenus_for_created_menu_method_when_table_is_empty(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus с помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    response = await ac.get(url=f"/api/v1/menus{target_menu_id}/submenus")
+    response = await ac.get(url=f'/api/v1/menus{target_menu_id}/submenus')
 
     assert_response(
         response=response,
         expected_status_code=404,
-        expected_data={"detail": "Not Found"},
+        expected_data={'detail': 'Not Found'},
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -98,9 +102,9 @@ async def test_get_submenus_for_created_menu_method_when_table_is_empty(
 
 @pytest.mark.asyncio
 async def test_create_submenu_using_post_method(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Тестирование создания подменю, путем отправки POST запроса.
@@ -130,7 +134,7 @@ async def test_create_submenu_using_post_method(
 
 @pytest.mark.asyncio
 async def test_get_submenus_method_when_table_is_not_empty(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Функция тестирует получение всех подменю для созданного меню когда таблица submenus содержит записи для
@@ -150,11 +154,11 @@ async def test_get_submenus_method_when_table_is_not_empty(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     response = await get_objects_when_table_is_not_empty_internal_test(
-        ac=ac, url=f"/api/v1/menus/{target_menu_id}/submenus"
+        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus'
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
@@ -164,9 +168,9 @@ async def test_get_submenus_method_when_table_is_not_empty(
 
 @pytest.mark.asyncio
 async def test_get_specific_submenu_method(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Функция тестирует получение определенного подменю для созданного меню.
@@ -189,41 +193,41 @@ async def test_get_specific_submenu_method(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     response = await ac.get(
-        f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}"
+        f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
     )
 
     assert_response(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_submenu_id,
-            "title": SUBMENU_TITLE_VALUE_TO_CREATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-            "menu_id": target_menu_id,
-            "dishes": [],
-            "dishes_count": 0,
+            'id': target_submenu_id,
+            'title': SUBMENU_TITLE_VALUE_TO_CREATE,
+            'description': SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
+            'menu_id': target_menu_id,
+            'dishes': [],
+            'dishes_count': 0,
         },
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     submenus_data = await get_specific_submenu_data_from_db()
-    assert submenus_data[0].json() == response.json()
+    assert submenus_data.json() == response.json()
 
 
 @pytest.mark.asyncio
 async def test_update_submenu_using_patch_method(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Функция тестирует обновление определенного подменю с помощью отправки запроса с методом PATCH.
@@ -247,19 +251,19 @@ async def test_update_submenu_using_patch_method(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     response = await ac.patch(
-        url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}",
+        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}',
         json={
-            "title": SUBMENU_TITLE_VALUE_TO_UPDATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'title': SUBMENU_TITLE_VALUE_TO_UPDATE,
+            'description': SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
         },
     )
 
@@ -267,11 +271,11 @@ async def test_update_submenu_using_patch_method(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_submenu_id,
-            "title": SUBMENU_TITLE_VALUE_TO_UPDATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
-            "menu_id": target_menu_id,
-            "dishes": [],
+            'id': target_submenu_id,
+            'title': SUBMENU_TITLE_VALUE_TO_UPDATE,
+            'description': SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'menu_id': target_menu_id,
+            'dishes': [],
         },
     )
 
@@ -282,9 +286,9 @@ async def test_update_submenu_using_patch_method(
 
 @pytest.mark.asyncio
 async def test_get_specific_submenu_method_after_update(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Тестирование получения определенной записи из таблицы submenus по переданным параметрам пути в запросе.
@@ -306,41 +310,41 @@ async def test_get_specific_submenu_method_after_update(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     response = await ac.get(
-        url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}"
+        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
     )
 
     assert_response(
         response=response,
         expected_status_code=200,
         expected_data={
-            "id": target_submenu_id,
-            "title": SUBMENU_TITLE_VALUE_TO_UPDATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
-            "menu_id": target_menu_id,
-            "dishes": [],
-            "dishes_count": 0,
+            'id': target_submenu_id,
+            'title': SUBMENU_TITLE_VALUE_TO_UPDATE,
+            'description': SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
+            'menu_id': target_menu_id,
+            'dishes': [],
+            'dishes_count': 0,
         },
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     submenus_data = await get_specific_submenu_data_from_db()
-    assert submenus_data[0].json() == response.json()
+    assert submenus_data.json() == response.json()
 
 
 @pytest.mark.asyncio
 async def test_delete_submenu_method(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Тест удаления записи.
@@ -360,16 +364,16 @@ async def test_delete_submenu_method(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     await delete_object_internal_test(
-        ac=ac, url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}"
+        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -379,7 +383,7 @@ async def test_delete_submenu_method(
 
 @pytest.mark.asyncio
 async def test_get_submenus_method_after_delete(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование события получения всех записей из таблицы submenus, когда запись была удалена из таблицы.
@@ -398,10 +402,10 @@ async def test_get_submenus_method_after_delete(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f"/api/v1/menus/{target_menu_id}/submenus"
+    url = f'/api/v1/menus/{target_menu_id}/submenus'
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -411,9 +415,9 @@ async def test_get_submenus_method_after_delete(
 
 @pytest.mark.asyncio
 async def test_get_specific_submenu_method_after_delete(
-    ac: AsyncClient,
-    create_menu_using_post_method_fixture: Response,
-    create_submenu_using_post_method_fixture: Response,
+        ac: AsyncClient,
+        create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+        create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
 ) -> None:
     """
     Тестирование события получения определенной из таблицы submenus, когда запись была удалена из таблицы.
@@ -433,18 +437,18 @@ async def test_get_specific_submenu_method_after_delete(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     response = await get_specific_object_when_table_is_empty_internal_test(
         ac=ac,
-        url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}",
-        expected_data={"detail": "submenu not found"},
+        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}',
+        expected_data={'detail': 'submenu not found'},
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -454,7 +458,7 @@ async def test_get_specific_submenu_method_after_delete(
 
 @pytest.mark.asyncio
 async def test_delete_menu_from_submenu_method(
-    ac: AsyncClient, create_menu_using_post_method_fixture: Response
+        ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
 ) -> None:
     """
     Тестирование удаления меню путем отправки запроса с методом DELETE.
@@ -473,10 +477,10 @@ async def test_delete_menu_from_submenu_method(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    await delete_object_internal_test(ac=ac, url=f"/api/v1/menus/{target_menu_id}")
+    await delete_object_internal_test(ac=ac, url=f'/api/v1/menus/{target_menu_id}')
 
     # Проверяем, чтобы данные были удалены
     menus_data = await get_all_menus_data()
@@ -499,7 +503,7 @@ async def test_get_menus_after_delete_from_submenu_method(ac: AsyncClient) -> No
         None
     """
 
-    url = "/api/v1/menus"
+    url = '/api/v1/menus'
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 

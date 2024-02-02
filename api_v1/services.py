@@ -5,11 +5,22 @@
 Дата: 22 января 2024
 """
 
+from database.database import get_async_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+
 from sqlalchemy import insert
 from utils import get_created_object_dict
+from menu.models import Menu
+from submenu.models import Submenu
+from dish.models import Dish
 
 
-async def insert_data(data_dict: dict, database_model, session) -> dict:
+async def insert_data(
+        data_dict: dict,
+        database_model: Menu | Submenu | Dish,
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """
     Функция для внесения данных в БД.
 

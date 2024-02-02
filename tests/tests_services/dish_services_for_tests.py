@@ -26,7 +26,7 @@ async def select_dishes() -> list:
             # независимы
             menus_data = await select_all_menus(session=session)
             menus_data_json = menus_data[0].json()
-            menu_id_in_db = menus_data_json["id"]
+            menu_id_in_db = menus_data_json['id']
 
             # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
             # независимы
@@ -34,7 +34,7 @@ async def select_dishes() -> list:
                 session=session, target_menu_id=menu_id_in_db
             )
             submenus_data_json = submenus_data[0].json()
-            submenu_id_in_db = submenus_data_json["id"]
+            submenu_id_in_db = submenus_data_json['id']
 
             dishes = await select_all_dishes(
                 session=session,
@@ -80,7 +80,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
         # независимы
         menus_data = await select_all_menus(session=session)
         menus_data_json = menus_data[0].json()
-        menu_id_in_db = menus_data_json["id"]
+        menu_id_in_db = menus_data_json['id']
 
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
         # независимы
@@ -88,7 +88,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
             session=session, target_menu_id=menu_id_in_db
         )
         submenus_data_json = submenus_data[0].json()
-        submenu_id_in_db = submenus_data_json["id"]
+        submenu_id_in_db = submenus_data_json['id']
 
         dishes_data = await select_all_dishes(
             session=session,
@@ -98,7 +98,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
 
         try:
             dishes_data_json = dishes_data[0].json()
-            dish_id_in_db = dishes_data_json["id"]
+            dish_id_in_db = dishes_data_json['id']
 
             dish = await select_specific_dish(
                 session=session,
@@ -109,4 +109,4 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
 
             return dish
         except IndexError:
-            return {"detail": "dish not found"}
+            return {'detail': 'dish not found'}
