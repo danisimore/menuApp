@@ -6,7 +6,6 @@
 """
 
 from sqlalchemy import insert
-
 from utils import get_created_object_dict
 
 

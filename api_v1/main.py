@@ -5,18 +5,17 @@
 Дата: 22 января 2024
 """
 
+from dish.router import router as dish_router
 from fastapi import FastAPI
-
 from menu.router import router as menu_router
 from submenu.router import router as submenu_router
-from dish.router import router as dish_router
 
-app = FastAPI(title="Restaurant Menu")
+app = FastAPI(title='Restaurant Menu')
 
 
-@app.get("/health")
+@app.get('/health')
 async def read_health():
-    return {"status": "OK"}
+    return {'status': 'OK'}
 
 
 app.include_router(menu_router)

@@ -5,18 +5,14 @@
 Дата: 22 января 2024
 """
 
+from database.database import get_async_session
+from dish.models import Dish
 from fastapi import Depends
-from sqlalchemy import select, and_, update, delete
-
-from sqlalchemy import cast, Boolean, Result
+from sqlalchemy import Boolean, Result, and_, cast, delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-
-from database.database import get_async_session
 from submenu.models import Submenu
 from submenu.schemas import UpdateSubmenu
-
-from dish.models import Dish
 
 
 async def get_dishes_for_submenu(

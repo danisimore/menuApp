@@ -1,4 +1,5 @@
 import json
+
 import aioredis
 
 
@@ -15,7 +16,7 @@ class RedisTools:
         """
 
         if not self.redis:
-            self.redis = await aioredis.from_url("redis://redis:6379/0")
+            self.redis = await aioredis.from_url('redis://redis:6379/0')
         return self.redis
 
     async def set_pair(self, key: str, value: list | dict) -> None:

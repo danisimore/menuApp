@@ -5,19 +5,13 @@
 Дата: 22 января 2024
 """
 
-from fastapi import Depends
-
-from sqlalchemy import select, update, cast, Boolean, delete, func, distinct
-
-from sqlalchemy import Result
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from database.database import get_async_session
-
+from dish.models import Dish
+from fastapi import Depends
 from menu.models import Menu
 from menu.schemas import MenuUpdate
-
-from dish.models import Dish
+from sqlalchemy import Boolean, Result, cast, delete, distinct, func, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 
 
@@ -58,8 +52,8 @@ async def select_specific_menu(
     stmt = (
         select(
             Menu,
-            func.count(distinct(Submenu.id)).label("submenus_count"),
-            func.count(distinct(Dish.id)).label("dishes_count"),
+            func.count(distinct(Submenu.id)).label('submenus_count'),
+            func.count(distinct(Dish.id)).label('dishes_count'),
         )
         .outerjoin(Submenu, Submenu.menu_id == Menu.id)
         .outerjoin(Dish, Dish.submenu_id == Submenu.id)

@@ -5,8 +5,9 @@
 Дата: 22 января 2024
 """
 
-from pydantic import BaseModel
 from decimal import Decimal
+
+from pydantic import BaseModel
 
 
 class CreateDish(BaseModel):

@@ -5,23 +5,22 @@
 Дата: 22 января 2024
 """
 
-from fastapi import Depends
-from sqlalchemy import (
-    select,
-    cast,
-    Boolean,
-    and_,
-    Result,
-    update,
-    delete,
-    ChunkedIteratorResult,
-)
-from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from database.database import get_async_session
 from dish.models import Dish
 from dish.schemas import UpdateDish
+from fastapi import Depends
+from sqlalchemy import (
+    Boolean,
+    ChunkedIteratorResult,
+    Result,
+    and_,
+    cast,
+    delete,
+    select,
+    update,
+)
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 
 
@@ -137,7 +136,7 @@ async def select_specific_dish(
             )
         )
     except DBAPIError:
-        """Ошибка может возникнуть, если делать запрос к блюду с некорректными target_menu_id или target_submenu_id"""
+        '''Ошибка может возникнуть, если делать запрос к блюду с некорректными target_menu_id или target_submenu_id'''
         return False
 
     result = await session.execute(stmt)

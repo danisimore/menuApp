@@ -19,3 +19,17 @@ def convert_prices_to_str(submenu) -> None:
     """
     for dish in submenu.dishes:
         dish.price = str(dish.price)
+
+
+async def format_dishes(dishes) -> list[dict]:
+    """
+    Функция для преобразования блюд к словарю (json).
+
+    Returns:
+        список с объектами блюд в формате словаря
+    """
+    dishes_list = []
+    for dish in dishes:
+        dishes_list.append(dish.json())
+
+    return dishes_list

@@ -2,22 +2,18 @@
 Модуль для создания подключения к базе данных.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 02 февраля 2024 | Рефакторинг
 """
 
 from typing import AsyncGenerator
 
+from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 from sqlalchemy import MetaData
-
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-from config import DB_HOST, DB_USER, DB_NAME, DB_PORT, DB_PASSWORD
-
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = (
-    f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 )
 
 Base = declarative_base()
