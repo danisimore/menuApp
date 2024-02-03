@@ -4,18 +4,10 @@
 **ВЕРСИЯ ОТ 31.01.2024**
 - [x] Вынести бизнес логику и запросы в БД в отдельные слои приложения.
 - [x] Добавить кэширование запросов к API с использованием Redis. Не забыть про инвалидацию кэша.
-- [ ] Добавить pre-commit хуки в проект. Файл yaml будет прикреплен к ДЗ.
-- [ ] Покрыть проект type hints (тайпхинтами)
+- [x] Добавить pre-commit хуки в проект. Файл yaml будет прикреплен к ДЗ.
+- [x] Покрыть проект type hints (тайпхинтами)
 - [ ] Описать ручки API в соответствии c OpenAPI
 - [ ] Реализовать в тестах аналог Django reverse() для FastAPI
-
-## Видео инструкция по развертыванию приложения.
-
-
-
-https://github.com/danisimore/menuApp/assets/101730132/6b13cd75-b003-4f4b-8b7e-dbd99b671581
-
-
 
 **ТРЕБОВАНИЯ**
 + У вас должен быть установлен docker
@@ -44,13 +36,13 @@ https://github.com/danisimore/menuApp/assets/101730132/6b13cd75-b003-4f4b-8b7e-d
    DB_NAME=postgres
    DB_USER=postgres
    DB_PASSWORD=postgres
-
+   
    TEST_DB_HOST=db_test
    TEST_DB_PORT=5432
    TEST_DB_NAME=postgres
    TEST_DB_USER=postgres
    TEST_DB_PASSWORD=postgres
-
+   
    POSTGRES_DB=postgres
    POSTGRES_USER=postgres
    POSTGRES_PASSWORD=postgres
