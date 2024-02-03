@@ -5,6 +5,8 @@
 Дата: 28 января 2024
 """
 
+from pydantic import UUID4
+
 from database.database import get_async_session
 from dish.dish_services import (
     delete_dish,

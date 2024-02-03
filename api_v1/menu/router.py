@@ -98,9 +98,6 @@ async def menu_get_specific_method(
     cache = await redis.get_pair(key=target_menu_id)
 
     if cache is not None:
-        print('Hello from cache!')
-        if cache.get('404'):
-            return JSONResponse(content={'detail': 'menu not found'}, status_code=404)
         return cache
 
     menu_data = await select_specific_menu(
@@ -116,7 +113,6 @@ async def menu_get_specific_method(
 
         return menu
     else:
-        await redis.set_pair(key=target_menu_id, value={'404': 'not_found'})
         return JSONResponse(content={'detail': 'menu not found'}, status_code=404)
 
 

@@ -44,14 +44,16 @@ async def submenu_get_method(
 
     redis = RedisTools()
 
-    cache = await redis.get_pair(key='submenus')
+    cache_key = target_menu_id + "_submenus"
+
+    cache = await redis.get_pair(key=cache_key)
 
     if cache is not None:
         return cache
 
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
-    await redis.set_pair(key='submenus', value=submenus)
+    await redis.set_pair(key=cache_key, value=submenus)
 
     return submenus
 

@@ -4,13 +4,28 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
-
+import json
+from fastapi.openapi.utils import get_openapi
 from dish.router import router as dish_router
 from fastapi import FastAPI
 from menu.router import router as menu_router
 from submenu.router import router as submenu_router
 
 app = FastAPI(title='Restaurant Menu')
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    with open("docs/openapi.json", "r") as file:
+        openapi_schema = json.loads(file.read())
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 
 @app.get('/health')
