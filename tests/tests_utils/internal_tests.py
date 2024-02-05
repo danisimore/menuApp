@@ -8,13 +8,11 @@
 
 from httpx import AsyncClient, Response
 
-from .test_data import MENU_TITLE_VALUE_TO_CREATE, MENU_DESCRIPTION_VALUE_TO_CREATE
-
 from .utils import get_created_object_attribute
 
 
 def assert_response(
-        response: Response, expected_status_code: int, expected_data: list
+    response: Response, expected_status_code: int, expected_data: dict | list
 ) -> None:
     """
     Функция для проверки на совпадение данных, возвращаемых серверов и данных, которые мы ожидаем увидеть в ответе.
@@ -29,20 +27,20 @@ def assert_response(
     """
 
     error_messages = {
-        "wrong_response_body": f"Expected that response body would be equal to {expected_data}, "
-                               f"but it is equal to {response.json()}",
-        "wrong_status_code": f"It was expected that the status code would be {expected_status_code}, "
-                             f"but it was received {response.status_code}",
+        'wrong_response_body': f'Expected that response body would be equal to {expected_data}, '
+        f'but it is equal to {response.json()}',
+        'wrong_status_code': f'It was expected that the status code would be {expected_status_code}, '
+        f'but it was received {response.status_code}',
     }
 
     assert response.status_code == expected_status_code, error_messages[
-        "wrong_status_code"
+        'wrong_status_code'
     ]
-    assert response.json() == expected_data, error_messages["wrong_response_body"]
+    assert response.json() == expected_data, error_messages['wrong_response_body']
 
 
 async def get_object_when_table_is_empty_internal_test(
-        ac: AsyncClient, url: str
+    ac: AsyncClient, url: str
 ) -> None:
     """
     Тестирование получения объектов из пустой таблицы.
@@ -60,8 +58,8 @@ async def get_object_when_table_is_empty_internal_test(
 
 
 async def create_object_internal_test(
-        create_object_using_post_method_fixture: Response,
-        expected_data: dict,
+    create_object_using_post_method_fixture: Response,
+    expected_data: dict,
 ) -> None:
     """
     Функция для создания записи в таблице БД.
@@ -77,11 +75,11 @@ async def create_object_internal_test(
 
     # Получаем uuid, который вернул сервер после создания записи в таблице и сохраняем его в переменной окружения.
     target_object_id = get_created_object_attribute(
-        response=create_object_using_post_method_fixture, attribute="id"
+        response=create_object_using_post_method_fixture, attribute='id'
     )
 
     # К ожидаемым данным добавляем этот uuid
-    expected_data["id"] = target_object_id
+    expected_data['id'] = target_object_id
 
     # Проверяем, что данные в ответе на POST запрос соответствуют ожидаемым
     assert_response(
@@ -108,12 +106,12 @@ async def delete_object_internal_test(ac: AsyncClient, url: str) -> None:
     assert_response(
         response=response,
         expected_status_code=200,
-        expected_data={"status": "success!"},
+        expected_data={'status': 'success!'},
     )
 
 
 async def get_objects_when_table_is_not_empty_internal_test(
-        ac: AsyncClient, url: str
+    ac: AsyncClient, url: str
 ) -> None:
     """
     Тестирование получения объектов из таблицы, в которой есть записи.
@@ -134,7 +132,7 @@ async def get_objects_when_table_is_not_empty_internal_test(
 
 
 async def get_specific_object_when_table_is_empty_internal_test(
-        ac: AsyncClient, url: str, expected_data: dict
+    ac: AsyncClient, url: str, expected_data: dict
 ) -> None:
     """
     Тестирование получения определенного объекта из пустой таблицы.

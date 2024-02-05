@@ -5,26 +5,26 @@
 Дата: 30 января 2024 | Избавился от общих переменных.
 """
 
-import os
 
 import pytest
 from httpx import AsyncClient, Response
-from .test_data import (
-    MENU_TITLE_VALUE_TO_CREATE,
-    MENU_DESCRIPTION_VALUE_TO_CREATE,
-    SUBMENU_TITLE_VALUE_TO_CREATE,
-    SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
-    DISH_TITLE_VALUE_TO_CREATE,
-    DISH_DESCRIPTION_VALUE_TO_CREATE,
-    DISH_PRICE_TO_CREATE,
-    SECOND_DISH_TITLE_VALUE_TO_CREATE,
-    SECOND_DISH_PRICE_TO_CREATE,
-    SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
-)
 from tests_utils.utils import get_created_object_attribute
 
+from .test_data import (
+    DISH_DESCRIPTION_VALUE_TO_CREATE,
+    DISH_PRICE_TO_CREATE,
+    DISH_TITLE_VALUE_TO_CREATE,
+    MENU_DESCRIPTION_VALUE_TO_CREATE,
+    MENU_TITLE_VALUE_TO_CREATE,
+    SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
+    SECOND_DISH_PRICE_TO_CREATE,
+    SECOND_DISH_TITLE_VALUE_TO_CREATE,
+    SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
+    SUBMENU_TITLE_VALUE_TO_CREATE,
+)
 
-@pytest.fixture(scope="session")
+
+@pytest.fixture(scope='session')
 async def create_menu_using_post_method_fixture(ac: AsyncClient) -> Response:
     """
     Фикстура, которая используется при создании меню с помощью метода POST и используется в дальнейшем, для получения
@@ -42,10 +42,10 @@ async def create_menu_using_post_method_fixture(ac: AsyncClient) -> Response:
 
     # Создаем меню.
     response = await ac.post(
-        url="/api/v1/menus",
+        url='/api/v1/menus',
         json={
-            "title": MENU_TITLE_VALUE_TO_CREATE,
-            "description": MENU_DESCRIPTION_VALUE_TO_CREATE,
+            'title': MENU_TITLE_VALUE_TO_CREATE,
+            'description': MENU_DESCRIPTION_VALUE_TO_CREATE,
         },
     )
 
@@ -53,7 +53,7 @@ async def create_menu_using_post_method_fixture(ac: AsyncClient) -> Response:
     return response
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def create_submenu_using_post_method_fixture(
     ac: AsyncClient, create_menu_using_post_method_fixture: Response
 ) -> Response:
@@ -70,15 +70,15 @@ async def create_submenu_using_post_method_fixture(
     """
 
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Создаем подменю.
     create_submenu_response = await ac.post(
-        url=f"/api/v1/menus/{target_menu_id}/submenus",
+        url=f'/api/v1/menus/{target_menu_id}/submenus',
         json={
-            "title": SUBMENU_TITLE_VALUE_TO_CREATE,
-            "description": SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
+            'title': SUBMENU_TITLE_VALUE_TO_CREATE,
+            'description': SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
         },
     )
 
@@ -95,16 +95,16 @@ async def create_dish(
     price: float,
 ) -> Response:
     return await ac.post(
-        url=f"/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes",
+        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes',
         json={
-            "title": title,
-            "description": description,
-            "price": str(price),
+            'title': title,
+            'description': description,
+            'price': str(price),
         },
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def create_dish_using_post_method_fixture(
     ac: AsyncClient,
     create_menu_using_post_method_fixture: Response,
@@ -112,12 +112,12 @@ async def create_dish_using_post_method_fixture(
 ) -> Response:
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     # Создаем первое блюдо.
@@ -127,14 +127,14 @@ async def create_dish_using_post_method_fixture(
         target_submenu_id,
         DISH_TITLE_VALUE_TO_CREATE,
         DISH_DESCRIPTION_VALUE_TO_CREATE,
-        DISH_PRICE_TO_CREATE,
+        float(DISH_PRICE_TO_CREATE),
     )
 
     # Возвращаем ответ с данными.
     return create_dish_response
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def create_second_dish_using_post_method_fixture(
     ac: AsyncClient,
     create_menu_using_post_method_fixture: Response,
@@ -142,12 +142,12 @@ async def create_second_dish_using_post_method_fixture(
 ) -> Response:
     # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
     target_menu_id = get_created_object_attribute(
-        response=create_menu_using_post_method_fixture, attribute="id"
+        response=create_menu_using_post_method_fixture, attribute='id'
     )
 
     # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
     target_submenu_id = get_created_object_attribute(
-        response=create_submenu_using_post_method_fixture, attribute="id"
+        response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
     # Создаем второе блюдо.
@@ -157,7 +157,7 @@ async def create_second_dish_using_post_method_fixture(
         target_submenu_id,
         SECOND_DISH_TITLE_VALUE_TO_CREATE,
         SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
-        SECOND_DISH_PRICE_TO_CREATE,
+        float(SECOND_DISH_PRICE_TO_CREATE),
     )
 
     # Возвращаем ответ с данными.

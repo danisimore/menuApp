@@ -5,12 +5,21 @@
 Дата: 22 января 2024
 """
 
+from database.database import get_async_session
+from dish.models import Dish
+from fastapi import Depends
+from menu.models import Menu
 from sqlalchemy import insert
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from submenu.models import Submenu
 from utils import get_created_object_dict
 
 
-async def insert_data(data_dict: dict, database_model, session) -> dict:
+async def insert_data(
+        data_dict: dict,
+        database_model: Menu | Submenu | Dish,
+        session: AsyncSession = Depends(get_async_session)
+) -> dict:
     """
     Функция для внесения данных в БД.
 
@@ -30,8 +39,10 @@ async def insert_data(data_dict: dict, database_model, session) -> dict:
     result = await session.execute(stmt)
     # Получаем созданный объект.
     created_object = result.scalars().all()[0]
-    # Формируем словарь из данных созданного объекта, чтобы вернуть его пользователю в виде JSON
-    created_object_dict = get_created_object_dict(created_object=created_object)
+    # Формируем словарь из данных созданного объекта, чтобы вернуть его
+    # пользователю в виде JSON
+    created_object_dict = get_created_object_dict(
+        created_object=created_object)
 
     await session.commit()
 

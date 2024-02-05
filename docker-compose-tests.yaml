@@ -1,30 +1,31 @@
 version: "3.7"
 
 services:
-  db:
+  db_test:
     image: postgres:15.1-alpine
-    container_name: db_container
+    container_name: db_test_container
     env_file:
       - .env-example
-  app:
+
+  app_test:
     build:
       context: .
     env_file:
       - .env-example
-    container_name: fastapi_app
-    command: ["/fastapi_app/docker/app.sh"]
+    container_name: fastapi_app_tests
+    command: [ "/fastapi_app/docker/app_test.sh" ]
     ports:
-      - "8000:8000"
+      - "8001:8001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
       interval: 10s
       timeout: 10s
       retries: 3
     depends_on:
-      - db
+      - db_test
       - redis
     links:
-      - redis:redis  # Связь с контейнером Redis
+      - redis:redis
   redis:
     image: redis:6
     container_name: redis

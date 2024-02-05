@@ -9,23 +9,22 @@
 from typing import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-
 from config import (
-    TEST_DB_USER,
-    TEST_DB_NAME,
     TEST_DB_HOST,
-    TEST_DB_PORT,
+    TEST_DB_NAME,
     TEST_DB_PASSWORD,
+    TEST_DB_PORT,
+    TEST_DB_USER,
 )
 from database.database import get_async_session
 from dish.models import Dish
+from httpx import AsyncClient
 from main import app
+from sqlalchemy import NullPool
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
+DATABASE_URL = f'postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}'
 
 test_engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
 async_session_maker = sessionmaker(
@@ -42,7 +41,7 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
 app.dependency_overrides[get_async_session] = override_get_async_session
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True, scope='session')
 async def prepare_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(Dish.metadata.create_all)
@@ -51,7 +50,7 @@ async def prepare_database():
         await conn.run_sync(Dish.metadata.drop_all)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 async def ac() -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac

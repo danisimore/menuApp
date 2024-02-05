@@ -20,7 +20,7 @@ def format_decimal(value: Decimal) -> str:
     Returns: Строка.
 
     """
-    return "{:.2f}".format(value)
+    return f'{value:.2f}'
 
 
 def return_404_menu_not_linked_to_submenu() -> JSONResponse:
@@ -34,8 +34,8 @@ def return_404_menu_not_linked_to_submenu() -> JSONResponse:
 
     return JSONResponse(
         content={
-            "detail": "the menu object with the identifier you passed has no connection with "
-            "the submenu object whose identifier you passed"
+            'detail': 'the menu object with the identifier you passed has no connection with '
+            'the submenu object whose identifier you passed'
         },
         status_code=404,
     )
