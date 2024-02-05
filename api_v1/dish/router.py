@@ -5,8 +5,7 @@
 Дата: 28 января 2024
 """
 
-from pydantic import UUID4
-
+from custom_router import CustomAPIRouter
 from database.database import get_async_session
 from dish.dish_services import (
     delete_dish,
@@ -18,7 +17,7 @@ from dish.dish_services import (
 from dish.dish_utils import format_decimal, return_404_menu_not_linked_to_submenu
 from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from redis_tools.tools import RedisTools
 from services import insert_data
@@ -26,10 +25,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 from utils import create_dict_from_received_data, get_created_object_dict
 
-router = APIRouter(prefix='/api/v1/menus', tags=['Dish'])
+router = CustomAPIRouter(prefix='/api/v1/menus', tags=['Dish'])
 
 
-@router.get('/{target_menu_id}/submenus/{target_submenu_id}/dishes')
+@router.get('/{target_menu_id}/submenus/{target_submenu_id}/dishes', name='dish_base_url')
 async def dish_get_method(
     target_menu_id: str,
     target_submenu_id: str,

@@ -19,7 +19,7 @@ class RedisTools:
             self.redis = await aioredis.from_url('redis://redis:6379/0')
         return self.redis
 
-    async def set_pair(self, key: str, value: list | dict) -> None:
+    async def set_pair(self, key: str, value: list) -> None:
         """
         Метод для сохранения объекта/объектов в кэше.
 

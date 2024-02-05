@@ -6,7 +6,10 @@
 """
 
 import pytest
+from dish.router import router as dish_router
 from httpx import AsyncClient
+from menu.router import router as menu_router
+from submenu.router import router as submenu_router
 from submenu.submenu_utils import format_dishes
 from tests_services.dish_services_for_tests import get_dish_by_index
 from tests_services.menu_services_for_tests import (
@@ -183,7 +186,7 @@ async def test_get_specific_menu_from_check_quan_of_dishes_and_submenus_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = menu_router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     response = await ac.get(url=url)
 
@@ -253,9 +256,13 @@ async def test_get_specific_submenu_from_check_quan_of_dishes_and_submenus_metho
         response=create_second_dish_using_post_method_fixture, attribute='id'
     )
 
-    response = await ac.get(
-        f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
     )
+
+    response = await ac.get(url=url)
 
     assert_response(
         response=response,
@@ -326,8 +333,14 @@ async def test_delete_submenu_from_check_quan_of_dishes_and_submenus_method(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     await delete_object_internal_test(
-        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+        ac=ac, url=url
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -359,7 +372,10 @@ async def test_get_submenus_method_after_delete_from_check_quan_of_dishes_and_su
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}/submenus'
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+    )
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -400,7 +416,11 @@ async def test_get_dishes_method_after_delete_submenu_from_check_quan_of_dishes_
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes'
+    url = dish_router.reverse(
+        router_name='dish_get_method',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
@@ -434,7 +454,7 @@ async def test_get_specific_menu_after_delete_submenu_with_dishes_from_check_qua
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = menu_router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     response = await ac.get(url=url)
 
@@ -479,7 +499,7 @@ async def test_delete_menu_from_check_quan_of_dishes_and_submenus_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = menu_router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     # Используем тест, который тестирует удаление записи.
     await delete_object_internal_test(ac=ac, url=url)

@@ -6,14 +6,13 @@
 """
 
 from database.database import get_async_session
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
-
-from sqlalchemy import insert
-from utils import get_created_object_dict
-from menu.models import Menu
-from submenu.models import Submenu
 from dish.models import Dish
+from fastapi import Depends
+from menu.models import Menu
+from sqlalchemy import insert
+from sqlalchemy.ext.asyncio import AsyncSession
+from submenu.models import Submenu
+from utils import get_created_object_dict
 
 
 async def insert_data(

@@ -5,20 +5,29 @@
 Дата: 22 января 2024
 """
 import json
-from fastapi.openapi.utils import get_openapi
+
 from dish.router import router as dish_router
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from menu.router import router as menu_router
 from submenu.router import router as submenu_router
 
 app = FastAPI(title='Restaurant Menu')
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
 
-    with open("docs/openapi.json", "r") as file:
+    with open('docs/openapi.json') as file:
         openapi_schema = json.loads(file.read())
 
     app.openapi_schema = openapi_schema
@@ -32,7 +41,7 @@ app.openapi = custom_openapi
 async def read_health():
     return {'status': 'OK'}
 
-
 app.include_router(menu_router)
+
 app.include_router(submenu_router)
 app.include_router(dish_router)

@@ -6,6 +6,7 @@
 """
 import pytest
 from httpx import AsyncClient
+from menu.router import router
 from tests_services.menu_services_for_tests import (
     get_all_menus_data,
     get_menu_data_from_db_with_counters,
@@ -44,7 +45,7 @@ async def test_get_menus_method_when_table_is_empty(ac: AsyncClient) -> None:
         None
     """
 
-    url = '/api/v1/menus'
+    url = router.reverse(router_name='menu_base_url')
 
     # Используем тест, который проверяет ответ сервера на запрос к пустой таблице.
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
@@ -98,7 +99,7 @@ async def test_get_menus_method_when_table_is_not_empty(ac: AsyncClient) -> None
         None
     """
 
-    url = '/api/v1/menus'
+    url = router.reverse(router_name='menu_base_url')
 
     # Используем тест, который проверяет ответ сервера на запрос к не пустой таблице.
     response = await get_objects_when_table_is_not_empty_internal_test(ac=ac, url=url)
@@ -133,7 +134,7 @@ async def test_get_specific_menu_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     response = await ac.get(url=url)
 
@@ -181,7 +182,7 @@ async def test_update_menu_using_patch_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     response = await ac.patch(
         url=url,
@@ -232,7 +233,7 @@ async def test_get_specific_menu_method_after_update(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     # Сохраняем ответ сервера, делая запрос с параметром uuid.
     response = await ac.get(url=url)
@@ -277,7 +278,7 @@ async def test_delete_menu_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     # Используем тест, который тестирует удаление записи.
     await delete_object_internal_test(ac=ac, url=url)
@@ -303,7 +304,7 @@ async def test_get_menus_method_after_delete(ac: AsyncClient) -> None:
         None
     """
 
-    url = '/api/v1/menus'
+    url = router.reverse(router_name='menu_base_url')
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
@@ -335,7 +336,7 @@ async def test_get_specific_menu_method_after_delete(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}'
+    url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
     # Используем тест, который получает не существующую запись.
     await get_specific_object_when_table_is_empty_internal_test(

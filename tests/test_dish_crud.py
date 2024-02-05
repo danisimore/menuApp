@@ -6,7 +6,10 @@
 """
 
 import pytest
+from dish.router import router as dish_router
 from httpx import AsyncClient
+from menu.router import router as menu_router
+from submenu.router import router as submenu_router
 from tests_services.dish_services_for_tests import (
     get_dish_by_index,
     get_specific_dish_data_from_db,
@@ -131,8 +134,14 @@ async def test_get_dishes_method_when_table_is_empty(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_get_method',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     response = await ac.get(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes'
+        url=url
     )
 
     assert_response(response=response, expected_status_code=200, expected_data=[])
@@ -197,8 +206,14 @@ async def test_get_dishes_method_when_table_is_not_empty(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     response = await get_objects_when_table_is_not_empty_internal_test(
-        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes'
+        ac=ac, url=url
     )
 
     response_json = response.json()
@@ -252,8 +267,15 @@ async def test_get_specific_dish_method(
         response=create_dish_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        target_dish_id=target_dish_id
+    )
+
     response = await ac.get(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}'
+        url=url
     )
 
     assert_response(
@@ -321,8 +343,15 @@ async def test_update_dish_using_patch_method(
         response=create_dish_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        target_dish_id=target_dish_id
+    )
+
     response = await ac.patch(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}',
+        url=url,
         json={
             'title': DISH_TITLE_VALUE_TO_UPDATE,
             'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
@@ -388,8 +417,15 @@ async def test_get_specific_dish_method_after_update(
         response=create_dish_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        target_dish_id=target_dish_id
+    )
+
     response = await ac.get(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}'
+        url=url
     )
 
     assert_response(
@@ -449,9 +485,16 @@ async def test_delete_dish_method(
         response=create_dish_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        target_dish_id=target_dish_id
+    )
+
     await delete_object_internal_test(
         ac=ac,
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}',
+        url=url
     )
 
     dishes_data = await get_dish_by_index(index=0)
@@ -490,7 +533,11 @@ async def test_get_dishes_method_after_delete(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes'
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+    )
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
@@ -538,9 +585,16 @@ async def test_get_specific_dish_method_after_delete(
         response=create_dish_using_post_method_fixture, attribute='id'
     )
 
+    url = dish_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        target_dish_id=target_dish_id
+    )
+
     response = await get_specific_object_when_table_is_empty_internal_test(
         ac=ac,
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}',
+        url=url,
         expected_data={'detail': 'dish not found'},
     )
 
@@ -581,8 +635,14 @@ async def test_delete_submenu_from_dish_method(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     await delete_object_internal_test(
-        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+        ac=ac, url=url
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -614,7 +674,11 @@ async def test_get_submenus_after_delete_from_dish_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}/submenus'
+    url = submenu_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+    )
+
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -646,7 +710,12 @@ async def test_delete_menu_from_dish_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    await delete_object_internal_test(ac=ac, url=f'/api/v1/menus/{target_menu_id}')
+    url = menu_router.reverse(
+        router_name='dish_base_url',
+        target_menu_id=target_menu_id,
+    )
+
+    await delete_object_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные были удалены
     menus_data = await get_all_menus_data()
@@ -669,7 +738,9 @@ async def test_get_menus_after_delete_from_dish_method(ac: AsyncClient) -> None:
         None
     """
 
-    url = '/api/v1/menus'
+    url = menu_router.reverse(
+        router_name='menu_base_url',
+    )
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 

@@ -5,8 +5,9 @@
 Дата: 29 января 2024 - добавлено преобразование цен блюд из Decimal к строке
 """
 
+from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from redis_tools.tools import RedisTools
 from services import insert_data
@@ -22,10 +23,10 @@ from .menu_services import (
 from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 
-router = APIRouter(prefix='/api/v1', tags=['Menu'])
+router = CustomAPIRouter(prefix='/api/v1', tags=['Menu'])
 
 
-@router.get('/menus')
+@router.get(path='/menus', name='menu_base_url')
 async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
     """
     Функция для обработки get запроса для получения всех меню.
@@ -51,7 +52,7 @@ async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
     return menus
 
 
-@router.post('/menus')
+@router.post(path='/menus')
 async def menu_post_method(
     new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
@@ -78,7 +79,7 @@ async def menu_post_method(
     return JSONResponse(content=created_menu, status_code=201)
 
 
-@router.get('/menus/{target_menu_id}')
+@router.get(path='/menus/{target_menu_id}')
 async def menu_get_specific_method(
     target_menu_id: str, session: AsyncSession = Depends(get_async_session)
 ):
@@ -92,7 +93,6 @@ async def menu_get_specific_method(
     Returns: Объект найденной по id записи.
 
     """
-
     redis = RedisTools()
 
     cache = await redis.get_pair(key=target_menu_id)

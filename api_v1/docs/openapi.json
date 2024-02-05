@@ -1,1008 +1,1064 @@
 {
-  "openapi": "3.0.2",
-  "info": {
-    "title": "OpenMenuAppMap API",
-    "description": "1.Allows you to get existing menus, create new ones and update existing ones;<br>2.Allows you to create a submenu that will be linked to the menu, get and update it;<br>3.Allows you to create, get and update dish that will be linked to the submenu",
-    "version": "1.0",
-    "contact": {
-      "name": "Danil",
-      "url": "https://github.com/danisimore/",
-      "email": "danisimore@yandex.ru"
-    }
-  },
-  "servers": [
-    {
-      "url": "http://localhost:8000/",
-      "description": "Dev server"
-    }
-  ],
-  "paths": {
-    "/api/v1/menus": {
-      "get": {
-        "tags": [
-          "Get Menu"
-        ],
-        "summary": "Get all menus from database.",
-        "description": "Menus GET method endpoint",
-        "operationId": "GetAllMenus",
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Sample",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Create Menu"
-        ],
-        "summary": "Create menu record in database",
-        "description": "Menu POST method endpoint",
-        "operationId": "CreateMenu",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Sample",
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
+   "openapi":"3.0.2",
+   "info":{
+      "title":"OpenMenuAppMap API",
+      "description":"1.Allows you to get existing menus, create new ones and update existing ones;<br>2.Allows you to create a submenu that will be linked to the menu, get and update it;<br>3.Allows you to create, get and update dish that will be linked to the submenu",
+      "version":"1.0",
+      "contact":{
+         "name":"Danil",
+         "url":"https://github.com/danisimore/",
+         "email":"danisimore@yandex.ru"
       }
-    },
-    "/api/v1/menus/{target_menu_id}": {
-      "get": {
-        "tags": [
-          "Get Menu"
-        ],
-        "summary": "Get a specific menu by ID.",
-        "description": "Menu GET method endpoint by ID",
-        "operationId": "GetMenuById",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "submenus_count": {
-                      "type": "integer"
-                    },
-                    "dishes_count": {
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Update Menu"
-        ],
-        "summary": "Update Menu by ID",
-        "description": "Menu PATCH method endpoint",
-        "operationId": "UpdateMenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Sample",
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Delete Menu"
-        ],
-        "summary": "Delete Menu by ID",
-        "description": "Menu DELETE method endpoint",
-        "operationId": "DeleteMenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/DeleteSuccessMethod"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
+   },
+   "servers":[
+      {
+         "url":"http://localhost:8000/",
+         "description":"Dev server"
       }
-    },
-    "/api/v1/menus/{target_menu_id}/submenus": {
-      "get": {
-        "tags": [
-          "Get Submenu"
-        ],
-        "summary": "Get all submenus from database.",
-        "description": "Submenus GET method endpoint",
-        "operationId": "GetAllSubmenus",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Sample",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "menu_id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "dishes": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "id": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "title": {
-                              "type": "string"
-                            },
-                            "description": {
-                              "type": "string"
-                            },
-                            "price": {
-                              "type": "number"
-                            },
-                            "submenu_id": {
-                              "type": "string",
-                              "format": "uuid"
-                            }
-                          }
+   ],
+   "paths":{
+      "/api/v1/menus":{
+         "get":{
+            "tags":[
+               "Get Menu"
+            ],
+            "summary":"Get all menus from database.",
+            "description":"Menus GET method endpoint",
+            "operationId":"GetAllMenus",
+            "responses":{
+               "200":{
+                  "description":"Successful response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"array",
+                           "items":{
+                              "type":"object",
+                              "properties":{
+                                 "id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "title":{
+                                    "type":"string"
+                                 },
+                                 "description":{
+                                    "type":"string"
+                                 }
+                              }
+                           }
                         }
-                      }
-                    }
+                     }
                   }
-                }
-              }
+               }
             }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Create Submenu"
-        ],
-        "summary": "Create submenu record in database.",
-        "description": "Submenus GET method endpoint",
-        "operationId": "CreateSubmenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "$ref": "#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}": {
-      "get": {
-        "tags": [
-          "Get Submenu"
-        ],
-        "summary": "Get scpecific submenus from database.",
-        "description": "Submenus GET by ID method endpoint",
-        "operationId": "GetSpecificSubmenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Sample",
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "menu_id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "dishes": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "title": {
-                            "type": "string"
-                          },
-                          "description": {
-                            "type": "string"
-                          },
-                          "price": {
-                            "type": "number"
-                          },
-                          "submenu_id": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Update Submenu"
-        ],
-        "summary": "Update scpecific submenus from database.",
-        "description": "Update GET by ID method endpoint",
-        "operationId": "UpdateSubmenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Delete Submenu"
-        ],
-        "summary": "Delete Submenu by ID",
-        "description": "Submenu DELETE method endpoint",
-        "operationId": "DeleteSubmenu",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/DeleteSuccessMethod"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes": {
-      "get": {
-        "tags": [
-          "Get Dish"
-        ],
-        "summary": "Get all dishes from database.",
-        "description": "Dish GET method endpoint",
-        "operationId": "GetDishes",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu that the dishes is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "price": {
-                        "type": "number"
-                      },
-                      "submenu_id": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Create Dish"
-        ],
-        "summary": "Create dish record in database ",
-        "description": "Dish POST method endpoint",
-        "operationId": "CreateDish",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu that the dishes is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "price": {
-                      "type": "number"
-                    },
-                    "submenu_id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}": {
-      "get": {
-        "tags": [
-          "Get Dish"
-        ],
-        "summary": "Get specific dish from database.",
-        "description": "Dish GET specific method endpoint",
-        "operationId": "GetSpecificDish",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu that the dishes is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_dish_id",
-            "in": "path",
-            "description": "ID of the target dish",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "price": {
-                      "type": "number"
-                    },
-                    "submenu_id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Update Dish"
-        ],
-        "summary": "Update dish from database.",
-        "description": "Dish PATCH method endpoint",
-        "operationId": "UpdateDish",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu that the dishes is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_dish_id",
-            "in": "path",
-            "description": "ID of the target dish",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "title": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "price": {
-                      "type": "number"
-                    },
-                    "submenu_id": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Delete Dish"
-        ],
-        "summary": "Delete dish from database.",
-        "description": "Dish DELETE method endpoint",
-        "operationId": "DeleteDish",
-        "parameters": [
-          {
-            "name": "target_menu_id",
-            "in": "path",
-            "description": "ID of the target menu that the submenu is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_submenu_id",
-            "in": "path",
-            "description": "ID of the target submenu that the dishes is linked to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "target_dish_id",
-            "in": "path",
-            "description": "ID of the target dish",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/DeleteSuccessMethod"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "responses": {
-      "DeleteSuccessMethod": {
-        "description": "Successful Response",
-        "content": {
-          "application/json": {
-            "schema": {
-              "title": "Sample",
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "string",
-                  "description": "status description"
-                }
-              }
-            }
-          }
-        }
-      },
-      "SubmenuCreateAndUpdateSuccessfulResopnse": {
-        "description": "Successful response",
-        "content": {
-          "application/json": {
-            "schema": {
-              "title": "Sample",
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "menu_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "dishes": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "price": {
-                        "type": "number"
-                      },
-                      "submenu_id": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "NotFound": {
-        "description": "Not Found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "title": "Error Detail",
-              "type": "object",
-              "properties": {
-                "detail": {
-                  "type": "string",
-                  "description": "status description"
-                }
-              }
-            }
-          }
-        }
-      },
-      "ValidationError": {
-        "description": "Validation Error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "title": "Error Detail",
-              "type": "object",
-              "properties": {
-                "detail": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "loc": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
+         },
+         "post":{
+            "tags":[
+               "Create Menu"
+            ],
+            "summary":"Create menu record in database",
+            "description":"Menu POST method endpoint",
+            "operationId":"CreateMenu",
+            "requestBody":{
+               "description":"Data for creating a menu",
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           }
                         },
-                        "minItems": 2,
-                        "maxItems": 2
-                      },
-                      "msg": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    }
+                        "required":[
+                           "title",
+                           "description"
+                        ]
+                     }
                   }
-                }
-              }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Created",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
             }
-          }
-        }
+         }
+      },
+      "/api/v1/menus/{target_menu_id}":{
+         "get":{
+            "tags":[
+               "Get Menu"
+            ],
+            "summary":"Get a specific menu by ID.",
+            "description":"Menu GET method endpoint by ID",
+            "operationId":"GetMenuById",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              },
+                              "submenus_count":{
+                                 "type":"integer"
+                              },
+                              "dishes_count":{
+                                 "type":"integer"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "patch":{
+            "tags":[
+               "Update Menu"
+            ],
+            "summary":"Update Menu by ID",
+            "description":"Menu PATCH method endpoint",
+            "operationId":"UpdateMenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "200":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "delete":{
+            "tags":[
+               "Delete Menu"
+            ],
+            "summary":"Delete Menu by ID",
+            "description":"Menu DELETE method endpoint",
+            "operationId":"DeleteMenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "$ref":"#/components/responses/DeleteSuccessMethod"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         }
+      },
+      "/api/v1/menus/{target_menu_id}/submenus":{
+         "get":{
+            "tags":[
+               "Get Submenu"
+            ],
+            "summary":"Get all submenus from database.",
+            "description":"Submenus GET method endpoint",
+            "operationId":"GetAllSubmenus",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"array",
+                           "items":{
+                              "type":"object",
+                              "properties":{
+                                 "id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "title":{
+                                    "type":"string"
+                                 },
+                                 "description":{
+                                    "type":"string"
+                                 },
+                                 "menu_id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "dishes":{
+                                    "type":"array",
+                                    "items":{
+                                       "type":"object",
+                                       "properties":{
+                                          "id":{
+                                             "type":"string",
+                                             "format":"uuid"
+                                          },
+                                          "title":{
+                                             "type":"string"
+                                          },
+                                          "description":{
+                                             "type":"string"
+                                          },
+                                          "price":{
+                                             "type":"number"
+                                          },
+                                          "submenu_id":{
+                                             "type":"string",
+                                             "format":"uuid"
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "post":{
+            "tags":[
+               "Create Submenu"
+            ],
+            "summary":"Create submenu record in database.",
+            "description":"Submenus POST method endpoint",
+            "operationId":"CreateSubmenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "requestBody":{
+               "description":"Data for creating a submenu",
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           }
+                        },
+                        "required":[
+                           "title",
+                           "description"
+                        ]
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "$ref":"#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         }
+      },
+      "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}":{
+         "get":{
+            "tags":[
+               "Get Submenu"
+            ],
+            "summary":"Get scpecific submenus from database.",
+            "description":"Submenus GET by ID method endpoint",
+            "operationId":"GetSpecificSubmenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              },
+                              "menu_id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "dishes":{
+                                 "type":"array",
+                                 "items":{
+                                    "type":"object",
+                                    "properties":{
+                                       "id":{
+                                          "type":"string",
+                                          "format":"uuid"
+                                       },
+                                       "title":{
+                                          "type":"string"
+                                       },
+                                       "description":{
+                                          "type":"string"
+                                       },
+                                       "price":{
+                                          "type":"number"
+                                       },
+                                       "submenu_id":{
+                                          "type":"string",
+                                          "format":"uuid"
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "patch":{
+            "tags":[
+               "Update Submenu"
+            ],
+            "summary":"Update scpecific submenus from database.",
+            "description":"Update GET by ID method endpoint",
+            "operationId":"UpdateSubmenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "$ref":"#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "delete":{
+            "tags":[
+               "Delete Submenu"
+            ],
+            "summary":"Delete Submenu by ID",
+            "description":"Submenu DELETE method endpoint",
+            "operationId":"DeleteSubmenu",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "$ref":"#/components/responses/DeleteSuccessMethod"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         }
+      },
+      "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes":{
+         "get":{
+            "tags":[
+               "Get Dish"
+            ],
+            "summary":"Get all dishes from database.",
+            "description":"Dish GET method endpoint",
+            "operationId":"GetDishes",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu that the dishes is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"array",
+                           "items":{
+                              "type":"object",
+                              "properties":{
+                                 "id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "title":{
+                                    "type":"string"
+                                 },
+                                 "description":{
+                                    "type":"string"
+                                 },
+                                 "price":{
+                                    "type":"number"
+                                 },
+                                 "submenu_id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "post":{
+            "tags":[
+               "Create Dish"
+            ],
+            "summary":"Create dish record in database ",
+            "description":"Dish POST method endpoint",
+            "operationId":"CreateDish",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu that the dishes is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+           "requestBody":{
+               "description":"Data for creating a dish",
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           },
+                           "price": {
+                             "type": "number"
+                           }
+                        },
+                        "required":[
+                           "title",
+                           "description",
+                           "price"
+                        ]
+                     }
+                  }
+               }
+            },
+            "responses":{
+               "201":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              },
+                              "price":{
+                                 "type":"number"
+                              },
+                              "submenu_id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         }
+      },
+      "/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}":{
+         "get":{
+            "tags":[
+               "Get Dish"
+            ],
+            "summary":"Get specific dish from database.",
+            "description":"Dish GET specific method endpoint",
+            "operationId":"GetSpecificDish",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu that the dishes is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_dish_id",
+                  "in":"path",
+                  "description":"ID of the target dish",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              },
+                              "price":{
+                                 "type":"number"
+                              },
+                              "submenu_id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "patch":{
+            "tags":[
+               "Update Dish"
+            ],
+            "summary":"Update dish from database.",
+            "description":"Dish PATCH method endpoint",
+            "operationId":"UpdateDish",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu that the dishes is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_dish_id",
+                  "in":"path",
+                  "description":"ID of the target dish",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "description":"Successful Response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "type":"object",
+                           "properties":{
+                              "id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              },
+                              "title":{
+                                 "type":"string"
+                              },
+                              "description":{
+                                 "type":"string"
+                              },
+                              "price":{
+                                 "type":"number"
+                              },
+                              "submenu_id":{
+                                 "type":"string",
+                                 "format":"uuid"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         },
+         "delete":{
+            "tags":[
+               "Delete Dish"
+            ],
+            "summary":"Delete dish from database.",
+            "description":"Dish DELETE method endpoint",
+            "operationId":"DeleteDish",
+            "parameters":[
+               {
+                  "name":"target_menu_id",
+                  "in":"path",
+                  "description":"ID of the target menu that the submenu is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_submenu_id",
+                  "in":"path",
+                  "description":"ID of the target submenu that the dishes is linked to",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               },
+               {
+                  "name":"target_dish_id",
+                  "in":"path",
+                  "description":"ID of the target dish",
+                  "required":true,
+                  "schema":{
+                     "type":"string",
+                     "format":"uuid"
+                  }
+               }
+            ],
+            "responses":{
+               "200":{
+                  "$ref":"#/components/responses/DeleteSuccessMethod"
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               },
+               "422":{
+                  "$ref":"#/components/responses/ValidationError"
+               }
+            }
+         }
       }
-    }
-  }
+   },
+   "components":{
+      "responses":{
+         "DeleteSuccessMethod":{
+            "description":"Successful Response",
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "title":"Sample",
+                     "type":"object",
+                     "properties":{
+                        "status":{
+                           "type":"string",
+                           "description":"status description"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "SubmenuCreateAndUpdateSuccessfulResopnse":{
+            "description":"Successful response",
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "title":"Sample",
+                     "type":"object",
+                     "properties":{
+                        "id":{
+                           "type":"string",
+                           "format":"uuid"
+                        },
+                        "title":{
+                           "type":"string"
+                        },
+                        "description":{
+                           "type":"string"
+                        },
+                        "menu_id":{
+                           "type":"string",
+                           "format":"uuid"
+                        },
+                        "dishes":{
+                           "type":"array",
+                           "items":{
+                              "type":"object",
+                              "properties":{
+                                 "id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "title":{
+                                    "type":"string"
+                                 },
+                                 "description":{
+                                    "type":"string"
+                                 },
+                                 "price":{
+                                    "type":"number"
+                                 },
+                                 "submenu_id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "NotFound":{
+            "description":"Not Found",
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "title":"Error Detail",
+                     "type":"object",
+                     "properties":{
+                        "detail":{
+                           "type":"string",
+                           "description":"status description"
+                        }
+                     }
+                  }
+               }
+            }
+         },
+         "ValidationError":{
+            "description":"Validation Error",
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "title":"Error Detail",
+                     "type":"object",
+                     "properties":{
+                        "detail":{
+                           "type":"array",
+                           "items":{
+                              "type":"object",
+                              "properties":{
+                                 "loc":{
+                                    "type":"array",
+                                    "items":{
+                                       "type":"string"
+                                    },
+                                    "minItems":2,
+                                    "maxItems":2
+                                 },
+                                 "msg":{
+                                    "type":"string"
+                                 },
+                                 "type":{
+                                    "type":"string"
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
 }

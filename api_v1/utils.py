@@ -6,11 +6,16 @@
 Дата: 20 января 2024
 """
 from dish.models import Dish
+from dish.schemas import CreateDish
 from menu.models import Menu
 from submenu.models import Submenu
-
 from submenu.schemas import CreateSubmenu
-from dish.schemas import CreateDish
+
+
+def reverse(url_name, urls_data):
+    url = urls_data.get(url_name)
+
+    return url
 
 
 def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:

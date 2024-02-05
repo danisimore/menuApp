@@ -7,6 +7,8 @@
 
 import pytest
 from httpx import AsyncClient
+from menu.router import router as menu_router
+from submenu.router import router as submenu_router
 from tests_services.menu_services_for_tests import (
     get_all_menus_data,
     get_menu_data_from_db_without_counters,
@@ -87,12 +89,17 @@ async def test_get_submenus_for_created_menu_method_when_table_is_empty(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    response = await ac.get(url=f'/api/v1/menus{target_menu_id}/submenus')
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id
+    )
+
+    response = await ac.get(url=url)
 
     assert_response(
         response=response,
-        expected_status_code=404,
-        expected_data={'detail': 'Not Found'},
+        expected_status_code=200,
+        expected_data=[],
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -157,8 +164,13 @@ async def test_get_submenus_method_when_table_is_not_empty(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id
+    )
+
     response = await get_objects_when_table_is_not_empty_internal_test(
-        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus'
+        ac=ac, url=url
     )
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
@@ -201,9 +213,13 @@ async def test_get_specific_submenu_method(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
-    response = await ac.get(
-        f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
     )
+
+    response = await ac.get(url=url)
 
     assert_response(
         response=response,
@@ -259,8 +275,14 @@ async def test_update_submenu_using_patch_method(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     response = await ac.patch(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}',
+        url=url,
         json={
             'title': SUBMENU_TITLE_VALUE_TO_UPDATE,
             'description': SUBMENU_DESCRIPTION_VALUE_TO_UPDATE,
@@ -318,9 +340,13 @@ async def test_get_specific_submenu_method_after_update(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
-    response = await ac.get(
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
     )
+
+    response = await ac.get(url=url)
 
     assert_response(
         response=response,
@@ -372,8 +398,14 @@ async def test_delete_submenu_method(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     await delete_object_internal_test(
-        ac=ac, url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}'
+        ac=ac, url=url
     )
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -405,7 +437,10 @@ async def test_get_submenus_method_after_delete(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    url = f'/api/v1/menus/{target_menu_id}/submenus'
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+    )
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
     # Проверяем, что для созданного меню действительно не существует подменю
@@ -445,9 +480,15 @@ async def test_get_specific_submenu_method_after_delete(
         response=create_submenu_using_post_method_fixture, attribute='id'
     )
 
+    url = submenu_router.reverse(
+        router_name='submenu_base_url',
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id
+    )
+
     response = await get_specific_object_when_table_is_empty_internal_test(
         ac=ac,
-        url=f'/api/v1/menus/{target_menu_id}/submenus/{target_submenu_id}',
+        url=url,
         expected_data={'detail': 'submenu not found'},
     )
 
@@ -480,7 +521,12 @@ async def test_delete_menu_from_submenu_method(
         response=create_menu_using_post_method_fixture, attribute='id'
     )
 
-    await delete_object_internal_test(ac=ac, url=f'/api/v1/menus/{target_menu_id}')
+    url = menu_router.reverse(
+        router_name='menu_base_url',
+        target_menu_id=target_menu_id,
+    )
+
+    await delete_object_internal_test(ac=ac, url=url)
 
     # Проверяем, чтобы данные были удалены
     menus_data = await get_all_menus_data()
@@ -503,7 +549,9 @@ async def test_get_menus_after_delete_from_submenu_method(ac: AsyncClient) -> No
         None
     """
 
-    url = '/api/v1/menus'
+    url = menu_router.reverse(
+        router_name='menu_base_url',
+    )
 
     response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 

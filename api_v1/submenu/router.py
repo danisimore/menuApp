@@ -5,8 +5,9 @@
 Дата: 22 января 2024
 """
 
+from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from redis_tools.tools import RedisTools
 from services import insert_data
@@ -24,12 +25,12 @@ from .submenu_services import (
 )
 from .submenu_utils import format_dishes
 
-router = APIRouter(prefix='/api/v1/menus', tags=['submenu'])
+router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
 
 
-@router.get('/{target_menu_id}/submenus')
+@router.get('/{target_menu_id}/submenus', name='submenu_base_url')
 async def submenu_get_method(
-    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
+        target_menu_id: str, session: AsyncSession = Depends(get_async_session)
 ):
     """
     Функция для обработки get запроса для выборки всех подменю, связанных с указанным меню.
@@ -44,7 +45,7 @@ async def submenu_get_method(
 
     redis = RedisTools()
 
-    cache_key = target_menu_id + "_submenus"
+    cache_key = target_menu_id + '_submenus'
 
     cache = await redis.get_pair(key=cache_key)
 
@@ -60,9 +61,9 @@ async def submenu_get_method(
 
 @router.post('/{target_menu_id}/submenus')
 async def submenu_post_method(
-    target_menu_id: str,
-    submenu_data: CreateSubmenu,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        submenu_data: CreateSubmenu,
+        session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки POST запроса.
@@ -92,18 +93,20 @@ async def submenu_post_method(
         created_submenu['id'], session=session
     )
 
-    created_submenu['dishes'] = submenu_dishes
+    created_submenu['dishes'] = await format_dishes(submenu_dishes)
 
-    await redis.invalidate_cache(key='submenus')
+    cache_key = target_menu_id + '_submenus'
+
+    await redis.invalidate_cache(key=cache_key)
 
     return JSONResponse(content=created_submenu, status_code=201)
 
 
 @router.get('/{target_menu_id}/submenus/{target_submenu_id}')
 async def submenu_get_specific_method(
-    target_menu_id: str,
-    target_submenu_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        target_submenu_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ):
     """
     Функция для обработки get запроса по-указанному id.
@@ -156,10 +159,10 @@ async def submenu_get_specific_method(
 
 @router.patch('/{target_menu_id}/submenus/{target_submenu_id}')
 async def submenu_patch_method(
-    target_menu_id: str,
-    target_submenu_id: str,
-    update_submenu_data: UpdateSubmenu,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        target_submenu_id: str,
+        update_submenu_data: UpdateSubmenu,
+        session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки PATCH запроса по-указанному id.
@@ -206,9 +209,9 @@ async def submenu_patch_method(
 
 @router.delete('/{target_menu_id}/submenus/{target_submenu_id}')
 async def submenu_delete_method(
-    target_menu_id: str,
-    target_submenu_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        target_submenu_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
     Функция для обработки DELETE запроса по-указанному id.
@@ -229,8 +232,9 @@ async def submenu_delete_method(
         target_menu_id=target_menu_id,
         session=session,
     )
+    cache_all_submenus_key = target_menu_id + '_submenus'
 
-    await redis.invalidate_cache(key='submenus')
+    await redis.invalidate_cache(key=cache_all_submenus_key)
     await redis.invalidate_cache(key=target_menu_id)
     await redis.invalidate_cache(key=target_submenu_id)
 
