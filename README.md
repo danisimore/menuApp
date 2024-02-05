@@ -32,7 +32,7 @@
     ```
 6. Чтобы запустить контейнер с тестами используйте команду
    ```
-   sudo up_tests_container
+   sudo make up_tests_container
    ```
 
 ## Тестирование
