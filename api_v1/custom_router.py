@@ -1,5 +1,5 @@
+from fastapi import APIRouter
 from starlette.routing import NoMatchFound
-from fastapi import FastAPI, APIRouter
 
 
 class CustomAPIRouter(APIRouter):
