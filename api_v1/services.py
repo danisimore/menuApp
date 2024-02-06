@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
+from typing import Any
 
 from database.database import get_async_session
 from dish.models import Dish
@@ -16,10 +17,10 @@ from utils import get_created_object_dict
 
 
 async def insert_data(
-        data_dict: dict,
+        data_dict: dict[Any, Any],
         database_model: Menu | Submenu | Dish,
         session: AsyncSession = Depends(get_async_session)
-) -> dict:
+) -> dict[Any, Any]:
     """
     Функция для внесения данных в БД.
 

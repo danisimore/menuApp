@@ -6,7 +6,7 @@
 """
 
 import uuid
-from .submenu_utils import format_dishes
+
 from menu.models import Base
 from sqlalchemy import UUID, Column, ForeignKey, String
 from sqlalchemy.orm import relationship

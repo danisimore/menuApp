@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 31 января 2024
 """
+from typing import Any
 
 from conftest import async_session_maker
 from dish.dish_services import select_all_dishes, select_specific_dish
@@ -12,7 +13,7 @@ from menu.menu_services import select_all_menus
 from submenu.submenu_services import select_all_submenus
 
 
-async def select_dishes() -> list:
+async def select_dishes() -> list[Dish]:
     """
     Выборка всех блюд из БД
 
@@ -47,7 +48,7 @@ async def select_dishes() -> list:
         return dishes
 
 
-async def get_dish_by_index(index: int) -> list[dict] | list:
+async def get_dish_by_index(index: int) -> list[dict[Any, Any]] | list[Any]:
     """
     Возвращает данные о блюде по указанному индексу из выборки всех блюд.
 
@@ -67,7 +68,7 @@ async def get_dish_by_index(index: int) -> list[dict] | list:
         return []
 
 
-async def get_specific_dish_data_from_db() -> Dish | dict:
+async def get_specific_dish_data_from_db() -> Dish | dict[str, str]:
     """
     Выборка определенного блюда из БД.
 

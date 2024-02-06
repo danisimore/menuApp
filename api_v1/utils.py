@@ -5,6 +5,8 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 20 января 2024
 """
+from typing import Any
+
 from dish.models import Dish
 from dish.schemas import CreateDish
 from menu.models import Menu
@@ -12,13 +14,7 @@ from submenu.models import Submenu
 from submenu.schemas import CreateSubmenu
 
 
-def reverse(url_name, urls_data):
-    url = urls_data.get(url_name)
-
-    return url
-
-
-def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:
+def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict[Any, Any]:
     """
     Функция формирует словарь из таблицы для созданной записи.
 
@@ -48,7 +44,7 @@ def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict:
 
 def create_dict_from_received_data(
     received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
-) -> dict:
+) -> dict[Any, Any]:
     """
     Функция формирует словарь на основе полученных от клиента данных о блюде, которое нужно создать
 
@@ -62,8 +58,8 @@ def create_dict_from_received_data(
     """
 
     # Формируем словарь из полученных данных.
-    dish_data_dict = received_data.model_dump()
+    data_dict = received_data.model_dump()
     # Указываем, что блюдо привязывается у указанному в запросе подменю.
-    dish_data_dict[foreign_key_field_name] = parent_id
+    data_dict[foreign_key_field_name] = parent_id
 
-    return dish_data_dict
+    return data_dict

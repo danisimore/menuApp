@@ -95,10 +95,10 @@ async def menu_get_specific_method(
     """
     redis = RedisTools()
 
-    # cache = await redis.get_pair(key=target_menu_id)
-    #
-    # if cache is not None:
-    #     return cache
+    cache = await redis.get_pair(key=target_menu_id)
+
+    if cache is not None:
+        return cache
 
     menu_data = await select_specific_menu(
         target_menu_id=target_menu_id, session=session

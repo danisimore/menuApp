@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
+from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
@@ -31,7 +32,7 @@ router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
 @router.get('/{target_menu_id}/submenus', name='submenu_base_url')
 async def submenu_get_method(
         target_menu_id: str, session: AsyncSession = Depends(get_async_session)
-):
+) -> list[dict[Any, Any]]:
     """
     Функция для обработки get запроса для выборки всех подменю, связанных с указанным меню.
 

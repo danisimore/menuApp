@@ -9,23 +9,14 @@ from database.database import get_async_session
 from dish.models import Dish
 from dish.schemas import UpdateDish
 from fastapi import Depends
-from sqlalchemy import (
-    Boolean,
-    ChunkedIteratorResult,
-    Result,
-    and_,
-    cast,
-    delete,
-    select,
-    update,
-)
+from sqlalchemy import Boolean, Result, and_, cast, delete, select, update
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 
 
 async def is_submenu_in_target_menu(
-    submenu: Submenu,
+    submenu: type[Submenu],
     target_menu_id: str,
     target_submenu_id: str,
     session: AsyncSession = Depends(get_async_session),
@@ -71,7 +62,7 @@ async def select_all_dishes(
     target_menu_id: str,
     target_submenu_id: str,
     session: AsyncSession = Depends(get_async_session),
-) -> list:
+) -> list[type[Dish]]:
     """
     Функция для получения всех блюд по указанному id меню и привязанного к нему подменю.
 
@@ -106,7 +97,7 @@ async def select_specific_dish(
     target_submenu_id: str,
     target_dish_id: str,
     session: AsyncSession = Depends(get_async_session),
-) -> ChunkedIteratorResult:
+) -> Result[tuple[Dish]] | bool:
     """
     Функция для получения определенного блюда по указанному id меню и привязанного к нему подменю, а также по-указанному
     id блюда.
@@ -149,7 +140,7 @@ async def update_dish(
     target_dish_id: str,
     update_data: UpdateDish,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Dish:
     """
     Функция для обновления данных в БД.
 
@@ -172,7 +163,7 @@ async def update_dish(
 
     result = await session.execute(stmt)
 
-    updated_dish = result.scalars().all()[0]
+    updated_dish: Dish = result.scalars().all()[0]
 
     await session.commit()
 

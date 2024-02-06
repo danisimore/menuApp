@@ -17,7 +17,7 @@ from submenu.schemas import UpdateSubmenu
 
 async def get_dishes_for_submenu(
     target_submenu_id: str, session: AsyncSession = Depends(get_async_session)
-) -> list:
+) -> list[Dish]:
     stmt = select(Dish).where(Dish.submenu_id == target_submenu_id)
 
     result: Result = await session.execute(stmt)
@@ -29,7 +29,7 @@ async def get_dishes_for_submenu(
 
 async def select_all_submenus(
     target_menu_id: str, session: AsyncSession = Depends(get_async_session)
-) -> list:
+) -> list[Submenu]:
     """
     Функция для выборки всех подменю привязанных к указанному меню.
 
@@ -85,7 +85,7 @@ async def update_submenu(
     target_submenu_id: str,
     update_submenu_data: UpdateSubmenu,
     session: AsyncSession = Depends(get_async_session),
-) -> list:
+) -> list[Submenu]:
     """
     Функция для обновления записи в таблице submenus.
 
@@ -115,7 +115,11 @@ async def update_submenu(
     return updated_submenu
 
 
-async def delete_submenu(target_menu_id: str, target_submenu_id, session) -> None:
+async def delete_submenu(
+        target_menu_id: str,
+        target_submenu_id: str,
+        session: AsyncSession = Depends(get_async_session),
+) -> None:
     """
     Функция для удаления подменю по указанным данным.
 

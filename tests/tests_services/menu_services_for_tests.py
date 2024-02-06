@@ -4,12 +4,13 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 31 января 2024
 """
+from typing import Any
 
 from conftest import async_session_maker
 from menu.menu_services import select_all_menus, select_specific_menu
 
 
-async def get_all_menus_data() -> list[dict] | list | None:
+async def get_all_menus_data() -> list[dict[Any, Any]] | list[Any] | None:
     """
     Выборка всех меню из БД
 
@@ -29,7 +30,7 @@ async def get_all_menus_data() -> list[dict] | list | None:
         return [menus_data_json]
 
 
-async def get_menu_data_from_db_without_counters() -> dict:
+async def get_menu_data_from_db_without_counters() -> dict[Any, Any]:
     """
     Выборка определенного меню без счетчиков.
 
@@ -46,7 +47,7 @@ async def get_menu_data_from_db_without_counters() -> dict:
         return menu_data_json
 
 
-async def get_menu_data_from_db_with_counters() -> dict | None:
+async def get_menu_data_from_db_with_counters() -> dict[Any, Any] | None:
     """
     Выборка определенного меню со счетчиками.
 

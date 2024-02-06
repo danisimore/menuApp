@@ -23,8 +23,9 @@ from redis_tools.tools import RedisTools
 from services import insert_data
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
-from utils import create_dict_from_received_data, get_created_object_dict
 from submenu.submenu_utils import format_dishes
+from utils import create_dict_from_received_data, get_created_object_dict
+
 from .dish_utils import format_decimal
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['Dish'])
@@ -50,7 +51,7 @@ async def dish_get_method(
 
     redis = RedisTools()
 
-    cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
+    cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
 
     cache = await redis.get_pair(key=cache_key)
 
@@ -113,7 +114,7 @@ async def dish_post_method(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
 
-    cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
+    cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
 
     await redis.invalidate_cache(key=cache_key)
 
@@ -223,7 +224,7 @@ async def dish_patch_method(
 
     updated_dish_dict = get_created_object_dict(updated_dish)
 
-    cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + "_dishes"
+    cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + '_dishes'
     cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
 
     await redis.invalidate_cache(key=cache_key_all_dishes_for_submenu)

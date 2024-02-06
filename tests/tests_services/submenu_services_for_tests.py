@@ -4,6 +4,7 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 31 января 2024
 """
+from typing import Any
 
 from conftest import async_session_maker
 from menu.menu_services import select_all_menus
@@ -15,7 +16,7 @@ from submenu.submenu_services import (
 )
 
 
-async def get_submenus_data_from_db() -> list[dict] | list:
+async def get_submenus_data_from_db() -> list[dict[Any, Any]] | list[Any]:
     """
     Выборка всех подменю из БД
 
@@ -47,7 +48,7 @@ async def get_submenus_data_from_db() -> list[dict] | list:
             return []
 
 
-async def get_specific_submenu_data_from_db() -> Submenu | dict:
+async def get_specific_submenu_data_from_db() -> Submenu | dict[str, str]:
     """
     Выборка определенного подменю из БД
 

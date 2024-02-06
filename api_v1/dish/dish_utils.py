@@ -5,10 +5,11 @@
 Дата: 22 января 2024
 """
 from decimal import Decimal
+
 from fastapi.responses import JSONResponse
 
 
-def format_decimal(value: Decimal) -> str:
+def format_decimal(value: type[Decimal]) -> str:
     """
     Функция, которая округляет цену до 2-х знаков после запятой.
 

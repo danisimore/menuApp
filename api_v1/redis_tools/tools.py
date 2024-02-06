@@ -1,8 +1,10 @@
 import json
+from typing import Any
 
 import aioredis
 from config import REDIS_PORT, TEST_REDIS_PORT
 from submenu.submenu_utils import format_dishes
+
 
 class RedisTools:
     def __init__(self):
@@ -22,7 +24,7 @@ class RedisTools:
             self.redis = await aioredis.from_url(f'redis://localhost:6379/0')
         return self.redis
 
-    async def set_pair(self, key: str, value: list) -> None:
+    async def set_pair(self, key: str, value: list[Any] | dict[Any, Any]) -> None:
         """
         Метод для сохранения объекта/объектов в кэше.
 
@@ -50,7 +52,7 @@ class RedisTools:
         # Записываем в Redis по переданному ключу JSON объект с данными.
         await redis.set(key, json_value)
 
-    async def get_pair(self, key: str) -> list | None:
+    async def get_pair(self, key: str) -> list[dict[Any, Any]] | dict[Any, Any] | None:
         """
         Метод для получения значения по переданному ключу.
 
@@ -92,7 +94,7 @@ class RedisTools:
         await redis.flushall()
 
     @staticmethod
-    async def format_object_to_json(objects_list: list) -> list:
+    async def format_object_to_json(objects_list: list[Any] | dict[Any, Any]) -> list[dict[Any, Any]]:
         """
         Метод для приведение объектов в списке к типу dict.
 

@@ -28,7 +28,7 @@ def custom_openapi():
         return app.openapi_schema
 
     with open('docs/openapi.json') as file:
-    # with open('/fastapi_app/api_v1/docs/openapi.json') as file:
+        # with open('/fastapi_app/api_v1/docs/openapi.json') as file:
         openapi_schema = json.loads(file.read())
 
     app.openapi_schema = openapi_schema
@@ -43,6 +43,5 @@ async def read_health():
     return {'status': 'OK'}
 
 app.include_router(menu_router)
-
 app.include_router(submenu_router)
 app.include_router(dish_router)
