@@ -1,7 +1,7 @@
 up:
 	docker compose -f docker-compose.yaml up --build -d
 up_tests_container:
-	docker compose -f docker-compose-tests.yaml up --build
+	docker compose -f docker-compose-tests.yaml up --build -d
 run_tests:
 	docker exec -it fastapi_app_tests /bin/sh -c 'export PYTHONPATH=/fastapi_app/api_v1 && pytest -v -rE tests/'
 run_menu_tests:
