@@ -1,5 +1,7 @@
 up:
 	docker compose -f docker-compose.yaml up --build -d
+down:
+	docker compose -f docker-compose.yaml down && docker network prune --force
 up_tests_container:
 	docker compose -f docker-compose-tests.yaml up --build -d
 run_tests:
