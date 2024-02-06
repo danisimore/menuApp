@@ -9,7 +9,7 @@ import json
 from typing import Any
 
 import aioredis
-from config import REDIS_PORT, TEST_REDIS_PORT
+from config import IS_TEST, REDIS_HOST, TEST_REDIS_HOST
 from utils import format_object_to_json
 
 
@@ -25,10 +25,10 @@ class RedisTools:
             Объект клиента Redis.
         """
 
-        port = REDIS_PORT if REDIS_PORT else TEST_REDIS_PORT
+        host = TEST_REDIS_HOST if IS_TEST else REDIS_HOST
 
         if not self.redis:
-            self.redis = await aioredis.from_url(f'redis://localhost:6379/0')
+            self.redis = await aioredis.from_url(f'redis://{host}:6379/0')
         return self.redis
 
     async def set_pair(self, key: str, value: list[Any] | dict[Any, Any]) -> None:

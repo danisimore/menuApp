@@ -7,7 +7,7 @@
 from typing import Any
 
 from conftest import async_session_maker
-from menu.menu_services import select_all_menus, select_specific_menu
+from database.database_services import select_all_menus, select_specific_menu
 
 
 async def get_all_menus_data() -> list[dict[Any, Any]] | list[Any] | None:

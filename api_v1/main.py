@@ -32,8 +32,7 @@ def custom_openapi() -> None:
     if app.openapi_schema:
         return app.openapi_schema
 
-    with open('docs/openapi.json') as file:
-        # with open('/fastapi_app/api_v1/docs/openapi.json') as file:
+    with open('/fastapi_app/api_v1/docs/openapi.json') as file:
         openapi_schema = json.loads(file.read())
 
     app.openapi_schema = openapi_schema

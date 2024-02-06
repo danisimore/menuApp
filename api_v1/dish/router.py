@@ -7,14 +7,16 @@
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from dish.dish_services import (
+from database.database_services import (
     delete_dish,
-    generate_dish_dict,
-    is_submenu_in_target_menu,
     select_all_dishes,
     select_specific_dish,
-    try_get_dish,
     update_dish,
+)
+from dish.dish_services import (
+    generate_dish_dict,
+    is_submenu_in_target_menu,
+    try_get_dish,
 )
 from dish.dish_utils import return_404_menu_not_linked_to_submenu
 from dish.models import Dish

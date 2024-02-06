@@ -7,13 +7,13 @@
 from typing import Any
 
 from conftest import async_session_maker
-from menu.menu_services import select_all_menus
-from submenu.models import Submenu
-from submenu.submenu_services import (
+from database.database_services import (
     get_dishes_for_submenu,
+    select_all_menus,
     select_all_submenus,
     select_specific_submenu,
 )
+from submenu.models import Submenu
 
 
 async def get_submenus_data_from_db() -> list[dict[Any, Any]] | list[Any]:

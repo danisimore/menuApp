@@ -7,6 +7,12 @@
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
+from database.database_services import (
+    delete_menu,
+    select_all_menus,
+    select_specific_menu,
+    update_menu,
+)
 from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
@@ -19,13 +25,7 @@ from services import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_created_object_dict
 
-from .menu_services import (
-    delete_menu,
-    parse_menu_data,
-    select_all_menus,
-    select_specific_menu,
-    update_menu,
-)
+from .menu_services import parse_menu_data
 from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 

@@ -8,6 +8,13 @@ from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
+from database.database_services import (
+    delete_submenu,
+    get_dishes_for_submenu,
+    select_all_submenus,
+    select_specific_submenu,
+    update_submenu,
+)
 from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
@@ -26,14 +33,7 @@ from utils import (
 )
 
 from .schemas import CreateSubmenu, UpdateSubmenu
-from .submenu_services import (
-    delete_submenu,
-    get_dishes_for_submenu,
-    select_all_submenus,
-    select_specific_submenu,
-    update_submenu,
-    prepare_submenu_to_response
-)
+from .submenu_services import prepare_submenu_to_response
 from .submenu_utils import format_dishes
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
@@ -141,10 +141,10 @@ async def submenu_get_specific_method(
         target_submenu_id=target_submenu_id,
         session=session,
     )
-    
+
     if not submenu:
         return JSONResponse(content={'detail': 'submenu not found'}, status_code=404)
-    
+
     submenu_json = await prepare_submenu_to_response(submenu=submenu, session=session)
 
     await create_cache(key=target_submenu_id, value=submenu_json)

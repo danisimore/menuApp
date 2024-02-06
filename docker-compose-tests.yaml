@@ -14,15 +14,17 @@ services:
       - .env-example
     stdin_open: true
     tty: true
+    environment:
+      IS_TEST: "True"
     container_name: fastapi_app_tests
     depends_on:
       - db_test
-      - redis
+      - redis_test
     links:
-      - redis:redis
-  redis:
+      - redis_test:redis_test
+  redis_test:
     image: redis:6
     container_name: redis_tests
     restart: unless-stopped
     expose:
-      - 6380
+      - 6379

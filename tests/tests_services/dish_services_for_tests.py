@@ -7,10 +7,13 @@
 from typing import Any
 
 from conftest import async_session_maker
-from dish.dish_services import select_all_dishes, select_specific_dish
+from database.database_services import (
+    select_all_dishes,
+    select_all_menus,
+    select_all_submenus,
+    select_specific_dish,
+)
 from dish.models import Dish
-from menu.menu_services import select_all_menus
-from submenu.submenu_services import select_all_submenus
 
 
 async def select_dishes() -> list[Dish]:
