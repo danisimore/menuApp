@@ -1,3 +1,10 @@
+"""
+Модуль для расширения APIRouter..
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 06 февраля 2024
+"""
+
 from fastapi import APIRouter
 from starlette.routing import NoMatchFound
 

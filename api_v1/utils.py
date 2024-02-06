@@ -3,7 +3,7 @@
 Общий для всех приложений.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 20 января 2024
+Дата: 06 февраля 2024
 """
 from typing import Any
 
@@ -12,6 +12,7 @@ from dish.schemas import CreateDish
 from menu.models import Menu
 from submenu.models import Submenu
 from submenu.schemas import CreateSubmenu
+from submenu.submenu_utils import format_dishes
 
 
 def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict[Any, Any]:
@@ -63,3 +64,28 @@ def create_dict_from_received_data(
     data_dict[foreign_key_field_name] = parent_id
 
     return data_dict
+
+
+async def format_object_to_json(objects_list: list[Any] | dict[Any, Any]) -> list[dict[Any, Any]]:
+    """
+    Метод для приведение объектов в списке к типу dict.
+
+    Args:
+        objects_list: список с объектом
+
+    Returns:
+        Список объектов типа dict.
+    """
+
+    object_json_list = []
+    for obj in objects_list:
+        if hasattr(obj, 'dishes'):
+            formatted_dishes = await format_dishes(obj.dishes)
+            obj_json = await obj.json()
+            obj_json['dishes'] = formatted_dishes
+
+            object_json_list.append(obj_json)
+        else:
+            object_json_list.append(await obj.json())
+
+    return object_json_list

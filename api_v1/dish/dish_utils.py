@@ -2,7 +2,7 @@
 Функции специфичные для модуля не относящиеся к бизнес-логике.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
 from decimal import Decimal
 
@@ -27,7 +27,7 @@ def return_404_menu_not_linked_to_submenu() -> JSONResponse:
     Функция, для возврата статус кода 404, если указанный идентификатор меню, не привязан у указанному идентификатору
     подменю.
 
-    Returns:J SONResponse
+    Returns: JSONResponse
 
     """
 

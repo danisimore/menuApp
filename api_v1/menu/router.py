@@ -2,7 +2,7 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 29 января 2024 - добавлено преобразование цен блюд из Decimal к строке
+Дата: 06 февраля 2024
 """
 
 from custom_router import CustomAPIRouter

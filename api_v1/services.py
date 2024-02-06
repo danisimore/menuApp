@@ -2,7 +2,7 @@
 Бизнес логика, общая для приложений.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
 from typing import Any
 
@@ -51,7 +51,14 @@ async def insert_data(
     return created_object_dict
 
 
-async def get_cache(key: str):
+async def get_cache(key: str) -> list[dict[Any, Any]] | dict[Any, Any]:
+    """
+    Возвращает значение ключа из Redis
+
+    :param key: ключ, по которому нужно получить значение
+    :return:
+    """
+
     redis = RedisTools()
 
     cache = await redis.get_pair(key=key)
@@ -59,19 +66,37 @@ async def get_cache(key: str):
     return cache
 
 
-async def create_cache(key, value):
+async def create_cache(key: str, value: list[Any] | dict[Any, Any]) -> None:
+    """
+    Создает пару ключ: значение в Redis
+
+    :param key: ключ, для доступа к данным
+    :param value: данные, которые будут хранится по этому ключу
+    :return: None
+    """
     redis = RedisTools()
 
     await redis.set_pair(key=key, value=value)
 
 
-async def delete_cache(key):
+async def delete_cache(key: str) -> None:
+    """
+    Удаляет пару ключ: значение в Redis
+
+    :param key: ключ, для доступа к данным
+    :return: None
+    """
     redis = RedisTools()
 
     await redis.invalidate_cache(key=key)
 
 
-async def delete_all_cache():
+async def delete_all_cache() -> None:
+    """
+    Удаляет все данные
+
+    :return: None
+    """
     redis = RedisTools()
 
     await redis.invalidate_all_cache()

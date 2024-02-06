@@ -2,7 +2,7 @@
 Бизнес логика, специфичная для модуля.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
 from typing import Any
 

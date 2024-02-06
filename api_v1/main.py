@@ -2,7 +2,7 @@
 Модуль для подключения роутеров к приложению fastapi.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
 import json
 
@@ -23,7 +23,12 @@ app.add_middleware(
 )
 
 
-def custom_openapi():
+def custom_openapi() -> None:
+    """
+    Заменяет дефолтный json для openapi на кастомный
+
+    :return: None
+    """
     if app.openapi_schema:
         return app.openapi_schema
 

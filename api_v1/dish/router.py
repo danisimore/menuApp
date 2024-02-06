@@ -2,7 +2,7 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся блюд.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 28 января 2024
+Дата: 06 февраля 2024
 """
 
 from custom_router import CustomAPIRouter

@@ -1,9 +1,16 @@
+"""
+Модуль для реализации подключения к Redis и выполнения операций в БД.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 06 февраля 2024
+"""
+
 import json
 from typing import Any
 
 import aioredis
 from config import REDIS_PORT, TEST_REDIS_PORT
-from submenu.submenu_utils import format_dishes
+from utils import format_object_to_json
 
 
 class RedisTools:
@@ -45,7 +52,7 @@ class RedisTools:
         # Иначе прилетает список с объектами.
         else:
             # Приводим их к типу словаря, пользуясь объявленным в модели методом json.
-            list_with_formatted_objects = await self.format_object_to_json(value)
+            list_with_formatted_objects = await format_object_to_json(value)
             # И сериализуем в JSON
             json_value = json.dumps(list_with_formatted_objects)
 
@@ -89,31 +96,11 @@ class RedisTools:
         redis = await self.connect_redis()
         await redis.delete(key)
 
-    async def invalidate_all_cache(self):
+    async def invalidate_all_cache(self) -> None:
+        """
+        Удаляет все данные
+
+        :return: None
+        """
         redis = await self.connect_redis()
         await redis.flushall()
-
-    @staticmethod
-    async def format_object_to_json(objects_list: list[Any] | dict[Any, Any]) -> list[dict[Any, Any]]:
-        """
-        Метод для приведение объектов в списке к типу dict.
-
-        Args:
-            objects_list: список с объектом
-
-        Returns:
-            Список объектов типа dict.
-        """
-
-        object_json_list = []
-        for obj in objects_list:
-            if hasattr(obj, 'dishes'):
-                formatted_dishes = await format_dishes(obj.dishes)
-                obj_json = await obj.json()
-                obj_json['dishes'] = formatted_dishes
-
-                object_json_list.append(obj_json)
-            else:
-                object_json_list.append(await obj.json())
-
-        return object_json_list
