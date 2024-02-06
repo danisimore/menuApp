@@ -4,22 +4,34 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 22 января 2024
 """
+from typing import Any
 
 from database.database import get_async_session
 from dish.models import Dish
 from dish.schemas import UpdateDish
 from fastapi import Depends
-from sqlalchemy import Boolean, Result, and_, cast, delete, select, update
+from sqlalchemy import (
+    Boolean,
+    ChunkedIteratorResult,
+    Result,
+    and_,
+    cast,
+    delete,
+    select,
+    update,
+)
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 
+from .dish_utils import format_decimal
+
 
 async def is_submenu_in_target_menu(
-    submenu: type[Submenu],
-    target_menu_id: str,
-    target_submenu_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        submenu: type[Submenu],
+        target_menu_id: str,
+        target_submenu_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ) -> bool:
     """
     Функция для проверки соответствия связи между меню и подменю.
@@ -59,9 +71,9 @@ async def is_submenu_in_target_menu(
 
 
 async def select_all_dishes(
-    target_menu_id: str,
-    target_submenu_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        target_submenu_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ) -> list[type[Dish]]:
     """
     Функция для получения всех блюд по указанному id меню и привязанного к нему подменю.
@@ -93,10 +105,10 @@ async def select_all_dishes(
 
 
 async def select_specific_dish(
-    target_menu_id: str,
-    target_submenu_id: str,
-    target_dish_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        target_menu_id: str,
+        target_submenu_id: str,
+        target_dish_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ) -> Result[tuple[Dish]] | bool:
     """
     Функция для получения определенного блюда по указанному id меню и привязанного к нему подменю, а также по-указанному
@@ -136,10 +148,10 @@ async def select_specific_dish(
 
 
 async def update_dish(
-    target_submenu_id: str,
-    target_dish_id: str,
-    update_data: UpdateDish,
-    session: AsyncSession = Depends(get_async_session),
+        target_submenu_id: str,
+        target_dish_id: str,
+        update_data: UpdateDish,
+        session: AsyncSession = Depends(get_async_session),
 ) -> Dish:
     """
     Функция для обновления данных в БД.
@@ -171,9 +183,9 @@ async def update_dish(
 
 
 async def delete_dish(
-    target_submenu_id: str,
-    target_dish_id: str,
-    session: AsyncSession = Depends(get_async_session),
+        target_submenu_id: str,
+        target_dish_id: str,
+        session: AsyncSession = Depends(get_async_session),
 ) -> None:
     """
     Функция для удаления данных из БД.
@@ -193,3 +205,37 @@ async def delete_dish(
     await session.execute(stmt)
 
     await session.commit()
+
+
+async def try_get_dish(result: ChunkedIteratorResult) -> Dish | bool:
+    """
+    Функция для получения блюда из выборки
+
+    :param result: результат выборки
+    :return: Если блюдо найдено, то объект блюд, иначе False
+    """
+
+    try:
+        dish = result.scalars().all()[0]
+        return dish
+    except IndexError:
+        return False
+
+
+async def generate_dish_dict(dish: Dish) -> dict[Any, Any]:
+    """
+    Формирует словарь на основе данных объекта блюда из БД
+
+    :param dish: объект Dish
+    :return: словарь с данными о блюде
+    """
+    # Формируем словарь, чтобы корректно отобразить цену (2 знака после запятой).
+    dish_dict = {
+        'id': str(dish.id),
+        'title': dish.title,
+        'description': dish.description,
+        'price': format_decimal(dish.price),
+        'submenu_id': str(dish.submenu_id),
+    }
+
+    return dish_dict

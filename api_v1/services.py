@@ -10,6 +10,7 @@ from database.database import get_async_session
 from dish.models import Dish
 from fastapi import Depends
 from menu.models import Menu
+from redis_tools.tools import RedisTools
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
@@ -48,3 +49,29 @@ async def insert_data(
     await session.commit()
 
     return created_object_dict
+
+
+async def get_cache(key: str):
+    redis = RedisTools()
+
+    cache = await redis.get_pair(key=key)
+
+    return cache
+
+
+async def create_cache(key, value):
+    redis = RedisTools()
+
+    await redis.set_pair(key=key, value=value)
+
+
+async def delete_cache(key):
+    redis = RedisTools()
+
+    await redis.invalidate_cache(key=key)
+
+
+async def delete_all_cache():
+    redis = RedisTools()
+
+    await redis.invalidate_all_cache()
