@@ -5,19 +5,28 @@ Cлой для работы с БД.
 Дата: 06 февраля 2024
 """
 
-from sqlalchemy import Boolean, Result, cast, delete, distinct, func, select, update, and_, ChunkedIteratorResult
-from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
-
-from submenu.models import Submenu
-from submenu.schemas import UpdateSubmenu
 from database.database import get_async_session
 from dish.models import Dish
 from dish.schemas import UpdateDish
 from fastapi import Depends
 from menu.models import Menu
 from menu.schemas import MenuUpdate
+from sqlalchemy import (
+    Boolean,
+    Result,
+    and_,
+    cast,
+    delete,
+    distinct,
+    func,
+    select,
+    update,
+)
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from submenu.models import Submenu
+from submenu.schemas import UpdateSubmenu
 
 
 async def select_all_menus(session: AsyncSession = Depends(get_async_session)) -> list[Menu]:
