@@ -1,6 +1,7 @@
 import json
 
 import aioredis
+from config import REDIS_PORT, TEST_REDIS_PORT
 
 
 class RedisTools:
@@ -15,8 +16,10 @@ class RedisTools:
             Объект клиента Redis.
         """
 
+        port = REDIS_PORT if REDIS_PORT else TEST_REDIS_PORT
+
         if not self.redis:
-            self.redis = await aioredis.from_url('redis://redis:6379/0')
+            self.redis = await aioredis.from_url(f'redis://redis:{port}/0')
         return self.redis
 
     async def set_pair(self, key: str, value: list) -> None:
