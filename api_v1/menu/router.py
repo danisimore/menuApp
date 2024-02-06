@@ -2,24 +2,30 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 29 января 2024 - добавлено преобразование цен блюд из Decimal к строке
+Дата: 06 февраля 2024
 """
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from fastapi import Depends
-from fastapi.responses import JSONResponse
-from redis_tools.tools import RedisTools
-from services import insert_data
-from sqlalchemy.ext.asyncio import AsyncSession
-from utils import get_created_object_dict
-
-from .menu_services import (
+from database.database_services import (
     delete_menu,
     select_all_menus,
     select_specific_menu,
     update_menu,
 )
+from fastapi import Depends
+from fastapi.responses import JSONResponse
+from services import (
+    create_cache,
+    delete_all_cache,
+    delete_cache,
+    get_cache,
+    insert_data,
+)
+from sqlalchemy.ext.asyncio import AsyncSession
+from utils import get_created_object_dict
+
+from .menu_services import parse_menu_data
 from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 
@@ -38,16 +44,14 @@ async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
 
     """
 
-    redis = RedisTools()
-
-    cache = await redis.get_pair(key='menus')
+    cache = await get_cache(key='menus')
 
     if cache is not None:
         return cache
 
     menus = await select_all_menus(session=session)
 
-    await redis.set_pair(key='menus', value=menus)
+    await create_cache(key='menus', value=menus)
 
     return menus
 
@@ -67,14 +71,12 @@ async def menu_post_method(
 
     """
 
-    redis = RedisTools()
-
     new_menu_data_dict = new_menu_data.model_dump()
     created_menu = await insert_data(
         data_dict=new_menu_data_dict, database_model=Menu, session=session
     )
 
-    await redis.invalidate_cache(key='menus')
+    await delete_cache(key='menus')
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -93,9 +95,8 @@ async def menu_get_specific_method(
     Returns: Объект найденной по id записи.
 
     """
-    redis = RedisTools()
 
-    cache = await redis.get_pair(key=target_menu_id)
+    cache = await get_cache(key=target_menu_id)
 
     if cache is not None:
         return cache
@@ -104,16 +105,15 @@ async def menu_get_specific_method(
         target_menu_id=target_menu_id, session=session
     )
 
-    if menu_data:
-        menu = menu_data[0][0]
-        menu.submenus_count = menu_data[0][1]
-        menu.dishes_count = menu_data[0][2]
+    menu = await parse_menu_data(menu_data=menu_data)
 
-        await redis.set_pair(key=target_menu_id, value=menu.json())
-
-        return menu
-    else:
+    if not menu:
         return JSONResponse(content={'detail': 'menu not found'}, status_code=404)
+
+    menu_json = await menu.json()
+    await create_cache(key=target_menu_id, value=menu_json)
+
+    return menu
 
 
 @router.patch('/menus/{target_menu_id}')
@@ -134,8 +134,6 @@ async def menu_patch_method(
 
     """
 
-    redis = RedisTools()
-
     # Получаем объект созданной записи.
     updated_menu = await update_menu(
         update_menu_data=update_menu_data,
@@ -146,8 +144,8 @@ async def menu_patch_method(
     # Формируем словарь на основе этого объекта.
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
 
-    await redis.invalidate_cache(key='menus')
-    await redis.invalidate_cache(key=target_menu_id)
+    await delete_cache(key='menus')
+    await delete_cache(key=target_menu_id)
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
@@ -167,11 +165,8 @@ async def menu_delete_method(
 
     """
 
-    redis = RedisTools()
-
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await redis.invalidate_cache(key='menus')
-    await redis.invalidate_cache(key=target_menu_id)
+    await delete_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

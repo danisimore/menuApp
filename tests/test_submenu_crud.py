@@ -243,7 +243,8 @@ class TestGetSpecificSubmenu:
 
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         submenus_data = await get_specific_submenu_data_from_db()
-        assert submenus_data.json() == response.json()
+        submenus_data_json = await submenus_data.json()
+        assert submenus_data_json == response.json()
 
 
 class TestUpdateSubmenu:
@@ -374,7 +375,8 @@ class TestGetSpecificSubmenuAfterUpdate:
 
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         submenus_data = await get_specific_submenu_data_from_db()
-        assert submenus_data.json() == response.json()
+        submenus_json_data = await submenus_data.json()
+        assert submenus_json_data == response.json()
 
 
 class TestDeleteSubmenu:

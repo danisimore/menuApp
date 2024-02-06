@@ -12,23 +12,19 @@ services:
       context: .
     env_file:
       - .env-example
+    stdin_open: true
+    tty: true
+    environment:
+      IS_TEST: "True"
     container_name: fastapi_app_tests
-    command: [ "/fastapi_app/docker/app_test.sh" ]
-    ports:
-      - "8001:8001"
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8001/health" ]
-      interval: 10s
-      timeout: 10s
-      retries: 3
     depends_on:
       - db_test
-      - redis
+      - redis_test
     links:
-      - redis:redis
-  redis:
+      - redis_test:redis_test
+  redis_test:
     image: redis:6
-    container_name: redis
+    container_name: redis_tests
     restart: unless-stopped
     expose:
       - 6379

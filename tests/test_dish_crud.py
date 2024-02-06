@@ -237,9 +237,6 @@ class TestGetDishFromTableWithData:
 
         response_json = response.json()
 
-        # Форматируем цену до 2х знаков после запятой
-        response_json[0]['price'] = '{:.2f}'.format(response_json[0]['price'])
-
         dishes_data = await get_dish_by_index(index=0)
         assert dishes_data == response_json
 
@@ -314,7 +311,10 @@ class TestGetSpecificDish:
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         result = await get_specific_dish_data_from_db()
         dish_data = result.scalars().all()
-        assert dish_data[0].json() == response.json()
+
+        dish_data_json = await dish_data[0].json()
+
+        assert dish_data_json == response.json()
 
 
 class TestUpdateDish:
@@ -468,7 +468,10 @@ class TestGetSpecificDishAfterUpdate:
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         result = await get_specific_dish_data_from_db()
         dish_data = result.scalars().all()
-        assert dish_data[0].json() == response.json()
+
+        dish_data_json = await dish_data[0].json()
+
+        assert dish_data_json == response.json()
 
 
 class TestDeleteDish:

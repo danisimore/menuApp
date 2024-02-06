@@ -4,12 +4,13 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 31 января 2024
 """
+from typing import Any
 
 from conftest import async_session_maker
-from menu.menu_services import select_all_menus, select_specific_menu
+from database.database_services import select_all_menus, select_specific_menu
 
 
-async def get_all_menus_data() -> list[dict] | list | None:
+async def get_all_menus_data() -> list[dict[Any, Any]] | list[Any] | None:
     """
     Выборка всех меню из БД
 
@@ -24,12 +25,12 @@ async def get_all_menus_data() -> list[dict] | list | None:
             return []
 
         # Т.к. в рамках теста запись одна, получаем ее из списка
-        menus_data_json = menus_data[0].json()
+        menus_data_json = await menus_data[0].json()
 
         return [menus_data_json]
 
 
-async def get_menu_data_from_db_without_counters() -> dict:
+async def get_menu_data_from_db_without_counters() -> dict[Any, Any]:
     """
     Выборка определенного меню без счетчиков.
 
@@ -41,12 +42,12 @@ async def get_menu_data_from_db_without_counters() -> dict:
         # Получаем все меню.
         menus_data = await select_all_menus(session=session)
         # Т.к. оно одно, забираем первое и преобразуем в json.
-        menu_data_json = menus_data[0].json()
+        menu_data_json = await menus_data[0].json()
 
         return menu_data_json
 
 
-async def get_menu_data_from_db_with_counters() -> dict | None:
+async def get_menu_data_from_db_with_counters() -> dict[Any, Any] | None:
     """
     Выборка определенного меню со счетчиками.
 
@@ -58,7 +59,7 @@ async def get_menu_data_from_db_with_counters() -> dict | None:
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
         # независимы
         menus_data = await select_all_menus(session=session)
-        menus_data_json = menus_data[0].json()
+        menus_data_json = await menus_data[0].json()
         menu_id_in_db = menus_data_json['id']
 
         # Здесь будет кортеж со списком вида [(<MENU OBJECT>, submenus_count, dishes_count)]
@@ -71,6 +72,8 @@ async def get_menu_data_from_db_with_counters() -> dict | None:
             menu.submenus_count = menus_with_counts[0][1]
             menu.dishes_count = menus_with_counts[0][2]
 
-            return menu.json()
+            menu_json = await menu.json()
+
+            return menu_json
 
     return None

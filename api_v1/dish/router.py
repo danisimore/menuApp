@@ -2,27 +2,37 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся блюд.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 28 января 2024
+Дата: 06 февраля 2024
 """
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from dish.dish_services import (
+from database.database_services import (
     delete_dish,
-    is_submenu_in_target_menu,
     select_all_dishes,
     select_specific_dish,
     update_dish,
 )
-from dish.dish_utils import format_decimal, return_404_menu_not_linked_to_submenu
+from dish.dish_services import (
+    generate_dish_dict,
+    is_submenu_in_target_menu,
+    try_get_dish,
+)
+from dish.dish_utils import return_404_menu_not_linked_to_submenu
 from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
 from fastapi import Depends
 from fastapi.responses import JSONResponse
-from redis_tools.tools import RedisTools
-from services import insert_data
+from services import (
+    create_cache,
+    delete_all_cache,
+    delete_cache,
+    get_cache,
+    insert_data,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
+from submenu.submenu_utils import format_dishes
 from utils import create_dict_from_received_data, get_created_object_dict
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['Dish'])
@@ -45,10 +55,9 @@ async def dish_get_method(
     Returns: Список объектов найденных блюд.
 
     """
+    cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
 
-    redis = RedisTools()
-
-    cache = await redis.get_pair(key='dishes')
+    cache = await get_cache(key=cache_key)
 
     if cache is not None:
         return cache
@@ -59,9 +68,11 @@ async def dish_get_method(
         session=session,
     )
 
-    await redis.set_pair(key='dishes', value=dishes)
+    await create_cache(key=cache_key, value=dishes)
 
-    return dishes
+    formatted_dishes = await format_dishes(dishes)
+
+    return formatted_dishes
 
 
 @router.post('/{target_menu_id}/submenus/{target_submenu_id}/dishes')
@@ -83,8 +94,6 @@ async def dish_post_method(
     Returns: JSONResponse.
 
     """
-
-    redis = RedisTools()
 
     # Проверяем привязано ли указанное подменю к указанному меню.
     submenu_in_target_menu = await is_submenu_in_target_menu(
@@ -109,7 +118,9 @@ async def dish_post_method(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
 
-    await redis.invalidate_cache(key='dishes')
+    cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
+
+    await delete_cache(key=cache_key)
 
     return JSONResponse(content=created_dish_dict, status_code=201)
 
@@ -134,13 +145,11 @@ async def dish_get_specific_method(
 
     """
 
-    redis = RedisTools()
+    cache_key = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
 
-    cache = await redis.get_pair(key=target_dish_id)
+    cache = await get_cache(key=cache_key)
 
     if cache is not None:
-        if cache.get('404'):
-            return JSONResponse(content={'detail': 'dish not found'}, status_code=404)
         return cache
 
     result = await select_specific_dish(
@@ -150,23 +159,14 @@ async def dish_get_specific_method(
         session=session,
     )
 
-    try:
-        dish = result.scalars().all()[0]
-    except IndexError:
-        await redis.set_pair(target_dish_id, {'404': 'not_found'})
+    dish = await try_get_dish(result=result)
+
+    # Если блюдо по указанным параметрам не найдено, то возвращаем 404, иначе json с данными об этом блюде
+    if not dish:
         return JSONResponse(content={'detail': 'dish not found'}, status_code=404)
 
-    # Формируем словарь, чтобы корректно отобразить цену (2 знака после запятой).
-    dish_dict = {
-        'id': str(dish.id),
-        'title': dish.title,
-        'description': dish.description,
-        'price': format_decimal(dish.price),
-        'submenu_id': str(dish.submenu_id),
-    }
-
-    await redis.set_pair(key=target_dish_id, value=dish_dict)
-
+    dish_dict = await generate_dish_dict(dish=dish)
+    await create_cache(key=cache_key, value=dish_dict)
     return JSONResponse(content=dish_dict)
 
 
@@ -192,8 +192,6 @@ async def dish_patch_method(
 
     """
 
-    redis = RedisTools()
-
     # Проверяем привязано ли указанное подменю к указанному меню.
     submenu_in_target_menu = await is_submenu_in_target_menu(
         submenu=Submenu,
@@ -215,8 +213,11 @@ async def dish_patch_method(
 
     updated_dish_dict = get_created_object_dict(updated_dish)
 
-    await redis.invalidate_cache(key='dishes')
-    await redis.invalidate_cache(key=target_dish_id)
+    cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + '_dishes'
+    cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
+
+    await delete_cache(key=cache_key_all_dishes_for_submenu)
+    await delete_cache(key=cache_key_specific_dish)
 
     return JSONResponse(content=updated_dish_dict, status_code=200)
 
@@ -241,8 +242,6 @@ async def dish_delete_method(
 
     """
 
-    redis = RedisTools()
-
     submenu_in_target_menu = await is_submenu_in_target_menu(
         submenu=Submenu,
         target_menu_id=target_menu_id,
@@ -259,9 +258,6 @@ async def dish_delete_method(
         session=session,
     )
 
-    await redis.invalidate_cache(key='dishes')
-    await redis.invalidate_cache(key=target_submenu_id)
-    await redis.invalidate_cache(key=target_menu_id)
-    await redis.invalidate_cache(key=target_dish_id)
+    await delete_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

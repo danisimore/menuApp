@@ -1,6 +1,16 @@
+"""
+Модуль для реализации подключения к Redis и выполнения операций в БД.
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 06 февраля 2024
+"""
+
 import json
+from typing import Any
 
 import aioredis
+from config import IS_TEST, REDIS_HOST, TEST_REDIS_HOST
+from utils import format_object_to_json
 
 
 class RedisTools:
@@ -15,11 +25,13 @@ class RedisTools:
             Объект клиента Redis.
         """
 
+        host = TEST_REDIS_HOST if IS_TEST else REDIS_HOST
+
         if not self.redis:
-            self.redis = await aioredis.from_url('redis://redis:6379/0')
+            self.redis = await aioredis.from_url(f'redis://{host}:6379/0')
         return self.redis
 
-    async def set_pair(self, key: str, value: list) -> None:
+    async def set_pair(self, key: str, value: list[Any] | dict[Any, Any]) -> None:
         """
         Метод для сохранения объекта/объектов в кэше.
 
@@ -40,14 +52,14 @@ class RedisTools:
         # Иначе прилетает список с объектами.
         else:
             # Приводим их к типу словаря, пользуясь объявленным в модели методом json.
-            list_with_formatted_objects = await self.format_object_to_json(value)
+            list_with_formatted_objects = await format_object_to_json(value)
             # И сериализуем в JSON
             json_value = json.dumps(list_with_formatted_objects)
 
         # Записываем в Redis по переданному ключу JSON объект с данными.
         await redis.set(key, json_value)
 
-    async def get_pair(self, key: str) -> list | None:
+    async def get_pair(self, key: str) -> list[dict[Any, Any]] | dict[Any, Any] | None:
         """
         Метод для получения значения по переданному ключу.
 
@@ -84,20 +96,11 @@ class RedisTools:
         redis = await self.connect_redis()
         await redis.delete(key)
 
-    @staticmethod
-    async def format_object_to_json(objects_list: list) -> list:
+    async def invalidate_all_cache(self) -> None:
         """
-        Метод для приведение объектов в списке к типу dict.
+        Удаляет все данные
 
-        Args:
-            objects_list: список с объектом
-
-        Returns:
-            Список объектов типа dict.
+        :return: None
         """
-
-        object_json = []
-        for obj in objects_list:
-            object_json.append(obj.json())
-
-        return object_json
+        redis = await self.connect_redis()
+        await redis.flushall()

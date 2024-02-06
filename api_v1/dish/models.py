@@ -2,7 +2,7 @@
 Модуль для описания модели таблицы БД, содержащей данные о блюдах.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
 
 import uuid
@@ -32,7 +32,7 @@ class Dish(Base):
 
     submenu = relationship(argument='Submenu', back_populates='dishes')
 
-    def json(self):
+    async def json(self):
         return {
             'id': str(self.id),
             'title': self.title,

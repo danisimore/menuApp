@@ -34,7 +34,7 @@ class Submenu(Base):
         argument='Dish', cascade='all,delete', back_populates='submenu', lazy='selectin'
     )
 
-    def json(self) -> dict:
+    async def json(self) -> dict:
         """
         Функция преобразует объект Submenu в словарь.
 

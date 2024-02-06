@@ -2,27 +2,38 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся подменю.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 22 января 2024
+Дата: 06 февраля 2024
 """
+from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
-from fastapi import Depends
-from fastapi.responses import JSONResponse
-from redis_tools.tools import RedisTools
-from services import insert_data
-from sqlalchemy.ext.asyncio import AsyncSession
-from submenu.models import Submenu
-from utils import create_dict_from_received_data, get_created_object_dict
-
-from .schemas import CreateSubmenu, UpdateSubmenu
-from .submenu_services import (
+from database.database_services import (
     delete_submenu,
     get_dishes_for_submenu,
     select_all_submenus,
     select_specific_submenu,
     update_submenu,
 )
+from fastapi import Depends
+from fastapi.responses import JSONResponse
+from services import (
+    create_cache,
+    delete_all_cache,
+    delete_cache,
+    get_cache,
+    insert_data,
+)
+from sqlalchemy.ext.asyncio import AsyncSession
+from submenu.models import Submenu
+from utils import (
+    create_dict_from_received_data,
+    format_object_to_json,
+    get_created_object_dict,
+)
+
+from .schemas import CreateSubmenu, UpdateSubmenu
+from .submenu_services import prepare_submenu_to_response
 from .submenu_utils import format_dishes
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
@@ -31,7 +42,7 @@ router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
 @router.get('/{target_menu_id}/submenus', name='submenu_base_url')
 async def submenu_get_method(
         target_menu_id: str, session: AsyncSession = Depends(get_async_session)
-):
+) -> list[dict[Any, Any]]:
     """
     Функция для обработки get запроса для выборки всех подменю, связанных с указанным меню.
 
@@ -43,20 +54,21 @@ async def submenu_get_method(
 
     """
 
-    redis = RedisTools()
-
     cache_key = target_menu_id + '_submenus'
 
-    cache = await redis.get_pair(key=cache_key)
+    cache = await get_cache(key=cache_key)
 
     if cache is not None:
         return cache
 
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
-    await redis.set_pair(key=cache_key, value=submenus)
+    # Форматируем Submenu, чтобы в ответе цены блюд были строками.
+    formatted_submenus = await format_object_to_json(submenus)
 
-    return submenus
+    await create_cache(key=cache_key, value=submenus)
+
+    return formatted_submenus
 
 
 @router.post('/{target_menu_id}/submenus')
@@ -77,8 +89,6 @@ async def submenu_post_method(
 
     """
 
-    redis = RedisTools()
-
     submenu_data_dict = create_dict_from_received_data(
         received_data=submenu_data,
         parent_id=target_menu_id,
@@ -97,7 +107,7 @@ async def submenu_post_method(
 
     cache_key = target_menu_id + '_submenus'
 
-    await redis.invalidate_cache(key=cache_key)
+    await delete_cache(key=cache_key)
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -119,40 +129,25 @@ async def submenu_get_specific_method(
     Returns: Если подменю найдено, то объект найденного подменю, если нет, то 404
 
     """
-    redis = RedisTools()
 
-    try:
-        cache = await redis.get_pair(key=target_submenu_id)
+    cache = await get_cache(key=target_submenu_id)
 
-        if cache is not None:
-            if cache.get('404'):
-                return JSONResponse(
-                    content={'detail': 'submenu not found'}, status_code=404
-                )
-            return cache
+    if cache is not None:
+        return cache
 
-        # Получаем определенное подменю
-        submenu = await select_specific_submenu(
-            target_menu_id=target_menu_id,
-            target_submenu_id=target_submenu_id,
-            session=session,
-        )
+    # Получаем определенное подменю
+    submenu = await select_specific_submenu(
+        target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        session=session,
+    )
 
-        # Получаем блюда для этого подменю
-        submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
-
-        # Преобразуем объект меню в json
-        submenu_json = submenu.json()
-        # Считаем кол-во блюд для этого меню
-        submenu_json['dishes_count'] = len(submenu_dishes)
-        # Преобразуем найденные блюда к json.
-        submenu_json['dishes'] = await format_dishes(submenu_dishes)
-
-        await redis.set_pair(key=target_submenu_id, value=submenu_json)
-
-    except IndexError:
-        await redis.set_pair(key=target_submenu_id, value={'404': True})
+    if not submenu:
         return JSONResponse(content={'detail': 'submenu not found'}, status_code=404)
+
+    submenu_json = await prepare_submenu_to_response(submenu=submenu, session=session)
+
+    await create_cache(key=target_submenu_id, value=submenu_json)
 
     return submenu_json
 
@@ -176,7 +171,6 @@ async def submenu_patch_method(
     Returns: JSONResponse
 
     """
-    redis = RedisTools()
 
     updated_submenu = await update_submenu(
         target_submenu_id=target_submenu_id,
@@ -185,24 +179,23 @@ async def submenu_patch_method(
         session=session,
     )
 
-    try:
-        updated_submenu = updated_submenu[0]
-        updated_submenu_dict = get_created_object_dict(updated_submenu)
-
-        submenu_dishes = await get_dishes_for_submenu(
-            target_submenu_id, session=session
-        )
-
-        updated_submenu_dict['dishes'] = submenu_dishes
-
-        await redis.invalidate_cache(key='submenus')
-        await redis.invalidate_cache(key=target_submenu_id)
-
-    except IndexError:
+    if len(updated_submenu) == 0:
         return JSONResponse(
             content={'detail': 'no submenu was found for the specified data'},
             status_code=404,
         )
+
+    updated_submenu = updated_submenu[0]
+    updated_submenu_dict = get_created_object_dict(updated_submenu)
+
+    submenu_dishes = await get_dishes_for_submenu(
+        target_submenu_id, session=session
+    )
+
+    updated_submenu_dict['dishes'] = submenu_dishes
+
+    await delete_cache(key='submenus')
+    await delete_cache(key=target_submenu_id)
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
 
@@ -225,17 +218,12 @@ async def submenu_delete_method(
 
     """
 
-    redis = RedisTools()
-
     await delete_submenu(
         target_submenu_id=target_submenu_id,
         target_menu_id=target_menu_id,
         session=session,
     )
-    cache_all_submenus_key = target_menu_id + '_submenus'
 
-    await redis.invalidate_cache(key=cache_all_submenus_key)
-    await redis.invalidate_cache(key=target_menu_id)
-    await redis.invalidate_cache(key=target_submenu_id)
+    await delete_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

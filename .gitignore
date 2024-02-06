@@ -5,3 +5,4 @@ __pycache__/
 /.env-prod
 /docker-compose-local.yaml
 /alembic/versions/bb234130db67_init.py
+/alembic/versions/

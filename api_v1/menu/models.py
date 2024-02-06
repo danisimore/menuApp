@@ -29,7 +29,7 @@ class Menu(Base):
         argument='Submenu', cascade='all,delete', back_populates='menu'
     )
 
-    def json(self) -> dict:
+    async def json(self) -> dict:
         """
         Функция преобразует объект Menu в словарь.
 
