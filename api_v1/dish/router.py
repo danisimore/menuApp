@@ -24,6 +24,8 @@ from services import insert_data
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 from utils import create_dict_from_received_data, get_created_object_dict
+from submenu.submenu_utils import format_dishes
+from .dish_utils import format_decimal
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['Dish'])
 
@@ -62,8 +64,8 @@ async def dish_get_method(
     )
 
     await redis.set_pair(key=cache_key, value=dishes)
-
-    return dishes
+    formatted_dishes = await format_dishes(dishes)
+    return formatted_dishes
 
 
 @router.post('/{target_menu_id}/submenus/{target_submenu_id}/dishes')
@@ -110,7 +112,7 @@ async def dish_post_method(
     created_dish_dict = await insert_data(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
-    created_dish_dict["price"] = float(created_dish_dict["price"])
+
     cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
 
     await redis.invalidate_cache(key=cache_key)
@@ -167,7 +169,7 @@ async def dish_get_specific_method(
         'id': str(dish.id),
         'title': dish.title,
         'description': dish.description,
-        'price': float(dish.price),
+        'price': format_decimal(dish.price),
         'submenu_id': str(dish.submenu_id),
     }
 
@@ -220,7 +222,6 @@ async def dish_patch_method(
     )
 
     updated_dish_dict = get_created_object_dict(updated_dish)
-    updated_dish_dict["price"] = float(updated_dish_dict["price"])
 
     cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + "_dishes"
     cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id

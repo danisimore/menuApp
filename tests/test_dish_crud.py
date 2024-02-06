@@ -237,7 +237,6 @@ class TestGetDishFromTableWithData:
 
         response_json = response.json()
 
-        response_json[0]['price'] = float(response_json[0]['price'])
         dishes_data = await get_dish_by_index(index=0)
         assert dishes_data == response_json
 
@@ -304,7 +303,7 @@ class TestGetSpecificDish:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_CREATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_CREATE,
-                'price': float(DISH_PRICE_TO_CREATE),
+                'price': str(DISH_PRICE_TO_CREATE),
                 'submenu_id': target_submenu_id,
             },
         )
@@ -379,7 +378,7 @@ class TestUpdateDish:
             json={
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': float(DISH_PRICE_TO_UPDATE),
+                'price': str(DISH_PRICE_TO_UPDATE),
             },
         )
 
@@ -390,7 +389,7 @@ class TestUpdateDish:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': float(DISH_PRICE_TO_UPDATE),
+                'price': str(DISH_PRICE_TO_UPDATE),
                 'submenu_id': target_submenu_id,
             },
         )
@@ -461,7 +460,7 @@ class TestGetSpecificDishAfterUpdate:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': float(DISH_PRICE_TO_UPDATE),
+                'price': str(DISH_PRICE_TO_UPDATE),
                 'submenu_id': target_submenu_id,
             },
         )

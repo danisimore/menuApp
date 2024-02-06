@@ -54,9 +54,12 @@ async def submenu_get_method(
 
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
+    # Форматируем Submenu, чтобы в ответе цены блюд были строками.
+    formatted_submenus = await redis.format_object_to_json(submenus)
+
     await redis.set_pair(key=cache_key, value=submenus)
 
-    return submenus
+    return formatted_submenus
 
 
 @router.post('/{target_menu_id}/submenus')

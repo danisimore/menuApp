@@ -37,6 +37,6 @@ class Dish(Base):
             'id': str(self.id),
             'title': self.title,
             'description': self.description,
-            'price': float(self.price),
+            'price': str(self.price),
             'submenu_id': str(self.submenu_id),
         }
