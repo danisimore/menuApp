@@ -130,6 +130,7 @@ class TestCreateFirstDish:
 
         # Проверяем, что ответ на POST запрос совпадает с сохраненными в БД данными
         dishes_data = await get_dish_by_index(index=0)
+
         assert dishes_data[0] == response.json()
 
 
@@ -290,14 +291,14 @@ class TestGetSpecificSubmenu:
                         'id': target_dish_id,
                         'title': DISH_TITLE_VALUE_TO_CREATE,
                         'description': DISH_DESCRIPTION_VALUE_TO_CREATE,
-                        'price': str(DISH_PRICE_TO_CREATE),
+                        'price': float(DISH_PRICE_TO_CREATE),
                         'submenu_id': target_submenu_id,
                     },
                     {
                         'id': target_second_dish_id,
                         'title': SECOND_DISH_TITLE_VALUE_TO_CREATE,
                         'description': SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
-                        'price': str(SECOND_DISH_PRICE_TO_CREATE),
+                        'price': float(SECOND_DISH_PRICE_TO_CREATE),
                         'submenu_id': target_submenu_id,
                     },
                 ],
@@ -307,7 +308,7 @@ class TestGetSpecificSubmenu:
 
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         submenus_data = await get_specific_submenu_data_from_db()
-        submenus_data_json = submenus_data.json()
+        submenus_data_json = await submenus_data.json()
         # Преобразуем блюда к json, т.к. они хранятся в виде объектов
         submenus_data_json['dishes'] = await format_dishes(submenus_data_json['dishes'])
 

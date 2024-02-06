@@ -25,7 +25,7 @@ async def select_dishes() -> list:
             # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
             # независимы
             menus_data = await select_all_menus(session=session)
-            menus_data_json = menus_data[0].json()
+            menus_data_json = await menus_data[0].json()
             menu_id_in_db = menus_data_json['id']
 
             # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
@@ -33,7 +33,7 @@ async def select_dishes() -> list:
             submenus_data = await select_all_submenus(
                 session=session, target_menu_id=menu_id_in_db
             )
-            submenus_data_json = submenus_data[0].json()
+            submenus_data_json = await submenus_data[0].json()
             submenu_id_in_db = submenus_data_json['id']
 
             dishes = await select_all_dishes(
@@ -61,7 +61,7 @@ async def get_dish_by_index(index: int) -> list[dict] | list:
     dishes = await select_dishes()
 
     try:
-        dishes_json = dishes[index].json()
+        dishes_json = await dishes[index].json()
         return [dishes_json]
     except IndexError:
         return []
@@ -79,7 +79,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
         # независимы
         menus_data = await select_all_menus(session=session)
-        menus_data_json = menus_data[0].json()
+        menus_data_json = await menus_data[0].json()
         menu_id_in_db = menus_data_json['id']
 
         # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
@@ -87,7 +87,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
         submenus_data = await select_all_submenus(
             session=session, target_menu_id=menu_id_in_db
         )
-        submenus_data_json = submenus_data[0].json()
+        submenus_data_json = await submenus_data[0].json()
         submenu_id_in_db = submenus_data_json['id']
 
         dishes_data = await select_all_dishes(
@@ -97,7 +97,7 @@ async def get_specific_dish_data_from_db() -> Dish | dict:
         )
 
         try:
-            dishes_data_json = dishes_data[0].json()
+            dishes_data_json = await dishes_data[0].json()
             dish_id_in_db = dishes_data_json['id']
 
             dish = await select_specific_dish(

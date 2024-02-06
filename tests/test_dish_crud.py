@@ -237,9 +237,7 @@ class TestGetDishFromTableWithData:
 
         response_json = response.json()
 
-        # Форматируем цену до 2х знаков после запятой
-        response_json[0]['price'] = '{:.2f}'.format(response_json[0]['price'])
-
+        response_json[0]['price'] = float(response_json[0]['price'])
         dishes_data = await get_dish_by_index(index=0)
         assert dishes_data == response_json
 
@@ -306,7 +304,7 @@ class TestGetSpecificDish:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_CREATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_CREATE,
-                'price': str(DISH_PRICE_TO_CREATE),
+                'price': float(DISH_PRICE_TO_CREATE),
                 'submenu_id': target_submenu_id,
             },
         )
@@ -314,7 +312,10 @@ class TestGetSpecificDish:
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         result = await get_specific_dish_data_from_db()
         dish_data = result.scalars().all()
-        assert dish_data[0].json() == response.json()
+
+        dish_data_json = await dish_data[0].json()
+
+        assert dish_data_json == response.json()
 
 
 class TestUpdateDish:
@@ -378,7 +379,7 @@ class TestUpdateDish:
             json={
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': str(DISH_PRICE_TO_UPDATE),
+                'price': float(DISH_PRICE_TO_UPDATE),
             },
         )
 
@@ -389,7 +390,7 @@ class TestUpdateDish:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': str(DISH_PRICE_TO_UPDATE),
+                'price': float(DISH_PRICE_TO_UPDATE),
                 'submenu_id': target_submenu_id,
             },
         )
@@ -460,7 +461,7 @@ class TestGetSpecificDishAfterUpdate:
                 'id': target_dish_id,
                 'title': DISH_TITLE_VALUE_TO_UPDATE,
                 'description': DISH_DESCRIPTION_VALUE_TO_UPDATE,
-                'price': str(DISH_PRICE_TO_UPDATE),
+                'price': float(DISH_PRICE_TO_UPDATE),
                 'submenu_id': target_submenu_id,
             },
         )
@@ -468,7 +469,10 @@ class TestGetSpecificDishAfterUpdate:
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         result = await get_specific_dish_data_from_db()
         dish_data = result.scalars().all()
-        assert dish_data[0].json() == response.json()
+
+        dish_data_json = await dish_data[0].json()
+
+        assert dish_data_json == response.json()
 
 
 class TestDeleteDish:

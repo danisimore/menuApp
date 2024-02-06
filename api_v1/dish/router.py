@@ -110,7 +110,7 @@ async def dish_post_method(
     created_dish_dict = await insert_data(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
-
+    created_dish_dict["price"] = float(created_dish_dict["price"])
     cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
 
     await redis.invalidate_cache(key=cache_key)
@@ -220,6 +220,7 @@ async def dish_patch_method(
     )
 
     updated_dish_dict = get_created_object_dict(updated_dish)
+    updated_dish_dict["price"] = float(updated_dish_dict["price"])
 
     cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + "_dishes"
     cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
