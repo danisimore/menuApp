@@ -6,7 +6,7 @@
 """
 
 import uuid
-
+from .submenu_utils import format_dishes
 from menu.models import Base
 from sqlalchemy import UUID, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
@@ -34,7 +34,7 @@ class Submenu(Base):
         argument='Dish', cascade='all,delete', back_populates='submenu', lazy='selectin'
     )
 
-    def json(self) -> dict:
+    async def json(self) -> dict:
         """
         Функция преобразует объект Submenu в словарь.
 

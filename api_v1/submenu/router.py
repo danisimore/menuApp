@@ -142,7 +142,7 @@ async def submenu_get_specific_method(
         submenu_dishes = await get_dishes_for_submenu(submenu.id, session)
 
         # Преобразуем объект меню в json
-        submenu_json = submenu.json()
+        submenu_json = await submenu.json()
         # Считаем кол-во блюд для этого меню
         submenu_json['dishes_count'] = len(submenu_dishes)
         # Преобразуем найденные блюда к json.
@@ -232,10 +232,7 @@ async def submenu_delete_method(
         target_menu_id=target_menu_id,
         session=session,
     )
-    cache_all_submenus_key = target_menu_id + '_submenus'
 
-    await redis.invalidate_cache(key=cache_all_submenus_key)
-    await redis.invalidate_cache(key=target_menu_id)
-    await redis.invalidate_cache(key=target_submenu_id)
+    await redis.invalidate_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

@@ -14,7 +14,7 @@ from dish.dish_services import (
     select_specific_dish,
     update_dish,
 )
-from dish.dish_utils import format_decimal, return_404_menu_not_linked_to_submenu
+from dish.dish_utils import return_404_menu_not_linked_to_submenu
 from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
 from fastapi import Depends
@@ -48,7 +48,9 @@ async def dish_get_method(
 
     redis = RedisTools()
 
-    cache = await redis.get_pair(key='dishes')
+    cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
+
+    cache = await redis.get_pair(key=cache_key)
 
     if cache is not None:
         return cache
@@ -59,7 +61,7 @@ async def dish_get_method(
         session=session,
     )
 
-    await redis.set_pair(key='dishes', value=dishes)
+    await redis.set_pair(key=cache_key, value=dishes)
 
     return dishes
 
@@ -109,7 +111,9 @@ async def dish_post_method(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
 
-    await redis.invalidate_cache(key='dishes')
+    cache_key = target_menu_id + '_' + target_submenu_id + "_dishes"
+
+    await redis.invalidate_cache(key=cache_key)
 
     return JSONResponse(content=created_dish_dict, status_code=201)
 
@@ -136,7 +140,9 @@ async def dish_get_specific_method(
 
     redis = RedisTools()
 
-    cache = await redis.get_pair(key=target_dish_id)
+    cache_key = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
+
+    cache = await redis.get_pair(key=cache_key)
 
     if cache is not None:
         if cache.get('404'):
@@ -161,11 +167,11 @@ async def dish_get_specific_method(
         'id': str(dish.id),
         'title': dish.title,
         'description': dish.description,
-        'price': format_decimal(dish.price),
+        'price': float(dish.price),
         'submenu_id': str(dish.submenu_id),
     }
 
-    await redis.set_pair(key=target_dish_id, value=dish_dict)
+    await redis.set_pair(key=cache_key, value=dish_dict)
 
     return JSONResponse(content=dish_dict)
 
@@ -215,8 +221,11 @@ async def dish_patch_method(
 
     updated_dish_dict = get_created_object_dict(updated_dish)
 
-    await redis.invalidate_cache(key='dishes')
-    await redis.invalidate_cache(key=target_dish_id)
+    cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + "_dishes"
+    cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
+
+    await redis.invalidate_cache(key=cache_key_all_dishes_for_submenu)
+    await redis.invalidate_cache(key=cache_key_specific_dish)
 
     return JSONResponse(content=updated_dish_dict, status_code=200)
 
@@ -259,9 +268,6 @@ async def dish_delete_method(
         session=session,
     )
 
-    await redis.invalidate_cache(key='dishes')
-    await redis.invalidate_cache(key=target_submenu_id)
-    await redis.invalidate_cache(key=target_menu_id)
-    await redis.invalidate_cache(key=target_dish_id)
+    await redis.invalidate_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

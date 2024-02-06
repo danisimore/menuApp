@@ -5,10 +5,8 @@
 Дата: 29 января 2024 - добавлена функция для преобразования цен блюд из Decimal к строке
 """
 
-from submenu.models import Submenu
 
-
-def convert_prices_to_str(submenu: Submenu) -> None:
+def convert_prices_to_str(submenu) -> None:
     """
     Функция преобразует цены блюд из Decimal к строке, для того чтобы не терять десятичные нули, т.к. необходимо
     выводить 2 знака после запятой
@@ -32,6 +30,6 @@ async def format_dishes(dishes: list) -> list[dict]:
     """
     dishes_list = []
     for dish in dishes:
-        dishes_list.append(dish.json())
+        dishes_list.append(await dish.json())
 
     return dishes_list

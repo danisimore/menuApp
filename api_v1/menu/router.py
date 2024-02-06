@@ -95,10 +95,10 @@ async def menu_get_specific_method(
     """
     redis = RedisTools()
 
-    cache = await redis.get_pair(key=target_menu_id)
-
-    if cache is not None:
-        return cache
+    # cache = await redis.get_pair(key=target_menu_id)
+    #
+    # if cache is not None:
+    #     return cache
 
     menu_data = await select_specific_menu(
         target_menu_id=target_menu_id, session=session
@@ -109,7 +109,9 @@ async def menu_get_specific_method(
         menu.submenus_count = menu_data[0][1]
         menu.dishes_count = menu_data[0][2]
 
-        await redis.set_pair(key=target_menu_id, value=menu.json())
+        menu_json = await menu.json()
+
+        await redis.set_pair(key=target_menu_id, value=menu_json)
 
         return menu
     else:
@@ -171,7 +173,6 @@ async def menu_delete_method(
 
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await redis.invalidate_cache(key='menus')
-    await redis.invalidate_cache(key=target_menu_id)
+    await redis.invalidate_all_cache()
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

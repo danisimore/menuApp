@@ -2,7 +2,7 @@ import json
 
 import aioredis
 from config import REDIS_PORT, TEST_REDIS_PORT
-
+from submenu.submenu_utils import format_dishes
 
 class RedisTools:
     def __init__(self):
@@ -19,7 +19,7 @@ class RedisTools:
         port = REDIS_PORT if REDIS_PORT else TEST_REDIS_PORT
 
         if not self.redis:
-            self.redis = await aioredis.from_url(f'redis://redis:{port}/0')
+            self.redis = await aioredis.from_url(f'redis://localhost:6379/0')
         return self.redis
 
     async def set_pair(self, key: str, value: list) -> None:
@@ -87,6 +87,10 @@ class RedisTools:
         redis = await self.connect_redis()
         await redis.delete(key)
 
+    async def invalidate_all_cache(self):
+        redis = await self.connect_redis()
+        await redis.flushall()
+
     @staticmethod
     async def format_object_to_json(objects_list: list) -> list:
         """
@@ -99,8 +103,15 @@ class RedisTools:
             Список объектов типа dict.
         """
 
-        object_json = []
+        object_json_list = []
         for obj in objects_list:
-            object_json.append(obj.json())
+            if hasattr(obj, 'dishes'):
+                formatted_dishes = await format_dishes(obj.dishes)
+                obj_json = await obj.json()
+                obj_json['dishes'] = formatted_dishes
 
-        return object_json
+                object_json_list.append(obj_json)
+            else:
+                object_json_list.append(await obj.json())
+
+        return object_json_list
