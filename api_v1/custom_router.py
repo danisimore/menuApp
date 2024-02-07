@@ -43,31 +43,23 @@ class CustomAPIRouter(APIRouter):
             URL, который был сгенерирован на основе переданного имени пути и параметров запроса.
         """
         try:
-            # Пытаемся получить url с помощью имени и параметров запроса.
             url = self.url_path_for(router_name, **params)
 
             return url
-        # Если получить url не удалось, то пробуем сгенерировать его на основе переданных параметров
         except NoMatchFound:
-            # Получаем все пути роутера
             paths_list = self.get_paths_list()
             is_in_path = False
-            # Итерируемся по списку всех путей
             for path in paths_list:
-                # Итерируемся по именам переданных параметров
                 for key in params.keys():
-                    # Если хоть один параметр не содержится в пути, то is_in_path ставим в False и продолжаем итерации
-                    # Если все параметры содержатся в запросе, то после итерации по параметрам is_in_path будет True
                     if key in path:
                         is_in_path = True
                     else:
                         is_in_path = False
-                # Если is_in_path True
+
                 if is_in_path:
                     url = path
-                    # Форматируем url (в фигурные скобки проставляем значения параметров)
                     formatted_url = url.format(**params)
 
                     return formatted_url
-            # Если в путях роутера не было пути с переданными параметрами, то выкидываем исключение
+
             raise NoMatchFound(name=router_name, path_params=params)

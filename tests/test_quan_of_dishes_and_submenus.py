@@ -192,7 +192,6 @@ class TestGetSpecificMenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
@@ -250,22 +249,18 @@ class TestGetSpecificSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице dishes с помощью фикстуры.
         target_dish_id = get_created_object_attribute(
             response=create_dish_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице dishes с помощью фикстуры.
         target_second_dish_id = get_created_object_attribute(
             response=create_second_dish_using_post_method_fixture, attribute='id'
         )
@@ -309,7 +304,6 @@ class TestGetSpecificSubmenu:
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
         submenus_data = await get_specific_submenu_data_from_db()
         submenus_data_json = await submenus_data.json()
-        # Преобразуем блюда к json, т.к. они хранятся в виде объектов
         submenus_data_json['dishes'] = await format_dishes(submenus_data_json['dishes'])
 
         assert submenus_data_json == response.json()
@@ -339,12 +333,10 @@ class TestDeleteSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -384,7 +376,6 @@ class TestGetSubmenusAfterDelete:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
@@ -425,12 +416,10 @@ class TestGetDishesAfterDeleteSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -469,7 +458,6 @@ class TestGetSpecificMenuAfterDeleteSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
@@ -515,14 +503,12 @@ class TestDeleteMenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
         url = menu_router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
-        # Используем тест, который тестирует удаление записи.
         await delete_object_internal_test(ac=ac, url=url)
 
         # Проверяем, чтобы данные были удалены

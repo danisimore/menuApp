@@ -42,11 +42,8 @@ async def is_submenu_in_target_menu(
         session=session
     )
 
-    # Если к меню привязаны подменю
     if submenus_linked_to_target_menu_id:
-        # Итерируемся по этим подменю
         for submenu in submenus_linked_to_target_menu_id:
-            # Если переданный в запросе идентификатор подменю, совпадает с идентификатором, привязанным к меню
             if str(submenu.id) == target_submenu_id:
                 # Возвращаем True
                 return True
@@ -76,7 +73,7 @@ async def generate_dish_dict(dish: Dish) -> dict[Any, Any]:
     :param dish: объект Dish
     :return: словарь с данными о блюде
     """
-    # Формируем словарь, чтобы корректно отобразить цену (2 знака после запятой).
+
     dish_dict = {
         'id': str(dish.id),
         'title': dish.title,

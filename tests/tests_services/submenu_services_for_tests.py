@@ -25,8 +25,6 @@ async def get_submenus_data_from_db() -> list[dict[Any, Any]] | list[Any]:
     """
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
-        # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
-        # независимы
         menus_data = await select_all_menus(session=session)
         menus_data_json = await menus_data[0].json()
         menu_id_in_db = menus_data_json['id']
@@ -58,14 +56,11 @@ async def get_specific_submenu_data_from_db() -> Submenu | dict[str, str]:
 
     # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
     async with async_session_maker() as session:
-        # Т.к. menu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
-        # независимы
+
         menus_data = await select_all_menus(session=session)
         menus_data_json = await menus_data[0].json()
         menu_id_in_db = menus_data_json['id']
 
-        # Т.к. submenu в рамках теста одно, мы можем получить его id, для того чтобы тестирование БД и Response были
-        # независимы
         submenus_data = await select_all_submenus(
             session=session, target_menu_id=menu_id_in_db
         )

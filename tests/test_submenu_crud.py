@@ -86,7 +86,6 @@ class TestGetSubmenusFromEmptyTable:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus с помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
@@ -210,12 +209,10 @@ class TestGetSpecificSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -275,12 +272,10 @@ class TestUpdateSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -342,12 +337,10 @@ class TestGetSpecificSubmenuAfterUpdate:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -403,12 +396,10 @@ class TestDeleteSubmenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -448,7 +439,6 @@ class TestGetSubmenusAfterDelete:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
@@ -488,12 +478,10 @@ class TestGetSpecificSubmenuAfterDelete:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице submenus с помощью фикстуры.
         target_submenu_id = get_created_object_attribute(
             response=create_submenu_using_post_method_fixture, attribute='id'
         )
@@ -535,7 +523,6 @@ class TestDeleteMenu:
             None
         """
 
-        # Получаем uuid, который вернул сервер после создания записи в таблице menus c помощью фикстуры.
         target_menu_id = get_created_object_attribute(
             response=create_menu_using_post_method_fixture, attribute='id'
         )

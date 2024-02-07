@@ -103,11 +103,9 @@ async def dish_post_method(
         session=session,
     )
 
-    # Если не привязано, то возвращаем 404
     if not submenu_in_target_menu:
         return return_404_menu_not_linked_to_submenu()
 
-    # Формируем словарь из полученных данных.
     dish_data_dict = create_dict_from_received_data(
         received_data=dish_data,
         parent_id=target_submenu_id,
@@ -161,7 +159,6 @@ async def dish_get_specific_method(
 
     dish = await try_get_dish(result=result)
 
-    # Если блюдо по указанным параметрам не найдено, то возвращаем 404, иначе json с данными об этом блюде
     if not dish:
         return JSONResponse(content={'detail': 'dish not found'}, status_code=404)
 
@@ -192,7 +189,6 @@ async def dish_patch_method(
 
     """
 
-    # Проверяем привязано ли указанное подменю к указанному меню.
     submenu_in_target_menu = await is_submenu_in_target_menu(
         submenu=Submenu,
         target_menu_id=target_menu_id,
@@ -200,7 +196,6 @@ async def dish_patch_method(
         session=session,
     )
 
-    # Если не привязано, то возвращаем 404
     if not submenu_in_target_menu:
         return return_404_menu_not_linked_to_submenu()
 

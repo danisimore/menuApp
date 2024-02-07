@@ -106,10 +106,8 @@ async def update_menu(
         .returning(Menu)
     )
 
-    # Исполняем SQL код.
     result = await session.execute(stmt)
 
-    # Получаем объект созданной записи.
     updated_menu = result.scalars().all()[0]
 
     await session.commit()
@@ -141,6 +139,13 @@ async def delete_menu(
 async def get_dishes_for_submenu(
         target_submenu_id: str, session: AsyncSession = Depends(get_async_session)
 ) -> list[Dish]:
+    """
+    Получает блюда для подменю
+
+    :param target_submenu_id: id подменю
+    :param session: сессия подключения к БД.
+    :return: список блюд
+    """
     stmt = select(Dish).where(Dish.submenu_id == target_submenu_id)
 
     result: Result = await session.execute(stmt)
@@ -424,11 +429,11 @@ async def select_submenus_for_menu(
     stmt_submenus_linked_to_target_menu_id = select(submenu).where(
         cast(submenu.menu_id == target_menu_id, Boolean)
     )
-    # Исполняем запрос.
+
     result_submenus_linked_to_target_menu_id = await session.execute(
         stmt_submenus_linked_to_target_menu_id
     )
-    # Получаем список найденных объектов (Подменю, привязанных к target_menu_id).
+
     submenus_linked_to_target_menu_id = (
         result_submenus_linked_to_target_menu_id.scalars().all()
     )

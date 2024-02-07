@@ -134,14 +134,12 @@ async def menu_patch_method(
 
     """
 
-    # Получаем объект созданной записи.
     updated_menu = await update_menu(
         update_menu_data=update_menu_data,
         target_menu_id=target_menu_id,
         session=session,
     )
 
-    # Формируем словарь на основе этого объекта.
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
 
     await delete_cache(key='menus')
