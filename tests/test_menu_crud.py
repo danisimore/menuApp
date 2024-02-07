@@ -48,7 +48,6 @@ class TestGetMenusFromEmptyTable:
 
         url = router.reverse(router_name='menu_base_url')
 
-        # Используем тест, который проверяет ответ сервера на запрос к пустой таблице.
         response = await get_object_when_table_is_empty_internal_test(ac=ac, url=url)
 
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
@@ -104,7 +103,6 @@ class TestGetMenusFromTableWithData:
 
         url = router.reverse(router_name='menu_base_url')
 
-        # Используем тест, который проверяет ответ сервера на запрос к не пустой таблице.
         response = await get_objects_when_table_is_not_empty_internal_test(ac=ac, url=url)
 
         # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
@@ -197,7 +195,6 @@ class TestUpdateMenu:
             },
         )
 
-        # Проверяем, что сервер вернул ожидаемые данные.
         assert_response(
             response=response,
             expected_status_code=200,
@@ -241,10 +238,8 @@ class TestGetSpecificMenuAfterUpdate:
 
         url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
-        # Сохраняем ответ сервера, делая запрос с параметром uuid.
         response = await ac.get(url=url)
 
-        # Проверяем, что сервер вернул ожидаемые данные.
         assert_response(
             response=response,
             expected_status_code=200,
@@ -287,7 +282,6 @@ class TestDeleteMenu:
 
         url = router.reverse(router_name='menu_base_url', target_menu_id=target_menu_id)
 
-        # Используем тест, который тестирует удаление записи.
         await delete_object_internal_test(ac=ac, url=url)
 
         # Проверяем, чтобы данные были удалены

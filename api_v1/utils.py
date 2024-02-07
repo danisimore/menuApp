@@ -26,13 +26,8 @@ def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict[Any, 
 
     """
 
-    # Переменная, которая хранит все столбцы таблицы созданной записи
     created_object_columns = created_object.__table__.columns
 
-    # Итерируемся по названиям столбцов таблицы;
-    # Если колонка только что созданного объекта не None, то создаем пару название_столбца:занчение_столбца
-    # Иначе явно устанавливаем значение None, чтобы в БД хранилось значение
-    # null
     created_object_dict = {
         column.key: str(getattr(created_object, column.key))
         if getattr(created_object, column.key) is not None
@@ -58,9 +53,8 @@ def create_dict_from_received_data(
         Словарь с данными о новом блюде
     """
 
-    # Формируем словарь из полученных данных.
     data_dict = received_data.model_dump()
-    # Указываем, что блюдо привязывается у указанному в запросе подменю.
+
     data_dict[foreign_key_field_name] = parent_id
 
     return data_dict

@@ -45,18 +45,12 @@ class RedisTools:
 
         redis = await self.connect_redis()
 
-        # Если прилетает пустой список или словарь (определенный объект)
         if not len(value) or type(value) is dict:
-            # То сериализуем этот объект в JSON
             json_value = json.dumps(value)
-        # Иначе прилетает список с объектами.
         else:
-            # Приводим их к типу словаря, пользуясь объявленным в модели методом json.
             list_with_formatted_objects = await format_object_to_json(value)
-            # И сериализуем в JSON
             json_value = json.dumps(list_with_formatted_objects)
 
-        # Записываем в Redis по переданному ключу JSON объект с данными.
         await redis.set(key, json_value)
 
     async def get_pair(self, key: str) -> list[dict[Any, Any]] | dict[Any, Any] | None:
@@ -72,15 +66,13 @@ class RedisTools:
 
         redis = await self.connect_redis()
 
-        # Получаем из Redis JSON объект по указанному ключу.
         cache = await redis.get(key)
 
-        # Если по указанному ключу есть сохраненный объект, то десериализуем его в объект Python и возвращаем
         if cache:
             cache_list = json.loads(cache)
 
             return cache_list
-        # Если ничего не нашлось, то возвращаем None
+
         return None
 
     async def invalidate_cache(self, key: str) -> None:
