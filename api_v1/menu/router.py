@@ -10,6 +10,7 @@ from database.database import get_async_session
 from database.database_services import (
     delete_menu,
     select_all_menus,
+    select_all_submenus,
     select_specific_menu,
     update_menu,
 )
@@ -17,8 +18,9 @@ from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
-    delete_all_cache,
     delete_cache,
+    delete_cache_by_key,
+    delete_linked_menu_cache,
     get_cache,
     insert_data,
 )
@@ -163,8 +165,13 @@ async def menu_delete_method(
 
     """
 
+    submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
+
+    await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
+
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await delete_all_cache()
+    await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='menus')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

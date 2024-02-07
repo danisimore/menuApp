@@ -25,8 +25,8 @@ from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
-    delete_all_cache,
     delete_cache,
+    delete_cache_by_key,
     get_cache,
     insert_data,
 )
@@ -253,6 +253,14 @@ async def dish_delete_method(
         session=session,
     )
 
-    await delete_all_cache()
+    all_dishes_for_submenu_cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
+    specific_dish_cache_key = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
+    submenus_cache_key = target_menu_id + '_submenus'
+
+    await delete_cache_by_key(key=all_dishes_for_submenu_cache_key)
+    await delete_cache_by_key(key=specific_dish_cache_key)
+    await delete_cache_by_key(key=target_submenu_id)
+    await delete_cache_by_key(key=submenus_cache_key)
+    await delete_cache_by_key(key=target_menu_id)
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)
