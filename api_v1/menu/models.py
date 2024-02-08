@@ -45,6 +45,13 @@ class Menu(Base):
                 'submenus_count': self.submenus_count,
                 'dishes_count': self.dishes_count,
             }
+        elif hasattr(self, 'submenus'):
+            return {
+                'id': str(self.id),
+                'title': self.title,
+                'description': self.description,
+                'submenus': self.submenus
+            }
         else:
             return {
                 'id': str(self.id),

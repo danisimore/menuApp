@@ -28,7 +28,7 @@ class RedisTools:
         host = TEST_REDIS_HOST if IS_TEST else REDIS_HOST
 
         if not self.redis:
-            self.redis = await aioredis.from_url(f'redis://{host}:6379/0')
+            self.redis = await aioredis.from_url(f'redis://localhost:6379/0')
         return self.redis
 
     async def set_pair(self, key: str, value: list[Any] | dict[Any, Any]) -> None:

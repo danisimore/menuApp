@@ -4,12 +4,14 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 06 февраля 2024
 """
+from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
 from database.database_services import (
     delete_menu,
     select_all_menus,
+    select_all_menus_detail,
     select_all_submenus,
     select_specific_menu,
     update_menu,
@@ -32,6 +34,19 @@ from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 
 router = CustomAPIRouter(prefix='/api/v1', tags=['Menu'])
+
+
+@router.get(path='/menus/detail')
+async def get_all_menus_detail(session: AsyncSession = Depends(get_async_session)) -> list[dict[Any, Any]]:
+    """
+    Обработка GET запроса для вывода всех меню со всеми связанными подменю и со всеми связанными блюдами
+
+    :param session: сессия подключения к БД
+    :return: список со всеми меню с отображением привязанных подменю и блюд
+    """
+    menus = await select_all_menus_detail(session=session)
+
+    return menus
 
 
 @router.get(path='/menus', name='menu_base_url')

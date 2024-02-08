@@ -4,6 +4,7 @@ Cлой для работы с БД.
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 06 февраля 2024
 """
+from typing import Any
 
 from database.database import get_async_session
 from dish.models import Dish
@@ -24,9 +25,28 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 from submenu.models import Submenu
 from submenu.schemas import UpdateSubmenu
+from utils import format_detailed_menus
+
+
+async def select_all_menus_detail(session: AsyncSession = Depends(get_async_session)) -> list[dict[Any, Any]]:
+    """
+    Осуществляет выборку всех меню со всеми связанными подменю и блюдами;
+
+    :param session: сессия подключения к БД
+    :return: список со всеми меню с отображением привязанных подменю и блюд
+    """
+
+    stmt = select(Menu).outerjoin(Submenu, Submenu.menu_id == Menu.id).options(joinedload(Menu.submenus))
+    result: Result = await session.execute(stmt)
+
+    menus = result.unique().scalars().all()
+
+    menus_json = await format_detailed_menus(menus=menus)
+
+    return menus_json
 
 
 async def select_all_menus(session: AsyncSession = Depends(get_async_session)) -> list[Menu]:
