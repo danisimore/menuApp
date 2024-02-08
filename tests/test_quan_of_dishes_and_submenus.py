@@ -2,7 +2,7 @@
 Модуль для тестирования сценария проверки кол-ва блюд и подменю в меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 31 января 2024 | Добавлены тесты для сравнения запроса и данных из БД
+Дата: 08 февраля 2024 | Добавлено тестирование всех меню со всеми связанными подменю и со всеми связанными блюдами
 """
 
 import pytest
@@ -16,6 +16,7 @@ from tests_services.menu_services_for_tests import (
     get_all_menus_data,
     get_menu_data_from_db_with_counters,
     get_menu_data_from_db_without_counters,
+    get_all_menus_detail_data
 )
 from tests_services.submenu_services_for_tests import (
     get_specific_submenu_data_from_db,
@@ -158,6 +159,83 @@ class TestCreateSecondDish:
         # Проверяем, что ответ на POST запрос совпадает с сохраненными в БД данными
         dishes_data = await get_dish_by_index(index=1)
         assert dishes_data[0] == response.json()
+
+
+class TestGetMenusDetail:
+    @pytest.mark.asyncio
+    async def test_get_menus_detail(
+            self,
+            ac: AsyncClient,
+            create_menu_using_post_method_fixture: create_menu_using_post_method_fixture,
+            create_submenu_using_post_method_fixture: create_submenu_using_post_method_fixture,
+            create_dish_using_post_method_fixture: create_dish_using_post_method_fixture,
+            create_second_dish_using_post_method_fixture: create_second_dish_using_post_method_fixture,
+    ) -> None:
+        """
+        Тестирование эндпоинта для вывода всех меню со всеми связанными подменю и со всеми связанными блюдами
+
+        :param ac: клиент для асинхронных HTTP запросов,
+        :param create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос на создание меню
+        :param create_submenu_using_post_method_fixture: фикстура с ответом сервера на POST запрос на создание подменю
+        :param create_dish_using_post_method_fixture: фикстура с ответом сервера на POST запрос на создание 1-го блюда
+        :param create_second_dish_using_post_method_fixture: фикстура с ответом сервера на POST запрос на создание
+                                                             2-го блюда
+        :return: None
+        """
+
+        url = '/api/v1/menus/detail'
+        response = await ac.get(url=url)
+
+        target_menu_id = get_created_object_attribute(
+            response=create_menu_using_post_method_fixture, attribute='id'
+        )
+        target_submenu_id = get_created_object_attribute(
+            response=create_submenu_using_post_method_fixture, attribute='id'
+        )
+        first_dish_id = get_created_object_attribute(
+            response=create_dish_using_post_method_fixture, attribute='id'
+        )
+        second_dish_id = get_created_object_attribute(
+            response=create_second_dish_using_post_method_fixture, attribute='id'
+        )
+
+        assert_response(
+            response=response,
+            expected_status_code=200,
+            expected_data=[{
+                'id': target_menu_id,
+                'title': MENU_TITLE_VALUE_TO_CREATE,
+                'description': MENU_DESCRIPTION_VALUE_TO_CREATE,
+                'submenus': [
+                    {
+                        'id': target_submenu_id,
+                        'title': SUBMENU_TITLE_VALUE_TO_CREATE,
+                        'description': SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
+                        'menu_id': target_menu_id,
+                        'dishes': [
+                            {
+                                'id': first_dish_id,
+                                'title': DISH_TITLE_VALUE_TO_CREATE,
+                                'description': DISH_DESCRIPTION_VALUE_TO_CREATE,
+                                'price': str(DISH_PRICE_TO_CREATE),
+                                'submenu_id': target_submenu_id
+                            },
+                            {
+                                'id': second_dish_id,
+                                'title': SECOND_DISH_TITLE_VALUE_TO_CREATE,
+                                'description': SECOND_DISH_DESCRIPTION_VALUE_TO_CREATE,
+                                'price': str(SECOND_DISH_PRICE_TO_CREATE),
+                                'submenu_id': target_submenu_id
+                            }
+                        ]
+                    }
+                ]
+            }],
+        )
+
+        # Проверяем, чтобы данные, которые отдал сервер соответствовали данным в БД.
+        menus_detail_json_data = await get_all_menus_detail_data()
+        assert response.json() == menus_detail_json_data
 
 
 class TestGetSpecificMenu:
