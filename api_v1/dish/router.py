@@ -2,7 +2,9 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся блюд.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+
+Дата: 08 февраля 2024 | Реализация и кеширование вывода всех меню со всеми связанными подменю и
+                        со всеми связанными блюдами.
 """
 
 from custom_router import CustomAPIRouter
@@ -116,9 +118,14 @@ async def dish_post_method(
         data_dict=dish_data_dict, database_model=Dish, session=session
     )
 
-    cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
+    dishes_cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
+    submenus_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache(key=cache_key)
+    await delete_cache(key=dishes_cache_key)
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key=submenus_cache_key)
+    await delete_cache_by_key(key=target_submenu_id)
 
     return JSONResponse(content=created_dish_dict, status_code=201)
 
@@ -210,9 +217,14 @@ async def dish_patch_method(
 
     cache_key_all_dishes_for_submenu = target_menu_id + '_' + target_submenu_id + '_dishes'
     cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
+    submenus_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache(key=cache_key_all_dishes_for_submenu)
-    await delete_cache(key=cache_key_specific_dish)
+    await delete_cache_by_key(key=cache_key_all_dishes_for_submenu)
+    await delete_cache_by_key(key=cache_key_specific_dish)
+    await delete_cache_by_key(key='menus_detail')
+
+    await delete_cache_by_key(key=submenus_cache_key)
+    await delete_cache_by_key(key=target_submenu_id)
 
     return JSONResponse(content=updated_dish_dict, status_code=200)
 
@@ -262,5 +274,6 @@ async def dish_delete_method(
     await delete_cache_by_key(key=target_submenu_id)
     await delete_cache_by_key(key=submenus_cache_key)
     await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

@@ -626,6 +626,24 @@
                   }
                }
             ],
+             "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "$ref":"#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
@@ -796,7 +814,7 @@
                               "type":"string"
                            },
                            "price": {
-                             "type": "string"
+                             "type": "number"
                            }
                         },
                         "required":[
@@ -964,6 +982,27 @@
                   }
                }
             ],
+             "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           },
+                           "price":{
+                              "type":"number"
+                           }
+                        }
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "description":"Successful Response",

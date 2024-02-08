@@ -2,9 +2,8 @@
 Cлой для работы с БД.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 08 февраля 2024 | Реализация и вывода всех меню со всеми связанными подменю и со всеми связанными блюдами.
 """
-from typing import Any
 
 from database.database import get_async_session
 from dish.models import Dish
@@ -28,10 +27,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 from submenu.models import Submenu
 from submenu.schemas import UpdateSubmenu
-from utils import format_detailed_menus
 
 
-async def select_all_menus_detail(session: AsyncSession = Depends(get_async_session)) -> list[dict[Any, Any]]:
+async def select_all_menus_detail(session: AsyncSession = Depends(get_async_session)) -> list[Menu]:
     """
     Осуществляет выборку всех меню со всеми связанными подменю и блюдами;
 
@@ -44,9 +42,7 @@ async def select_all_menus_detail(session: AsyncSession = Depends(get_async_sess
 
     menus = result.unique().scalars().all()
 
-    menus_json = await format_detailed_menus(menus=menus)
-
-    return menus_json
+    return menus
 
 
 async def select_all_menus(session: AsyncSession = Depends(get_async_session)) -> list[Menu]:

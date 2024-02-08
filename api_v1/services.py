@@ -2,7 +2,7 @@
 Бизнес логика, общая для приложений.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 08 февраля 2024 | Удалена неиспользуемая функция
 """
 from typing import Any
 
@@ -89,18 +89,7 @@ async def delete_cache(key: str) -> None:
     await redis.invalidate_cache(key=key)
 
 
-async def delete_all_cache() -> None:
-    """
-    Удаляет все данные
-
-    :return: None
-    """
-    redis = RedisTools()
-
-    await redis.invalidate_all_cache()
-
-
-async def delete_cache_by_key(key) -> None:
+async def delete_cache_by_key(key: str) -> None:
     """
     Удаляет данные по ключу
 
@@ -114,8 +103,8 @@ async def delete_cache_by_key(key) -> None:
 
 
 async def delete_linked_menu_cache(
-        submenus_for_menu,
-        target_menu_id,
+        submenus_for_menu: list[Submenu],
+        target_menu_id: str,
         session: AsyncSession = Depends(get_async_session)
 ) -> None:
     """

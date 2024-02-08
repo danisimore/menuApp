@@ -2,7 +2,8 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся подменю.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 08 февраля 2024 | Реализация и кеширование вывода всех меню со всеми связанными подменю и
+                        со всеми связанными блюдами.
 """
 from typing import Any
 
@@ -109,6 +110,8 @@ async def submenu_post_method(
     cache_key = target_menu_id + '_submenus'
 
     await delete_cache(key=cache_key)
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key=target_menu_id)
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -195,8 +198,11 @@ async def submenu_patch_method(
 
     updated_submenu_dict['dishes'] = submenu_dishes
 
-    await delete_cache(key='submenus')
-    await delete_cache(key=target_submenu_id)
+    all_submenus_for_menu_cache_key = target_menu_id + '_submenus'
+
+    await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
+    await delete_cache_by_key(key=target_submenu_id)
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
 
@@ -236,5 +242,6 @@ async def submenu_delete_method(
     await delete_cache_by_key(key=target_submenu_id)
     await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
     await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

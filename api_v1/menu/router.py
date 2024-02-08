@@ -2,7 +2,9 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+
+Дата: 08 февраля 2024 | Реализация и кеширование вывода всех меню со всеми связанными подменю и
+                        со всеми связанными блюдами.
 """
 from typing import Any
 
@@ -27,7 +29,7 @@ from services import (
     insert_data,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils import get_created_object_dict
+from utils import format_detailed_menus, get_created_object_dict
 
 from .menu_services import parse_menu_data
 from .models import Menu
@@ -44,9 +46,18 @@ async def get_all_menus_detail(session: AsyncSession = Depends(get_async_session
     :param session: сессия подключения к БД
     :return: список со всеми меню с отображением привязанных подменю и блюд
     """
+
+    cache = await get_cache(key='menus_detail')
+
+    if cache is not None:
+        return cache
+
     menus = await select_all_menus_detail(session=session)
 
-    return menus
+    menus_json = await format_detailed_menus(menus=menus)
+    await create_cache(key='menus_detail', value=menus_json)
+
+    return menus_json
 
 
 @router.get(path='/menus', name='menu_base_url')
@@ -94,6 +105,7 @@ async def menu_post_method(
     )
 
     await delete_cache(key='menus')
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -161,6 +173,7 @@ async def menu_patch_method(
 
     await delete_cache(key='menus')
     await delete_cache(key=target_menu_id)
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
@@ -188,5 +201,6 @@ async def menu_delete_method(
 
     await delete_cache_by_key(key=target_menu_id)
     await delete_cache_by_key(key='menus')
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

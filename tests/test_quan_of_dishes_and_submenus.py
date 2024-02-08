@@ -14,9 +14,9 @@ from submenu.submenu_utils import format_dishes
 from tests_services.dish_services_for_tests import get_dish_by_index
 from tests_services.menu_services_for_tests import (
     get_all_menus_data,
+    get_all_menus_detail_data,
     get_menu_data_from_db_with_counters,
     get_menu_data_from_db_without_counters,
-    get_all_menus_detail_data
 )
 from tests_services.submenu_services_for_tests import (
     get_specific_submenu_data_from_db,
