@@ -29,6 +29,14 @@ class Menu(Base):
         argument='Submenu', cascade='all,delete', back_populates='menu'
     )
 
+    async def json_detail(self) -> dict:
+        return {
+            'id': str(self.id),
+            'title': self.title,
+            'description': self.description,
+            'submenus': self.submenus
+        }
+
     async def json(self) -> dict:
         """
         Функция преобразует объект Menu в словарь.
@@ -44,13 +52,6 @@ class Menu(Base):
                 'description': self.description,
                 'submenus_count': self.submenus_count,
                 'dishes_count': self.dishes_count,
-            }
-        elif hasattr(self, 'submenus'):
-            return {
-                'id': str(self.id),
-                'title': self.title,
-                'description': self.description,
-                'submenus': self.submenus
             }
         else:
             return {

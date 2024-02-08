@@ -95,7 +95,7 @@ async def format_detailed_menus(menus) -> list[dict[Any, Any]]:
     menus_json = []
 
     for menu in menus:
-        menus_json.append(await menu.json())
+        menus_json.append(await menu.json_detail())
 
     for menu in menus_json:
         formatted_submenus = await format_object_to_json(menu['submenus'])
