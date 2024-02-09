@@ -27,6 +27,7 @@ from services import (
     delete_linked_menu_cache,
     get_cache,
     insert_data,
+    delete_all_cache
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import format_detailed_menus, get_created_object_dict
@@ -192,15 +193,18 @@ async def menu_delete_method(
     Returns: JSONResponse
 
     """
+    if target_menu_id == 'delete_all_records':
+        await delete_menu(session=session)
+        await delete_all_cache()
+    else:
+        submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
 
-    submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
+        await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
 
-    await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
+        await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await delete_menu(target_menu_id=target_menu_id, session=session)
+        await delete_cache_by_key(key=target_menu_id)
+        await delete_cache_by_key(key='menus')
+        await delete_cache_by_key(key='menus_detail')
 
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key='menus')
-    await delete_cache_by_key(key='menus_detail')
-
-    return JSONResponse(content={'status': 'success!'}, status_code=200)
+        return JSONResponse(content={'status': 'success!'}, status_code=200)

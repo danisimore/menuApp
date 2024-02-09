@@ -89,6 +89,11 @@ async def delete_cache(key: str) -> None:
     await redis.invalidate_cache(key=key)
 
 
+async def delete_all_cache() -> None:
+    redis = RedisTools()
+    await redis.invalidate_all_cache()
+
+
 async def delete_cache_by_key(key: str) -> None:
     """
     Удаляет данные по ключу

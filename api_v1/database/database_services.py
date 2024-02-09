@@ -132,7 +132,7 @@ async def update_menu(
 
 
 async def delete_menu(
-        target_menu_id: str,
+        target_menu_id: str = None,
         session: AsyncSession = Depends(get_async_session)
 ) -> None:
     """
@@ -145,7 +145,10 @@ async def delete_menu(
     Returns: None
 
     """
-    stmt = delete(Menu).where(cast(Menu.id == target_menu_id, Boolean))
+    if target_menu_id is None:
+        stmt = delete(Menu)
+    else:
+        stmt = delete(Menu).where(cast(Menu.id == target_menu_id, Boolean))
 
     await session.execute(stmt)
 

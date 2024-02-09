@@ -97,3 +97,17 @@ class RedisTools:
         background_task.add_task(self.invalidate_cache_task, key, redis)
 
         await background_task()
+
+    @staticmethod
+    async def invalidate_all_cache_task(redis: aioredis.client.Redis) -> None:
+        await redis.flushall()
+
+    async def invalidate_all_cache(self):
+        redis = await self.connect_redis()
+
+        background_task = BackgroundTasks()
+
+        background_task.add_task(self.invalidate_all_cache_task, redis)
+
+        await background_task()
+
