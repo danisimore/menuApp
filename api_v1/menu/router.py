@@ -22,12 +22,12 @@ from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
+    delete_all_cache,
     delete_cache,
     delete_cache_by_key,
     delete_linked_menu_cache,
     get_cache,
     insert_data,
-    delete_all_cache
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import format_detailed_menus, get_created_object_dict

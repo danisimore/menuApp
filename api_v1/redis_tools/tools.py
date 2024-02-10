@@ -110,4 +110,3 @@ class RedisTools:
         background_task.add_task(self.invalidate_all_cache_task, redis)
 
         await background_task()
-

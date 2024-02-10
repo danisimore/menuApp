@@ -132,7 +132,7 @@ async def update_menu(
 
 
 async def delete_menu(
-        target_menu_id: str = None,
+        target_menu_id: str | None = None,
         session: AsyncSession = Depends(get_async_session)
 ) -> None:
     """

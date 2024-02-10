@@ -1,4 +1,5 @@
 import json
+
 import aiohttp
 
 
@@ -16,7 +17,7 @@ async def delete_data(url):
 
 
 async def clear_tables():
-    await delete_data(url='ttp://localhost:8000/api/v1/menus/delete_all_records')
+    await delete_data(url='http://localhost:8000/api/v1/menus/delete_all_records')
 
 
 async def create_menu_using_post_method_and_table_data(menu_data_from_table):
@@ -25,9 +26,9 @@ async def create_menu_using_post_method_and_table_data(menu_data_from_table):
 
     for data in menu_data_from_table:
         if cntr == 1:
-            menu_data["title"] = data
+            menu_data['title'] = data
         elif cntr == 2:
-            menu_data["description"] = data
+            menu_data['description'] = data
             resp = await fetch_data(url='http://localhost:8000/api/v1/menus', data=menu_data)
             resp_json = json.loads(resp)
             target_menu_id = resp_json['id']
