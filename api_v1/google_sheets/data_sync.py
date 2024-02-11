@@ -6,16 +6,16 @@
 Дата: 11 февраля 2024
 """
 
-
 import asyncio
 
+from exceptions import CustomException
 from operations import (
     clear_tables,
     create_dish_using_data_from_sheets,
     create_menu_using_data_from_sheets,
     create_submenu_using_data_from_sheets,
 )
-from services import create_cache, get_cache
+from services import create_cache, delete_cache_by_key, get_cache
 from tasks.tasks import get_sheets_data
 
 
@@ -56,11 +56,20 @@ async def sync_table(sheets_response: list[list[str]]) -> None:
     for value_list in sheets_response:
         if len(value_list) == 3:
             target_menu_id = await create_menu_using_data_from_sheets(menu_data_from_table=value_list)
+
         elif len(value_list) == 4:
-            target_submenu_id = await create_submenu_using_data_from_sheets(
-                submenu_data_from_table=value_list,
-                target_menu_id=target_menu_id
-            )
+            try:
+                target_submenu_id = await create_submenu_using_data_from_sheets(
+                    submenu_data_from_table=value_list,
+                    target_menu_id=target_menu_id
+                )
+            except UnboundLocalError:
+                await delete_cache_by_key(key='table_cache')
+                raise CustomException(
+                    message='Check the correctness of the data in the Google Sheet!',
+                    extra_info='The menu was expected to be created'
+                )
+
         elif len(value_list) in [6, 7]:
             await create_dish_using_data_from_sheets(
                 dish_data_from_table=value_list,
@@ -104,5 +113,6 @@ async def sync() -> None:
                 print('Изменения были внесены!')
 
         await asyncio.sleep(15)
+
 
 asyncio.run(sync())

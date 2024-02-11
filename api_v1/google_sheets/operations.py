@@ -25,7 +25,7 @@ async def clear_tables() -> None:
         await delete_all_cache()
 
 
-async def create_menu_using_data_from_sheets(menu_data_from_table: list[str]) -> str:
+async def create_menu_using_data_from_sheets(menu_data_from_table: list[str]) -> str | None:
     """
     Создает меню используя данные из гугл таблицы
 
@@ -53,8 +53,10 @@ async def create_menu_using_data_from_sheets(menu_data_from_table: list[str]) ->
 
         cntr += 1
 
+    return None
 
-async def create_submenu_using_data_from_sheets(submenu_data_from_table: list[str], target_menu_id: str) -> str:
+
+async def create_submenu_using_data_from_sheets(submenu_data_from_table: list[str], target_menu_id: str) -> str | None:
     """
     Создает подменю используя данные из гугл таблицы.
 
@@ -82,6 +84,8 @@ async def create_submenu_using_data_from_sheets(submenu_data_from_table: list[st
                 return target_submenu_id
 
         cntr += 1
+
+    return None
 
 
 async def create_dish_using_data_from_sheets(dish_data_from_table, target_submenu_id) -> None:
@@ -118,4 +122,3 @@ async def create_dish_using_data_from_sheets(dish_data_from_table, target_submen
             await create_cache(key=discount_cache_key, value=discount_perc)
 
         cntr += 1
-

@@ -7,12 +7,11 @@
 
 from typing import Any
 
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from database.database import get_async_session
-from submenu.submenu_services import prepare_submenus_to_response
+from fastapi import Depends
 from menu.models import Menu
+from sqlalchemy.ext.asyncio import AsyncSession
+from submenu.submenu_services import prepare_submenus_to_response
 
 
 async def format_detailed_menus(
