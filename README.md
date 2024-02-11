@@ -74,11 +74,11 @@ https://docs.google.com/spreadsheets/d/1hhrwkP1xBU7jvxVEcwtBVkSOhLEwJBG3ZpOiA0D-
    ```
 7. Чтобы включить синхорнизацию с Google Sheets используйте команду
    ```
-   make run_sync
+   sudo make run_sync
    ```
 8. Для того, чтобы остановить синхорнизацию используйте команду
    ```
-   make stop_sync
+   sudo make stop_sync
    ```
 
 ## Тестирование
