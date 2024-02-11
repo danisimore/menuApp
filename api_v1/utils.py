@@ -39,7 +39,7 @@ def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict[Any, 
 
 
 def create_dict_from_received_data(
-    received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
+        received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
 ) -> dict[Any, Any]:
     """
     Функция формирует словарь на основе полученных от клиента данных о блюде, которое нужно создать
@@ -83,22 +83,3 @@ async def format_object_to_json(objects_list: list[Any] | dict[Any, Any]) -> lis
             object_json_list.append(await obj.json())
 
     return object_json_list
-
-
-async def format_detailed_menus(menus) -> list[dict[Any, Any]]:
-    """
-    Форматирует объекты меню из списка выборки и связанные с ним подменю и блюда в json
-
-    :param menus: список меню
-    :return: список со всеми отформатированными меню с отображением привязанных подменю и блюд
-    """
-    menus_json = []
-
-    for menu in menus:
-        menus_json.append(await menu.json_detail())
-
-    for menu in menus_json:
-        formatted_submenus = await format_object_to_json(menu['submenus'])
-        menu['submenus'] = formatted_submenus
-
-    return menus_json

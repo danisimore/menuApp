@@ -12,7 +12,7 @@ from database.database_services import (
     select_all_menus_detail,
     select_specific_menu,
 )
-from utils import format_detailed_menus
+from menu.menu_utils import format_detailed_menus
 
 
 async def get_all_menus_detail_data() -> list[dict[Any, Any]]:
@@ -24,7 +24,7 @@ async def get_all_menus_detail_data() -> list[dict[Any, Any]]:
 
     async with async_session_maker() as session:
         menus_data = await select_all_menus_detail(session=session)
-    menus_json = await format_detailed_menus(menus=menus_data)
+        menus_json = await format_detailed_menus(menus=menus_data, session=session)
 
     return menus_json
 

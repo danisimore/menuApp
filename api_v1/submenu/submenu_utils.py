@@ -4,7 +4,6 @@
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 Дата: 06 февраля 2024
 """
-
 from dish.models import Dish
 
 

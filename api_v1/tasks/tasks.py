@@ -1,19 +1,35 @@
-import asyncio
-from celery import Celery
-from google_sheets.data_sync import sync
+"""
+Модуль с реализацией Celery задач.
 
-broker_url = "amqp://localhost"
-celery = Celery('tasks', broker=broker_url)
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+Дата: 11 февраля 2024
+"""
+from typing import Any
+
+from celery import Celery
+from google_sheets.sheets_api import get_table_data
+
+broker_url = 'amqp://localhost'
+result_backend = 'rpc://'
+celery = Celery('tasks', broker=broker_url, backend=result_backend)
 
 
 @celery.task
-def sync_table_with_db():
-    asyncio.run(sync())
+def get_sheets_data() -> dict[Any, Any]:
+    """
+    Таска для получения данных из Google Sheets.
+
+    :return: dict - ответ Google Sheets API
+    """
+
+    response = get_table_data()
+
+    return response
 
 
 celery.conf.beat_schedule = {
     'sync-every-15-seconds': {
-        'task': 'tasks.sync_table_with_db',
+        'task': 'tasks.tasks.get_sheets_data',
         'schedule': 15.0,
     },
 }

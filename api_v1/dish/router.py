@@ -3,8 +3,7 @@
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 
-Дата: 08 февраля 2024 | Реализация и кеширование вывода всех меню со всеми связанными подменю и
-                        со всеми связанными блюдами.
+Дата: 11 февраля 2024 | Добавлена очистка кэша с инфой о синхронизации с таблицей при выполнении CUD методов
 """
 
 from custom_router import CustomAPIRouter
@@ -20,7 +19,7 @@ from dish.dish_services import (
     is_submenu_in_target_menu,
     try_get_dish,
 )
-from dish.dish_utils import return_404_menu_not_linked_to_submenu
+from dish.dish_utils import apply_discount, return_404_menu_not_linked_to_submenu
 from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
 from fastapi import Depends
@@ -70,11 +69,12 @@ async def dish_get_method(
         session=session,
     )
 
-    await create_cache(key=cache_key, value=dishes)
-
     formatted_dishes = await format_dishes(dishes)
+    dishes_with_discount = await apply_discount(formatted_dishes)
 
-    return formatted_dishes
+    await create_cache(key=cache_key, value=dishes_with_discount)
+
+    return dishes_with_discount
 
 
 @router.post('/{target_menu_id}/submenus/{target_submenu_id}/dishes')
@@ -126,6 +126,7 @@ async def dish_post_method(
     await delete_cache_by_key(key=target_menu_id)
     await delete_cache_by_key(key=submenus_cache_key)
     await delete_cache_by_key(key=target_submenu_id)
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=created_dish_dict, status_code=201)
 
@@ -170,8 +171,11 @@ async def dish_get_specific_method(
         return JSONResponse(content={'detail': 'dish not found'}, status_code=404)
 
     dish_dict = await generate_dish_dict(dish=dish)
-    await create_cache(key=cache_key, value=dish_dict)
-    return JSONResponse(content=dish_dict)
+
+    dish_dict_with_discount = await apply_discount(dishes=[dish_dict])
+
+    await create_cache(key=cache_key, value=dish_dict_with_discount)
+    return JSONResponse(content=dish_dict_with_discount[0])
 
 
 @router.patch('/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}')
@@ -225,8 +229,11 @@ async def dish_patch_method(
 
     await delete_cache_by_key(key=submenus_cache_key)
     await delete_cache_by_key(key=target_submenu_id)
+    await delete_cache_by_key(key='table_cache')
 
-    return JSONResponse(content=updated_dish_dict, status_code=200)
+    updated_dish_dict_with_discount = await apply_discount(dishes=[updated_dish_dict])
+
+    return JSONResponse(content=updated_dish_dict_with_discount[0], status_code=200)
 
 
 @router.delete('/{target_menu_id}/submenus/{target_submenu_id}/dishes/{target_dish_id}')
@@ -275,5 +282,6 @@ async def dish_delete_method(
     await delete_cache_by_key(key=submenus_cache_key)
     await delete_cache_by_key(key=target_menu_id)
     await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

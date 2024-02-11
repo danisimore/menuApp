@@ -3,8 +3,7 @@
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
 
-Дата: 08 февраля 2024 | Реализация и кеширование вывода всех меню со всеми связанными подменю и
-                        со всеми связанными блюдами.
+Дата: 10 февраля 2024 | Реализована инвалидация кэша для синхронизации с Google Sheets
 """
 from typing import Any
 
@@ -22,7 +21,6 @@ from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
-    delete_all_cache,
     delete_cache,
     delete_cache_by_key,
     delete_linked_menu_cache,
@@ -30,9 +28,10 @@ from services import (
     insert_data,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils import format_detailed_menus, get_created_object_dict
+from utils import get_created_object_dict
 
 from .menu_services import parse_menu_data
+from .menu_utils import format_detailed_menus
 from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 
@@ -55,7 +54,7 @@ async def get_all_menus_detail(session: AsyncSession = Depends(get_async_session
 
     menus = await select_all_menus_detail(session=session)
 
-    menus_json = await format_detailed_menus(menus=menus)
+    menus_json = await format_detailed_menus(menus=menus, session=session)
     await create_cache(key='menus_detail', value=menus_json)
 
     return menus_json
@@ -107,6 +106,7 @@ async def menu_post_method(
 
     await delete_cache(key='menus')
     await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -176,6 +176,8 @@ async def menu_patch_method(
     await delete_cache(key=target_menu_id)
     await delete_cache_by_key(key='menus_detail')
 
+    await delete_cache_by_key(key='table_cache')
+
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
 
@@ -193,18 +195,14 @@ async def menu_delete_method(
     Returns: JSONResponse
 
     """
-    if target_menu_id == 'delete_all_records':
-        await delete_menu(session=session)
-        await delete_all_cache()
-    else:
-        submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
+    submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
 
-        await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
+    await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
 
-        await delete_menu(target_menu_id=target_menu_id, session=session)
+    await delete_menu(target_menu_id=target_menu_id, session=session)
 
-        await delete_cache_by_key(key=target_menu_id)
-        await delete_cache_by_key(key='menus')
-        await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='menus')
+    await delete_cache_by_key(key='menus_detail')
 
-        return JSONResponse(content={'status': 'success!'}, status_code=200)
+    return JSONResponse(content={'status': 'success!'}, status_code=200)

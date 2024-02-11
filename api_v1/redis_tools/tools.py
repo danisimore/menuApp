@@ -2,7 +2,7 @@
 Модуль для реализации подключения к Redis и выполнения операций в БД.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 10 февраля 2024 | Реализован метод инвалидации всего кэша
 """
 
 import json
@@ -102,7 +102,12 @@ class RedisTools:
     async def invalidate_all_cache_task(redis: aioredis.client.Redis) -> None:
         await redis.flushall()
 
-    async def invalidate_all_cache(self):
+    async def invalidate_all_cache(self) -> None:
+        """
+        Метод для инвалидации кэша в случае необходимости очистки всего кэша.
+
+        :return: None
+        """
         redis = await self.connect_redis()
 
         background_task = BackgroundTasks()

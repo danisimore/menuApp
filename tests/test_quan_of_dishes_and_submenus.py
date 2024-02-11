@@ -212,6 +212,7 @@ class TestGetMenusDetail:
                         'title': SUBMENU_TITLE_VALUE_TO_CREATE,
                         'description': SUBMENU_DESCRIPTION_VALUE_TO_CREATE,
                         'menu_id': target_menu_id,
+                        'dishes_count': 2,
                         'dishes': [
                             {
                                 'id': first_dish_id,

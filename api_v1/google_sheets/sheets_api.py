@@ -1,3 +1,11 @@
+"""
+Модуль реализующий получение данных из гугл таблицы
+
+Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
+
+Дата: 11 февраля 2024
+"""
+
 import os
 
 import httplib2

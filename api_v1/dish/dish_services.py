@@ -45,7 +45,6 @@ async def is_submenu_in_target_menu(
     if submenus_linked_to_target_menu_id:
         for submenu in submenus_linked_to_target_menu_id:
             if str(submenu.id) == target_submenu_id:
-                # Возвращаем True
                 return True
 
     return False
