@@ -21,7 +21,7 @@ class Dish(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
 
-    price = Column(DECIMAL(precision=5, scale=2), nullable=False)
+    price = Column(DECIMAL(precision=15, scale=2), nullable=False)
 
     submenu_id = Column(
         UUID(as_uuid=True),

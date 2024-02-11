@@ -39,7 +39,7 @@ def get_created_object_dict(created_object: Menu | Dish | Submenu) -> dict[Any, 
 
 
 def create_dict_from_received_data(
-    received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
+        received_data: CreateSubmenu | CreateDish, parent_id: str, foreign_key_field_name: str
 ) -> dict[Any, Any]:
     """
     Функция формирует словарь на основе полученных от клиента данных о блюде, которое нужно создать

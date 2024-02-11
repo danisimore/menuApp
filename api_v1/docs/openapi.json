@@ -17,6 +17,95 @@
       }
    ],
    "paths":{
+      "/api/v1/menus/detail":{
+         "get":{
+            "tags":[
+               "Get Menu"
+            ],
+            "summary":"Get all menus detail from database.",
+            "description":"Menus detail GET method endpoint",
+            "operationId":"GetAllMenusDetail",
+            "responses": {
+               "200":{
+                  "description": "Successful response",
+                  "content":{
+                     "application/json":{
+                        "schema":{
+                           "title":"Sample",
+                           "type":"array",
+                           "items":{
+                              "type": "object",
+                              "properties": {
+                                 "id":{
+                                    "type":"string",
+                                    "format":"uuid"
+                                 },
+                                 "title":{
+                                    "type":"string"
+                                 },
+                                 "description":{
+                                    "type":"string"
+                                 },
+                                 "submenus":{
+                                    "type": "array",
+                                    "items":{
+                                       "type":"object",
+                                       "properties":{
+                                          "id":{
+                                             "type":"string",
+                                             "format":"uuid"
+                                          },
+                                          "title":{
+                                             "type":"string"
+                                          },
+                                          "description":{
+                                             "type":"string"
+                                          },
+                                          "menu_id":{
+                                             "type":"string",
+                                             "format":"uuid"
+                                          },
+                                          "dishes":{
+                                             "type":"array",
+                                             "items":{
+                                                "type":"object",
+                                                "properties":{
+                                                   "id":{
+                                                      "type":"string",
+                                                      "format":"uuid"
+                                                   },
+                                                   "title":{
+                                                      "type":"string"
+                                                   },
+                                                   "description":{
+                                                      "type":"string"
+                                                   },
+                                                   "price":{
+                                                      "type":"string"
+                                                   },
+                                                   "submenu_id":{
+                                                      "type":"string",
+                                                      "format":"uuid"
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "404":{
+                  "$ref":"#/components/responses/NotFound"
+               }
+            }
+         }
+      },
+
       "/api/v1/menus":{
          "get":{
             "tags":[
@@ -339,7 +428,7 @@
                                              "type":"string"
                                           },
                                           "price":{
-                                             "type":"number"
+                                             "type":"string"
                                           },
                                           "submenu_id":{
                                              "type":"string",
@@ -486,7 +575,7 @@
                                           "type":"string"
                                        },
                                        "price":{
-                                          "type":"number"
+                                          "type":"string"
                                        },
                                        "submenu_id":{
                                           "type":"string",
@@ -537,6 +626,24 @@
                   }
                }
             ],
+             "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           }
+                        }
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "$ref":"#/components/responses/SubmenuCreateAndUpdateSuccessfulResopnse"
@@ -642,7 +749,7 @@
                                     "type":"string"
                                  },
                                  "price":{
-                                    "type":"number"
+                                    "type":"string"
                                  },
                                  "submenu_id":{
                                     "type":"string",
@@ -738,7 +845,7 @@
                                  "type":"string"
                               },
                               "price":{
-                                 "type":"number"
+                                 "type":"string"
                               },
                               "submenu_id":{
                                  "type":"string",
@@ -817,7 +924,7 @@
                                  "type":"string"
                               },
                               "price":{
-                                 "type":"number"
+                                 "type":"string"
                               },
                               "submenu_id":{
                                  "type":"string",
@@ -875,6 +982,27 @@
                   }
                }
             ],
+             "requestBody":{
+               "required":true,
+               "content":{
+                  "application/json":{
+                     "schema":{
+                        "type":"object",
+                        "properties":{
+                           "title":{
+                              "type":"string"
+                           },
+                           "description":{
+                              "type":"string"
+                           },
+                           "price":{
+                              "type":"number"
+                           }
+                        }
+                     }
+                  }
+               }
+            },
             "responses":{
                "200":{
                   "description":"Successful Response",
@@ -894,7 +1022,7 @@
                                  "type":"string"
                               },
                               "price":{
-                                 "type":"number"
+                                 "type":"string"
                               },
                               "submenu_id":{
                                  "type":"string",
@@ -1023,7 +1151,7 @@
                                     "type":"string"
                                  },
                                  "price":{
-                                    "type":"number"
+                                    "type":"string"
                                  },
                                  "submenu_id":{
                                     "type":"string",

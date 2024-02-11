@@ -2,12 +2,31 @@
 Модуль с операциями взаимодействия с БД, которые касаются тестов для меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 31 января 2024
+Дата: 08 февраля 2024 | Добавлена выборка всех меню со всеми связанными подменю и со всеми связанными блюдами из БД
 """
 from typing import Any
 
 from conftest import async_session_maker
-from database.database_services import select_all_menus, select_specific_menu
+from database.database_services import (
+    select_all_menus,
+    select_all_menus_detail,
+    select_specific_menu,
+)
+from menu.menu_utils import format_detailed_menus
+
+
+async def get_all_menus_detail_data() -> list[dict[Any, Any]]:
+    """
+    Выборка всех меню из БД со связанными подменю и блюдами
+
+    :return: список со всеми меню с отображением привязанных подменю и блюд
+    """
+
+    async with async_session_maker() as session:
+        menus_data = await select_all_menus_detail(session=session)
+        menus_json = await format_detailed_menus(menus=menus_data, session=session)
+
+    return menus_json
 
 
 async def get_all_menus_data() -> list[dict[Any, Any]] | list[Any] | None:

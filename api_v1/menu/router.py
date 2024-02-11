@@ -2,14 +2,17 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся меню.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+
+Дата: 10 февраля 2024 | Реализована инвалидация кэша для синхронизации с Google Sheets
 """
+from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
 from database.database_services import (
     delete_menu,
     select_all_menus,
+    select_all_menus_detail,
     select_all_submenus,
     select_specific_menu,
     update_menu,
@@ -28,10 +31,33 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_created_object_dict
 
 from .menu_services import parse_menu_data
+from .menu_utils import format_detailed_menus
 from .models import Menu
 from .schemas import MenuCreate, MenuUpdate
 
 router = CustomAPIRouter(prefix='/api/v1', tags=['Menu'])
+
+
+@router.get(path='/menus/detail')
+async def get_all_menus_detail(session: AsyncSession = Depends(get_async_session)) -> list[dict[Any, Any]]:
+    """
+    Обработка GET запроса для вывода всех меню со всеми связанными подменю и со всеми связанными блюдами
+
+    :param session: сессия подключения к БД
+    :return: список со всеми меню с отображением привязанных подменю и блюд
+    """
+
+    cache = await get_cache(key='menus_detail')
+
+    if cache is not None:
+        return cache
+
+    menus = await select_all_menus_detail(session=session)
+
+    menus_json = await format_detailed_menus(menus=menus, session=session)
+    await create_cache(key='menus_detail', value=menus_json)
+
+    return menus_json
 
 
 @router.get(path='/menus', name='menu_base_url')
@@ -79,6 +105,8 @@ async def menu_post_method(
     )
 
     await delete_cache(key='menus')
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -146,6 +174,9 @@ async def menu_patch_method(
 
     await delete_cache(key='menus')
     await delete_cache(key=target_menu_id)
+    await delete_cache_by_key(key='menus_detail')
+
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
@@ -164,7 +195,6 @@ async def menu_delete_method(
     Returns: JSONResponse
 
     """
-
     submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
 
     await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
@@ -173,5 +203,6 @@ async def menu_delete_method(
 
     await delete_cache_by_key(key=target_menu_id)
     await delete_cache_by_key(key='menus')
+    await delete_cache_by_key(key='menus_detail')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

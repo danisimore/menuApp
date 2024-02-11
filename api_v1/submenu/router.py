@@ -2,7 +2,7 @@
 Модуль для обработки POST, GET, UPDATE, PATCH, DELETE методов для эндпоинтов, касающихся подменю.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 11 февраля 2024 | Добавлена очистка кэша с инфой о синхронизации с таблицей при выполнении CUD методов.
 """
 from typing import Any
 
@@ -15,6 +15,7 @@ from database.database_services import (
     select_specific_submenu,
     update_submenu,
 )
+from dish.dish_utils import apply_discount
 from fastapi import Depends
 from fastapi.responses import JSONResponse
 from services import (
@@ -27,15 +28,11 @@ from services import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
-from utils import (
-    create_dict_from_received_data,
-    format_object_to_json,
-    get_created_object_dict,
-)
+from submenu.submenu_utils import format_dishes
+from utils import create_dict_from_received_data, get_created_object_dict
 
 from .schemas import CreateSubmenu, UpdateSubmenu
-from .submenu_services import prepare_submenu_to_response
-from .submenu_utils import format_dishes
+from .submenu_services import prepare_submenu_to_response, prepare_submenus_to_response
 
 router = CustomAPIRouter(prefix='/api/v1/menus', tags=['submenu'])
 
@@ -64,8 +61,8 @@ async def submenu_get_method(
 
     submenus = await select_all_submenus(target_menu_id=target_menu_id, session=session)
 
-    # Форматируем Submenu, чтобы в ответе цены блюд были строками.
-    formatted_submenus = await format_object_to_json(submenus)
+    # Форматируем Submenu, чтобы в ответе цены блюд были строками и учитывали скидку.
+    formatted_submenus = await prepare_submenus_to_response(submenus=submenus, session=session)
 
     await create_cache(key=cache_key, value=submenus)
 
@@ -109,6 +106,9 @@ async def submenu_post_method(
     cache_key = target_menu_id + '_submenus'
 
     await delete_cache(key=cache_key)
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -193,10 +193,15 @@ async def submenu_patch_method(
         target_submenu_id, session=session
     )
 
-    updated_submenu_dict['dishes'] = submenu_dishes
+    submenu_formatted_dishes = await format_dishes(submenu_dishes)
+    updated_submenu_dict['dishes'] = await apply_discount(submenu_formatted_dishes)
 
-    await delete_cache(key='submenus')
-    await delete_cache(key=target_submenu_id)
+    all_submenus_for_menu_cache_key = target_menu_id + '_submenus'
+
+    await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
+    await delete_cache_by_key(key=target_submenu_id)
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
 
@@ -236,5 +241,7 @@ async def submenu_delete_method(
     await delete_cache_by_key(key=target_submenu_id)
     await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
     await delete_cache_by_key(key=target_menu_id)
+    await delete_cache_by_key(key='menus_detail')
+    await delete_cache_by_key(key='table_cache')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

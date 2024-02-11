@@ -24,3 +24,5 @@ TEST_DB_PORT = os.environ.get('TEST_DB_PORT')
 TEST_REDIS_HOST = os.environ.get('TEST_REDIS_HOST')
 
 IS_TEST = os.environ.get('IS_TEST')
+
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST')

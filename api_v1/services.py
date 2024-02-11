@@ -2,7 +2,7 @@
 Бизнес логика, общая для приложений.
 
 Автор: danisimore || Danil Vorobyev || danisimore@yandex.ru
-Дата: 06 февраля 2024
+Дата: 10 февраля 2024 | Добавлена функция для инвалидации всего кэша
 """
 from typing import Any
 
@@ -90,17 +90,11 @@ async def delete_cache(key: str) -> None:
 
 
 async def delete_all_cache() -> None:
-    """
-    Удаляет все данные
-
-    :return: None
-    """
     redis = RedisTools()
-
     await redis.invalidate_all_cache()
 
 
-async def delete_cache_by_key(key) -> None:
+async def delete_cache_by_key(key: str) -> None:
     """
     Удаляет данные по ключу
 
@@ -114,8 +108,8 @@ async def delete_cache_by_key(key) -> None:
 
 
 async def delete_linked_menu_cache(
-        submenus_for_menu,
-        target_menu_id,
+        submenus_for_menu: list[Submenu],
+        target_menu_id: str,
         session: AsyncSession = Depends(get_async_session)
 ) -> None:
     """
@@ -128,6 +122,8 @@ async def delete_linked_menu_cache(
     """
     submenus_cache_key = target_menu_id + '_submenus'
     await delete_cache_by_key(key=submenus_cache_key)
+
+    await delete_cache_by_key(key='table_cache')
 
     for submenu in submenus_for_menu:
         dishes_cache_key = target_menu_id + '_' + str(submenu.id) + '_dishes'

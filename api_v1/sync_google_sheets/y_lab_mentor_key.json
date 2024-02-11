@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "menuapp-413717",
+  "private_key_id": "847b2f213ac3bb062138a2bfaea3f7bfd62fa589",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDLOQWkKrmmnNdU\nON0RbsdrmcLaf07RLzUdpDpTk+S3PhNPUWjnqUILJP+5Ky05wh5F4uoknCeJF2b+\nGDQV/4CMqa6c8ySct/7Wh5VnGGkPG4qwoUQH7vxt4LXfv0sAjkjrf1KzEIPvRxTv\nKlP/U5TjZ0uJY1SxBbHIFvzz2ufdEYrgXx2usILZaqjRobpl9MPcWY+Q18HdHOoM\n7Ll8/GAbOhT3dpg+SXAFURxeq5yK+4FBHsjUfFYZkc+KxCj5y/SM14pJkQUMcQ28\nLUUWYVqIVDseCSMGlsrU/+KjY2y6l0Mkc7SFLsU2BH876cO7wSfjM7NtpegWDFPy\nzD+XxIa3AgMBAAECggEATyrLDk2Qnh3qaoZuZFyl9j5joI/Iqgf8Zqw0BpwOFO5r\nQlKCDgErV8EVl9KAn0gGWA5STWnBow/JUQInxEwRDXsKqVy07hJlhbgy1QM25ipC\nCJYCNR7+GmXYJC5WrwQ+1vL2SgiMhRnJR3RTXZt3XHFAhWh7NSz1OW/vIaYs/jqm\nCTHQGJ7a/kwcW5Pi5vqh3YBNdsLZh0T68qEvpqwHiTQT2XFQDgt+eUTVFWgzGnxH\nAb8HcVIQfsF9MBk0eAVKzCEanOUYsh53Z5gQk/biNDkvAs5A6Qklb/9A5VRK0olt\n2gWHEecRa3An8ZLHLi52LC47vhcuSupF2GIsOOgZpQKBgQDmePWmv8jjozTbktmw\nEZ/Fen6iioE3b4AgcFr+X8yV1pqqBYAzenGRzaoC3ZH3hbzjLDrWQK0+RCAhcc8a\nY+CsUv2qDB8TkzgTXJB501GhpdM+K73dqzxQf4k1p3UwyrzYnRWtGVdxVZHA8AxD\nu/S4qppr+JBFu7+h3qdSbnC3CwKBgQDhu2WAO/B8HrXXwcO6lZLjZcyY6nBtmUVZ\nFcMOmNnBJBVP8ljOSbTHD9i7GHkp8IJugyEcmlyWziZAN+MlznCdrcMBpU4R6NBb\n163CIcLqwQyVr6zvFGkHExJIxCW0BQc1dxgl+tumsk/szODWJgQSbDhGzB3WbuPM\nWTOYXY0KhQKBgQCwJZjSllgKq41VmHoqWH39Z67rueIipWSO5nCVZFCv4LKa6dNf\nBOFSJ5cd04yhWqTQF9jsMch3A4hvJ1W7fMSV0GQxmEwUIPvFyIRfqAQHAP9fz/yw\nNBTIDYGn8VHfNcR55i1P/ENZyqW4iX9GMZxLm5CknvhdY66GH+9QUDpzmwKBgGg+\nO0R56bfYEs/din8K/feHlnFzqpHiezUFqLt/+OeJu1HdMAer4BEhj0vvpFyq1gEl\nC1CDNIjsEJwNcxeNe1JF4U1MQn5gzn/rXTHOl44DssUZiLor6ci7lPEHrAWzYL3f\nDsbTT0ZvCBvqDVa33Z+IXIDNWGYjdY10EDCn2y9lAoGAVVFs0BqXIEPQ7ggFlbxg\nrcLlo69yMQyek/MHN5Pa+LgdbNPN9ODI+Hqc8ldzBcQ28aArIAr0d71HskKntf5E\nrTY6loaVH4Sw4en3vBsGFwusoFaSnSklpM7pt1CINh15dR3PU6ie0x/aKicKDxXr\nVdQ7VwFR4veInd3qui4Zbrk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "y-lab-mentor@menuapp-413717.iam.gserviceaccount.com",
+  "client_id": "115655467946833518972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/y-lab-mentor%40menuapp-413717.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
