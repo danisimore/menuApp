@@ -7,6 +7,7 @@
 """
 
 import asyncio
+import logging
 
 from exceptions import CustomException
 from operations import (
@@ -17,6 +18,8 @@ from operations import (
 )
 from services import create_cache, delete_cache_by_key, get_cache
 from tasks.tasks import get_sheets_data
+
+logging.basicConfig(filename='data_sync.log', level=logging.INFO)
 
 
 async def sync_table(sheets_response: list[list[str]]) -> None:
@@ -94,23 +97,23 @@ async def sync() -> None:
             data_values = table_data['valueRanges'][0]['values']
 
             if cache == data_values:
-                print('В таблице ничего не изменилось. Изменения не были внесены!')
+                logging.info('В таблице ничего не изменилось. Изменения не были внесены!')
             else:
                 await clear_tables()
                 await create_cache(key='table_cache', value=data_values)
                 await sync_table(sheets_response=data_values)
 
-                print('Изменения были внесены!')
+                logging.info('Изменения были внесены!')
 
         except KeyError:
             if cache == table_data['valueRanges'][0]:
-                print('В таблице ничего не изменилось. Изменения не были внесены!')
+                logging.info('В таблице ничего не изменилось. Изменения не были внесены!')
             else:
                 await clear_tables()
 
                 await create_cache(key='table_cache', value=table_data['valueRanges'][0])
 
-                print('Изменения были внесены!')
+                logging.info('Изменения были внесены!')
 
         await asyncio.sleep(15)
 

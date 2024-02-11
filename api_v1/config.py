@@ -7,10 +7,6 @@
 
 import os
 
-import dotenv
-
-dotenv.load_dotenv('/home/danisimore/Desktop/menu_app/pythonProject/.env-example')
-
 DB_USER = os.environ.get('DB_USER')
 DB_PASSWORD = os.environ.get('DB_PASSWORD')
 DB_NAME = os.environ.get('DB_NAME')
@@ -28,3 +24,5 @@ TEST_DB_PORT = os.environ.get('TEST_DB_PORT')
 TEST_REDIS_HOST = os.environ.get('TEST_REDIS_HOST')
 
 IS_TEST = os.environ.get('IS_TEST')
+
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST')

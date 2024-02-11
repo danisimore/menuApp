@@ -7,9 +7,10 @@
 from typing import Any
 
 from celery import Celery
-from google_sheets.sheets_api import get_table_data
+from config import RABBITMQ_HOST
+from sync_google_sheets.sheets_api import get_table_data
 
-broker_url = 'amqp://localhost'
+broker_url = f'amqp://{RABBITMQ_HOST}'
 result_backend = 'rpc://'
 celery = Celery('tasks', broker=broker_url, backend=result_backend)
 
