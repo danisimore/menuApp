@@ -17,11 +17,10 @@ from database.database_services import (
     update_submenu,
 )
 from dish.dish_utils import apply_discount
-from fastapi import Depends
+from fastapi import BackgroundTasks, Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
-    delete_cache,
     delete_cache_by_key,
     delete_linked_submenu_cache,
     get_cache,
@@ -73,6 +72,7 @@ async def submenu_get_method(
 async def submenu_post_method(
         target_menu_id: str,
         submenu_data: CreateSubmenu,
+        background_tasks: BackgroundTasks,
         session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -81,6 +81,7 @@ async def submenu_post_method(
     Args:
         target_menu_id: идентификатор меню, с которым будет связано созданное подменю
         submenu_data: данные подменю, которое будет создано
+        background_tasks: Объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns:JSONResponse
@@ -105,10 +106,10 @@ async def submenu_post_method(
 
     cache_key = target_menu_id + '_submenus'
 
-    await delete_cache(key=cache_key)
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, cache_key)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content=created_submenu, status_code=201)
 
@@ -158,6 +159,7 @@ async def submenu_patch_method(
         target_menu_id: str,
         target_submenu_id: str,
         update_submenu_data: UpdateSubmenu,
+        background_tasks: BackgroundTasks,
         session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -167,6 +169,7 @@ async def submenu_patch_method(
         target_menu_id: идентификатор меню, с которым должно быть связанно обновляемое подменю
         target_submenu_id: идентификатор обновляемого подменю
         update_submenu_data: данные, на которые нужно обновить текущие
+        background_tasks: Объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse
@@ -198,10 +201,10 @@ async def submenu_patch_method(
 
     all_submenus_for_menu_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
-    await delete_cache_by_key(key=target_submenu_id)
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, all_submenus_for_menu_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_submenu_id)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content=updated_submenu_dict, status_code=200)
 
@@ -210,6 +213,7 @@ async def submenu_patch_method(
 async def submenu_delete_method(
         target_menu_id: str,
         target_submenu_id: str,
+        background_tasks: BackgroundTasks,
         session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -218,6 +222,7 @@ async def submenu_delete_method(
     Args:
         target_menu_id: идентификатор меню, с которым должно быть связанно удаляемое подменю
         target_submenu_id: идентификатор удаляемого подменю
+        background_tasks: объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse
@@ -225,8 +230,9 @@ async def submenu_delete_method(
     """
 
     await delete_linked_submenu_cache(
-        target_submenu_id=target_submenu_id,
         target_menu_id=target_menu_id,
+        target_submenu_id=target_submenu_id,
+        background_tasks=background_tasks,
         session=session
     )
 
@@ -238,10 +244,10 @@ async def submenu_delete_method(
 
     all_submenus_for_menu_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache_by_key(key=target_submenu_id)
-    await delete_cache_by_key(key=all_submenus_for_menu_cache_key)
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, target_submenu_id)
+    background_tasks.add_task(delete_cache_by_key, all_submenus_for_menu_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

@@ -24,9 +24,9 @@ from dish.dish_services import (
 from dish.dish_utils import apply_discount, return_404_menu_not_linked_to_submenu
 from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
-from fastapi import Depends
+from fastapi import BackgroundTasks, Depends
 from fastapi.responses import JSONResponse
-from services import create_cache, delete_cache, delete_cache_by_key, get_cache
+from services import create_cache, delete_cache_by_key, get_cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 from submenu.submenu_utils import format_dishes
@@ -78,6 +78,7 @@ async def dish_post_method(
     target_menu_id: str,
     target_submenu_id: str,
     dish_data: CreateDish,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -87,6 +88,7 @@ async def dish_post_method(
         target_menu_id: идентификатор меню с привязанным подменю, в котором создается блюдо;
         target_submenu_id: идентификатор подменю, в котором создается блюдо;
         dish_data: данные, которые должны записаться в новой записи в таблице dishes;
+        background_tasks: Объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse.
@@ -117,12 +119,12 @@ async def dish_post_method(
     dishes_cache_key = target_menu_id + '_' + target_submenu_id + '_dishes'
     submenus_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache(key=dishes_cache_key)
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key=submenus_cache_key)
-    await delete_cache_by_key(key=target_submenu_id)
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, dishes_cache_key)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, submenus_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_submenu_id)
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content=created_dish_dict, status_code=201)
 
@@ -170,7 +172,7 @@ async def dish_get_specific_method(
 
     dish_dict_with_discount = await apply_discount(dishes=[dish_dict])
 
-    await create_cache(key=cache_key, value=dish_dict_with_discount)
+    await create_cache(key=cache_key, value=dish_dict_with_discount[0])
     return JSONResponse(content=dish_dict_with_discount[0])
 
 
@@ -180,6 +182,7 @@ async def dish_patch_method(
     target_submenu_id: str,
     target_dish_id: str,
     dish_data: UpdateDish,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -190,6 +193,7 @@ async def dish_patch_method(
         target_submenu_id: идентификатор подменю, в котором создается блюдо.
         target_dish_id: идентификатор блюда, которое необходимо получить.
         dish_data: новые данные для найденной записи в таблице dishes,
+        background_tasks: Объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse
@@ -219,13 +223,12 @@ async def dish_patch_method(
     cache_key_specific_dish = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
     submenus_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache_by_key(key=cache_key_all_dishes_for_submenu)
-    await delete_cache_by_key(key=cache_key_specific_dish)
-    await delete_cache_by_key(key='menus_detail')
-
-    await delete_cache_by_key(key=submenus_cache_key)
-    await delete_cache_by_key(key=target_submenu_id)
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, cache_key_all_dishes_for_submenu)
+    background_tasks.add_task(delete_cache_by_key, cache_key_specific_dish)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, submenus_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_submenu_id)
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     updated_dish_dict_with_discount = await apply_discount(dishes=[updated_dish_dict])
 
@@ -237,6 +240,7 @@ async def dish_delete_method(
     target_menu_id: str,
     target_submenu_id: str,
     target_dish_id: str,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -246,6 +250,7 @@ async def dish_delete_method(
         target_menu_id: идентификатор меню с привязанным подменю, в котором создается блюдо.
         target_submenu_id: идентификатор подменю, в котором создается блюдо.
         target_dish_id: идентификатор блюда, которое необходимо удалить.
+        background_tasks: объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse
@@ -272,12 +277,12 @@ async def dish_delete_method(
     specific_dish_cache_key = target_menu_id + '_' + target_submenu_id + '_' + target_dish_id
     submenus_cache_key = target_menu_id + '_submenus'
 
-    await delete_cache_by_key(key=all_dishes_for_submenu_cache_key)
-    await delete_cache_by_key(key=specific_dish_cache_key)
-    await delete_cache_by_key(key=target_submenu_id)
-    await delete_cache_by_key(key=submenus_cache_key)
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, all_dishes_for_submenu_cache_key)
+    background_tasks.add_task(delete_cache_by_key, specific_dish_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_submenu_id)
+    background_tasks.add_task(delete_cache_by_key, submenus_cache_key)
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

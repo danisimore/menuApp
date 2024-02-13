@@ -18,11 +18,10 @@ from database.database_services import (
     select_specific_menu,
     update_menu,
 )
-from fastapi import Depends
+from fastapi import BackgroundTasks, Depends
 from fastapi.responses import JSONResponse
 from services import (
     create_cache,
-    delete_cache,
     delete_cache_by_key,
     delete_linked_menu_cache,
     get_cache,
@@ -86,13 +85,14 @@ async def menu_get_method(session: AsyncSession = Depends(get_async_session)) ->
 
 @router.post(path='/menus')
 async def menu_post_method(
-    new_menu_data: MenuCreate, session: AsyncSession = Depends(get_async_session)
+    new_menu_data: MenuCreate, background_tasks: BackgroundTasks, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """
     Функция для обработки POST запроса.
 
     Args:
         new_menu_data: данные для создания новой записи в таблице menu;
+        background_tasks: Объект фоновых задач FastAPI.
         session: сессия подключения к БД.
 
     Returns: JSONResponse.
@@ -104,9 +104,9 @@ async def menu_post_method(
         data_dict=new_menu_data_dict, database_model=Menu, session=session
     )
 
-    await delete_cache(key='menus')
-    await delete_cache_by_key(key='menus_detail')
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, 'menus')
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content=created_menu, status_code=201)
 
@@ -150,6 +150,7 @@ async def menu_get_specific_method(
 async def menu_patch_method(
     target_menu_id: str,
     update_menu_data: MenuUpdate,
+    background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_async_session),
 ) -> JSONResponse:
     """
@@ -158,6 +159,7 @@ async def menu_patch_method(
     Args:
         target_menu_id: id записи, которую необходимо обновить
         update_menu_data: данные, на которые будут заменены текущие
+        background_tasks: Объект фоновых задач FastAPI.
         session: сессия подключения к БД.
 
     Returns: JSONResponse, который содержит объект обновленной записи и статус код.
@@ -172,24 +174,25 @@ async def menu_patch_method(
 
     updated_menu_dict = get_created_object_dict(created_object=updated_menu)
 
-    await delete_cache(key='menus')
-    await delete_cache(key=target_menu_id)
-    await delete_cache_by_key(key='menus_detail')
+    background_tasks.add_task(delete_cache_by_key, 'menus')
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
 
-    await delete_cache_by_key(key='table_cache')
+    background_tasks.add_task(delete_cache_by_key, 'table_cache')
 
     return JSONResponse(content=updated_menu_dict, status_code=200)
 
 
 @router.delete('/menus/{target_menu_id}')
 async def menu_delete_method(
-    target_menu_id: str, session: AsyncSession = Depends(get_async_session)
+    target_menu_id: str, background_tasks: BackgroundTasks, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     """
     Функция для обработки запроса с методом DELETE.
 
     Args:
         target_menu_id: id записи, которую необходимо удалить
+        background_tasks: Объект фоновых задач FastAPI
         session: сессия подключения к БД.
 
     Returns: JSONResponse
@@ -197,12 +200,17 @@ async def menu_delete_method(
     """
     submenus_for_menu = await select_all_submenus(session=session, target_menu_id=target_menu_id)
 
-    await delete_linked_menu_cache(submenus_for_menu=submenus_for_menu, target_menu_id=target_menu_id, session=session)
+    await delete_linked_menu_cache(
+        submenus_for_menu=submenus_for_menu,
+        target_menu_id=target_menu_id,
+        background_tasks=background_tasks,
+        session=session
+    )
 
     await delete_menu(target_menu_id=target_menu_id, session=session)
 
-    await delete_cache_by_key(key=target_menu_id)
-    await delete_cache_by_key(key='menus')
-    await delete_cache_by_key(key='menus_detail')
+    background_tasks.add_task(delete_cache_by_key, target_menu_id)
+    background_tasks.add_task(delete_cache_by_key, 'menus')
+    background_tasks.add_task(delete_cache_by_key, 'menus_detail')
 
     return JSONResponse(content={'status': 'success!'}, status_code=200)

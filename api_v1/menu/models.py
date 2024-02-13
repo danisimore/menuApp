@@ -30,7 +30,7 @@ class Menu(Base):
         argument='Submenu', cascade='all,delete', back_populates='menu'
     )
 
-    async def json_detail(self) -> dict:
+    async def json_detail(self) -> dict[Any, Any]:
         return {
             'id': str(self.id),
             'title': self.title,

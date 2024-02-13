@@ -10,7 +10,6 @@ from typing import Any
 
 import aioredis
 from config import IS_TEST, REDIS_HOST, TEST_REDIS_HOST
-from fastapi import BackgroundTasks
 from utils import format_object_to_json
 
 
@@ -76,10 +75,6 @@ class RedisTools:
 
         return None
 
-    @staticmethod
-    async def invalidate_cache_task(key: str, redis: aioredis.client.Redis) -> None:
-        await redis.delete(key)
-
     async def invalidate_cache(self, key: str) -> None:
         """
         Метод для инвалидации кэша в случае изменения/добавления/удаления записи.
@@ -92,15 +87,7 @@ class RedisTools:
         """
         redis = await self.connect_redis()
 
-        background_task = BackgroundTasks()
-
-        background_task.add_task(self.invalidate_cache_task, key, redis)
-
-        await background_task()
-
-    @staticmethod
-    async def invalidate_all_cache_task(redis: aioredis.client.Redis) -> None:
-        await redis.flushall()
+        await redis.delete(key)
 
     async def invalidate_all_cache(self) -> None:
         """
@@ -110,8 +97,4 @@ class RedisTools:
         """
         redis = await self.connect_redis()
 
-        background_task = BackgroundTasks()
-
-        background_task.add_task(self.invalidate_all_cache_task, redis)
-
-        await background_task()
+        await redis.flushall()
