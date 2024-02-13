@@ -8,6 +8,7 @@
 import os
 import sys
 import uuid
+from typing import Any
 
 from database.database import Base
 from sqlalchemy import UUID, Column, String
@@ -37,7 +38,7 @@ class Menu(Base):
             'submenus': self.submenus
         }
 
-    async def json(self) -> dict:
+    async def json(self) -> dict[Any, Any]:
         """
         Функция преобразует объект Menu в словарь.
 

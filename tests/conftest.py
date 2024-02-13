@@ -42,7 +42,12 @@ app.dependency_overrides[get_async_session] = override_get_async_session
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def prepare_database():
+async def prepare_database() -> AsyncGenerator:
+    """
+    Создает все таблицы, а после выполнения тестов удаляет их.
+
+    :return: None
+    """
     async with test_engine.begin() as conn:
         await conn.run_sync(Dish.metadata.create_all)
     yield
@@ -52,5 +57,7 @@ async def prepare_database():
 
 @pytest.fixture(scope='session')
 async def ac() -> AsyncGenerator[AsyncClient, None]:
+    """ Клиент для асинхронных http запросов """
+
     async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac

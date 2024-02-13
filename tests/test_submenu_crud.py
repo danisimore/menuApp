@@ -72,8 +72,8 @@ class TestGetSubmenusFromEmptyTable:
             self, ac: AsyncClient, create_menu_using_post_method_fixture: create_menu_using_post_method_fixture
     ) -> None:
         """
-        Функция тестирует получение всех подменю для созданного меню когда таблица submenus не содержит ни одной записи для
-        этого меню.
+        Функция тестирует получение всех подменю для созданного меню когда таблица submenus не содержит ни одной записи
+        для этого меню.
 
         Тест проходит успешно, если:
             1. Код ответа 404.
@@ -156,7 +156,7 @@ class GetSubmenusFromTableWithData:
             2. В теле ответа не пустой список.
 
         Args:
-            ac: клиент для асинхронных HTTP запросов.
+            ac: клиент для асинхронных HTTP запросов
 
             create_menu_using_post_method_fixture: фикстура с ответом сервера на POST запрос на создание меню,
 

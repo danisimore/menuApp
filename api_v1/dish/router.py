@@ -5,11 +5,13 @@
 
 Дата: 11 февраля 2024 | Добавлена очистка кэша с инфой о синхронизации с таблицей при выполнении CUD методов
 """
+from typing import Any
 
 from custom_router import CustomAPIRouter
 from database.database import get_async_session
 from database.database_services import (
     delete_dish,
+    insert_data,
     select_all_dishes,
     select_specific_dish,
     update_dish,
@@ -24,13 +26,7 @@ from dish.models import Dish
 from dish.schemas import CreateDish, UpdateDish
 from fastapi import Depends
 from fastapi.responses import JSONResponse
-from services import (
-    create_cache,
-    delete_cache,
-    delete_cache_by_key,
-    get_cache,
-    insert_data,
-)
+from services import create_cache, delete_cache, delete_cache_by_key, get_cache
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
 from submenu.submenu_utils import format_dishes
@@ -44,7 +40,7 @@ async def dish_get_method(
     target_menu_id: str,
     target_submenu_id: str,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> list[dict[Any, Any]]:
     """
     Функция для обработки get запроса для получения блюд привязанных к подменю.
 

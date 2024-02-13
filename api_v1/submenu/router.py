@@ -11,6 +11,7 @@ from database.database import get_async_session
 from database.database_services import (
     delete_submenu,
     get_dishes_for_submenu,
+    insert_data,
     select_all_submenus,
     select_specific_submenu,
     update_submenu,
@@ -24,7 +25,6 @@ from services import (
     delete_cache_by_key,
     delete_linked_submenu_cache,
     get_cache,
-    insert_data,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from submenu.models import Submenu
@@ -118,7 +118,7 @@ async def submenu_get_specific_method(
         target_menu_id: str,
         target_submenu_id: str,
         session: AsyncSession = Depends(get_async_session),
-):
+) -> dict[Any, Any]:
     """
     Функция для обработки get запроса по-указанному id.
 

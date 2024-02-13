@@ -11,6 +11,7 @@ from custom_router import CustomAPIRouter
 from database.database import get_async_session
 from database.database_services import (
     delete_menu,
+    insert_data,
     select_all_menus,
     select_all_menus_detail,
     select_all_submenus,
@@ -25,7 +26,6 @@ from services import (
     delete_cache_by_key,
     delete_linked_menu_cache,
     get_cache,
-    insert_data,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_created_object_dict
@@ -33,7 +33,7 @@ from utils import get_created_object_dict
 from .menu_services import parse_menu_data
 from .menu_utils import format_detailed_menus
 from .models import Menu
-from .schemas import MenuCreate, MenuUpdate
+from .schemas import MenuCreate, MenusGet, MenuSpecificGet, MenuUpdate
 
 router = CustomAPIRouter(prefix='/api/v1', tags=['Menu'])
 
@@ -61,7 +61,7 @@ async def get_all_menus_detail(session: AsyncSession = Depends(get_async_session
 
 
 @router.get(path='/menus', name='menu_base_url')
-async def menu_get_method(session: AsyncSession = Depends(get_async_session)):
+async def menu_get_method(session: AsyncSession = Depends(get_async_session)) -> list[MenusGet]:
     """
     Функция для обработки get запроса для получения всех меню.
 
@@ -114,7 +114,7 @@ async def menu_post_method(
 @router.get(path='/menus/{target_menu_id}')
 async def menu_get_specific_method(
     target_menu_id: str, session: AsyncSession = Depends(get_async_session)
-):
+) -> MenuSpecificGet:
     """
     Функция для обработки get запроса по указанному id.
 

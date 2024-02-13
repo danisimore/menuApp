@@ -38,7 +38,10 @@ async def prepare_submenus_to_response(
     return submenus_list
 
 
-async def prepare_submenu_to_response(submenu: Submenu, session: AsyncSession = Depends(get_async_session)):
+async def prepare_submenu_to_response(
+        submenu: Submenu,
+        session: AsyncSession = Depends(get_async_session)
+) -> dict[Any, Any]:
     """
     Добавляет dishes_count к определенному подменю и преобразует dishes из объектов в json, добавляет скидку к цене
     блюда, если таковая имеется

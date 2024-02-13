@@ -14,7 +14,7 @@ class CustomAPIRouter(APIRouter):
         super().__init__(*args, **kwargs)
         self.routes_data = {}
 
-    def get_paths_list(self) -> list:
+    def get_paths_list(self) -> list[str]:
         """
         Метод для получения списка всех путей роутера
 

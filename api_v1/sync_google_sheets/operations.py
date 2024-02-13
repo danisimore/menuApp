@@ -7,10 +7,10 @@
 """
 
 from database.database import get_async_session
-from database.database_services import delete_menu
+from database.database_services import delete_menu, insert_data
 from dish.models import Dish
 from menu.models import Menu
-from services import create_cache, delete_all_cache, insert_data
+from services import create_cache, delete_all_cache
 from submenu.models import Submenu
 
 
@@ -88,7 +88,7 @@ async def create_submenu_using_data_from_sheets(submenu_data_from_table: list[st
     return None
 
 
-async def create_dish_using_data_from_sheets(dish_data_from_table, target_submenu_id) -> None:
+async def create_dish_using_data_from_sheets(dish_data_from_table: list[str], target_submenu_id: str) -> None:
     """
     Создает блюдо используя данные из гугл таблицы
 

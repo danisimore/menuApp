@@ -32,7 +32,13 @@ class Dish(Base):
 
     submenu = relationship(argument='Submenu', back_populates='dishes')
 
-    async def json(self):
+    async def json(self) -> dict[str, str]:
+        """
+        Формирует словарь из данных модели
+
+        :return: словарь с данными
+        """
+
         return {
             'id': str(self.id),
             'title': self.title,
