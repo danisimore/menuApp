@@ -5,7 +5,18 @@
 Дата: 20 января 2024
 """
 
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
+
+
+class MenusGet(BaseModel):
+    id: UUID4
+    title: str
+    description: str
+
+
+class MenuSpecificGet(MenusGet):
+    submenus_count: int
+    dishes_count: int
 
 
 class MenuCreate(BaseModel):
